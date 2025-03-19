@@ -12,7 +12,20 @@
           "package_name": "com.example.virtuwear"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "512258597701-48ucre5aq6e16dt3p410750hgpmetst3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.virtuwear",
+            "certificate_hash": "3a2dd9b07c9e78bbd9822315ebd17d158e818e3a"
+          }
+        },
+        {
+          "client_id": "512258597701-elb27hqsf5darhha26a4c7toud4dlq4h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC8K17r8QgG5UEjeWjrDGHqsO1xDC564R4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "512258597701-elb27hqsf5darhha26a4c7toud4dlq4h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

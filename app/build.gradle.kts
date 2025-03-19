@@ -5,7 +5,6 @@ plugins {
     id ("com.google.devtools.ksp")
     id ("com.google.dagger.hilt.android")
     id ("com.google.gms.google-services")
-
 }
 
 android {
@@ -91,4 +90,14 @@ dependencies {
     ///Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.ui.auth)
+
+    //google
+    implementation(libs.play.services.auth)
+
+    //facebook
+    implementation (libs.facebook.android.sdk)
+
+    //twitter
+
 }
