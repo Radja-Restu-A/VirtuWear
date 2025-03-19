@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "512258597701",
+    "project_id": "virtuwear-e0800",
+    "storage_bucket": "virtuwear-e0800.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512258597701:android:a2718027b881f5daf8542c",
+        "android_client_info": {
+          "package_name": "com.example.virtuwear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8K17r8QgG5UEjeWjrDGHqsO1xDC564R4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
