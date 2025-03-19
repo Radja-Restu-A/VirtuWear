@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id ("com.google.devtools.ksp")
     id ("com.google.dagger.hilt.android")
+    id ("com.google.gms.google-services")
+
 }
 
 android {
@@ -85,4 +87,8 @@ dependencies {
     implementation(libs.coil) // Untuk View
     implementation(libs.coil.compose) // Untuk Jetpack Compose
     implementation(libs.coil.network.okhttp) //hande api image url
+
+    ///Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
