@@ -47,7 +47,7 @@ dependencies {
     implementation (libs.androidx.activity.ktx)
     implementation (libs.androidx.core.ktx.v1101)
     implementation (libs.androidx.lifecycle.runtime.ktx.v261)
-    implementation (libs.androidx.activity.compose.v172)
+    implementation (libs.androidx.activity.compose.v180)
     testImplementation(libs.junit)
 
     // Jetpack Compose & Material3
