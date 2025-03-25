@@ -13,15 +13,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.virtuwear.R
 import com.example.virtuwear.viewmodel.LoginViewModel
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.virtuwear.ui.theme.black
 
 
@@ -29,7 +32,11 @@ import com.example.virtuwear.ui.theme.black
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () -> Unit) {
     val auth = remember { FirebaseAuth.getInstance() }
     val googleSignInClient = remember { viewModel.getGoogleSignInClient() }
+
     val googleIcon = painterResource(id = R.drawable.google_logo)
+    val loginImage = painterResource(id = R.drawable.login_image)
+    val backgroundLogin = painterResource(id = R.drawable.background_login)
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -50,6 +57,62 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
     }
 
     Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.
+                fillMaxWidth().
+                height(50.dp).
+                padding(top = 20.dp)
+        ){
+            Text(
+                text = "VirtuWear",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp
+            )
+        }
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            contentAlignment = Alignment.Center, // Pusatkan elemen dalam Box
+            modifier = Modifier.size(500.dp) // Sesuaikan ukuran Box agar cukup besar
+        ) {
+            Image(
+                painter = backgroundLogin,
+                contentDescription = "Background Login",
+                modifier = Modifier.fillMaxSize()
+            )
+            Image(
+                painter = loginImage,
+                contentDescription = "Login Icon",
+                modifier = Modifier.size(280.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Start Doing Experiments !",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.size(160.dp),
+            fontSize = 24.sp,
+            lineHeight = 28.sp
+        )
+    }
+
+
+    Column(
         modifier = Modifier
             .fillMaxSize() // Mengisi seluruh layar
             .padding(bottom = 16.dp), // Jarak dari bawah
@@ -62,8 +125,8 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
                 launcher.launch(signInIntent)
             },
             modifier = Modifier
-                .width(340.dp) // Perkecil lebar button
-                .height(50.dp) // Atur tinggi agar proporsional
+                .width(340.dp)
+                .height(50.dp)
             ,
             colors = ButtonDefaults.buttonColors(
                 containerColor = black
@@ -81,7 +144,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
                 Text(
                     text = "Sign in with Google",
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
