@@ -1,6 +1,6 @@
 [versions]
 activityComposeVersion = "1.10.1"
-agp = "8.8.2"
+agp = "8.7.3"
 androidxActivityCompose = "1.8.0"
 coilCompose = "2.7.0"
 coilNetworkOkhttp = "3.1.0"
@@ -35,6 +35,9 @@ ui = "1.7.8"
 uiTooling = "1.7.8"
 uiToolingPreview = "1.7.8"
 runtimeLivedata = "1.7.8"
+monitor = "1.7.2"
+junitJunit = "4.12"
+junitKtx = "1.2.1"
 
 
 [libraries]
@@ -86,6 +89,9 @@ ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
+androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

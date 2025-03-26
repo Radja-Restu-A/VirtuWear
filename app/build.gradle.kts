@@ -48,6 +48,8 @@ dependencies {
     implementation (libs.androidx.core.ktx.v1101)
     implementation (libs.androidx.lifecycle.runtime.ktx.v261)
     implementation (libs.androidx.activity.compose.v180)
+    implementation(libs.androidx.monitor)
+    implementation(libs.androidx.junit.ktx)
     testImplementation(libs.junit)
 
     // Jetpack Compose & Material3
@@ -55,6 +57,7 @@ dependencies {
     implementation (libs.material3)
     implementation (libs.ui.tooling.preview)
     implementation (libs.androidx.runtime.livedata)
+    androidTestImplementation(libs.junit.junit)
     debugImplementation (libs.ui.tooling)
 
     // Navigation Compose

@@ -33,7 +33,7 @@ fun AppNavHost(isUserLoggedIn: Boolean) {
         }
         composable(Screen.Home.route) { HomeScreen(navController) }
         composable(Screen.Upload.route) { UploadPhotoScreen(navController) }
-        composable(Screen.Download.route) { DownloadPhotoScreen(navController) }
+        composable(Screen.Download.route) { DownloadPhotoScreen(navController, imageUris = listOf(null)) }
 
     }
 }
