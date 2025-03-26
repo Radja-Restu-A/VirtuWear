@@ -46,7 +46,10 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             auth.signInWithCredential(credential).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onLoginSuccess()
-                    viewModel.getUserData()
+                    val user = viewModel.getCurrentUser()
+                    if (user != null) {
+                        user.email?.let { viewModel.insertProfile(it,0) }
+                    }
                 } else {
                     Log.e("LoginScreen", "Google Sign-In failed", task.exception)
                 }

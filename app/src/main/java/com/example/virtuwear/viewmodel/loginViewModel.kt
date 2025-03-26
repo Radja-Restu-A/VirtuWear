@@ -2,14 +2,19 @@ package com.example.virtuwear.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.virtuwear.R
+import com.example.virtuwear.data.AppDatabase
+import com.example.virtuwear.data.ProfileEntity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
+    private val daoProfile = AppDatabase.getDatabase(application).profileDao
 
     fun getGoogleSignInClient(): GoogleSignInClient {
         val context = getApplication<Application>().applicationContext
@@ -20,17 +25,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         return GoogleSignIn.getClient(context, gso)
     }
 
-    private fun getCurrentUser(): FirebaseUser? {
+    fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
     }
 
-    fun getUserData(): Map<String, String?> {
-        val user = getCurrentUser()
-        return mapOf(
-            "uid" to user?.uid,
-            "email" to user?.email,
-            "displayName" to user?.displayName
-        )
+    fun insertProfile(email:String, koin:Int){
+        viewModelScope.launch {
+            daoProfile.insert(ProfileEntity(
+                email = email,
+                koin = koin
+            ))
+        }
     }
-
 }
