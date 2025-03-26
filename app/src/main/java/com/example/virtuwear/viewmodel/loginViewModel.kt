@@ -1,12 +1,13 @@
 package com.example.virtuwear.viewmodel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.example.virtuwear.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,4 +19,18 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             .build()
         return GoogleSignIn.getClient(context, gso)
     }
+
+    private fun getCurrentUser(): FirebaseUser? {
+        return FirebaseAuth.getInstance().currentUser
+    }
+
+    fun getUserData(): Map<String, String?> {
+        val user = getCurrentUser()
+        return mapOf(
+            "uid" to user?.uid,
+            "email" to user?.email,
+            "displayName" to user?.displayName
+        )
+    }
+
 }

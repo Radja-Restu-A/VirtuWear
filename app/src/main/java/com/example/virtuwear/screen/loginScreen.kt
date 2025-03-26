@@ -19,20 +19,12 @@ import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.foundation.Image
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
-<<<<<<< HEAD
-=======
 import androidx.compose.ui.graphics.Color
->>>>>>> b327549 (update font)
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.virtuwear.component.header
-<<<<<<< HEAD
-import com.example.virtuwear.ui.theme.black
-=======
-import okhttp3.internal.wait
->>>>>>> b327549 (update font)
+import com.example.virtuwear.components.header
 
 
 @Composable
@@ -54,6 +46,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             auth.signInWithCredential(credential).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onLoginSuccess()
+                    viewModel.getUserData()
                 } else {
                     Log.e("LoginScreen", "Google Sign-In failed", task.exception)
                 }
@@ -93,11 +86,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.size(160.dp),
-<<<<<<< HEAD
-            fontSize = 24.sp,
-=======
             fontSize = 20.sp,
->>>>>>> b327549 (update font)
             lineHeight = 28.sp
         )
     }
@@ -120,11 +109,8 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
                 .height(50.dp)
             ,
             colors = ButtonDefaults.buttonColors(
-<<<<<<< HEAD
-                containerColor = black
-=======
+
                 containerColor = Color.Black
->>>>>>> b327549 (update font)
             )
         ) {
             Row(
@@ -140,10 +126,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
                     text = "Sign in with Google",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
-<<<<<<< HEAD
-=======
                     color = Color.White
->>>>>>> b327549 (update font)
                 )
             }
         }

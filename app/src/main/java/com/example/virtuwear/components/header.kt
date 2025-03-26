@@ -1,4 +1,4 @@
-package com.example.virtuwear.component
+package com.example.virtuwear.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
