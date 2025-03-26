@@ -17,14 +17,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.virtuwear.component.header
 import com.example.virtuwear.ui.theme.black
 
 
@@ -56,27 +55,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.
-                fillMaxWidth().
-                height(50.dp).
-                padding(top = 20.dp)
-        ){
-            Text(
-                text = "VirtuWear",
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
-        }
-    }
-
+    header()
 
     Column(
         modifier = Modifier
@@ -86,8 +65,8 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            contentAlignment = Alignment.Center, // Pusatkan elemen dalam Box
-            modifier = Modifier.size(500.dp) // Sesuaikan ukuran Box agar cukup besar
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(500.dp)
         ) {
             Image(
                 painter = backgroundLogin,
@@ -114,10 +93,10 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
 
     Column(
         modifier = Modifier
-            .fillMaxSize() // Mengisi seluruh layar
-            .padding(bottom = 16.dp), // Jarak dari bawah
-        verticalArrangement = Arrangement.Bottom, // Tempatkan button di bawah
-        horizontalAlignment = Alignment.CenterHorizontally // Center horizontal
+            .fillMaxSize()
+            .padding(bottom = 16.dp),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(
             onClick = {
