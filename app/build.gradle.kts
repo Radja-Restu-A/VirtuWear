@@ -97,6 +97,8 @@ dependencies {
 
     //google
     implementation(libs.play.services.auth)
+    implementation(libs.accompanist.drawablepainter)
+
 
     //facebook
     implementation (libs.facebook.android.sdk)
