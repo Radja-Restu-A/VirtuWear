@@ -48,11 +48,22 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun sendTokenToBackend(uid: String, email: String, name: String) {
+    fun sendTokenToBackend(uid: String, email: String, name: String,) {
+        val referralObject = JSONObject().apply {
+            put("referralCode", "-")
+            put("totalUsed", 0L)
+            put("cooldown", "2024-03-30T12:00:00") // format ISO biar aman
+        }
+
         val jsonObject = JSONObject().apply {
             put("uid", uid)
             put("email", email)
             put("name", name)
+            put("token", 0)
+            put("totalTryon", 0)
+            put("totalGenerate", 0)
+            put("redeemedReferral", "-")
+            put("referral", referralObject)
         }
 
         val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
