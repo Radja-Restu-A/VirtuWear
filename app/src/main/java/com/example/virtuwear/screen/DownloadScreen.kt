@@ -1,12 +1,5 @@
 package com.example.virtuwear.screen
 
-import android.content.ContentValues
-import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,23 +12,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-
+import com.example.virtuwear.viewmodel.DownloadViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun DownloadPhotoScreen(navController: NavController) {
+fun DownloadScreen(
+    navController: NavController,
+    garmentType: String,
+    viewModel: DownloadViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val modelPhoto = getLatestPhoto(context, "model")
-    val outfitPhoto = getLatestPhoto(context, "outfit")
+    val modelPhoto by viewModel.modelPhoto.collectAsStateWithLifecycle()
+    val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.getLatestPhoto(context, garmentType)
+    }
 
     Column(
         modifier = Modifier
@@ -52,18 +50,10 @@ fun DownloadPhotoScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.Black
-                )
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Download Photo",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text(text = "Download Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
 
         Box(
@@ -93,15 +83,34 @@ fun DownloadPhotoScreen(navController: NavController) {
                         Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        outfitPhoto?.let {
+                        if (outfitPhotos.isNotEmpty()) {
+                            outfitPhotos.take(1).forEach { uri ->
+                                Image(
+                                    painter = rememberAsyncImagePainter(uri),
+                                    contentDescription = "Outfit Photo 1",
+                                    modifier = Modifier.size(200.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Outfit Photo 1", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                if (outfitPhotos.size > 1) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Image(
-                                painter = rememberAsyncImagePainter(it),
-                                contentDescription = "Outfit Photo",
+                                painter = rememberAsyncImagePainter(outfitPhotos[1]),
+                                contentDescription = "Outfit Photo 2",
                                 modifier = Modifier.size(200.dp)
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Outfit Photo 2", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Outfit Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -116,8 +125,8 @@ fun DownloadPhotoScreen(navController: NavController) {
         ) {
             Button(
                 onClick = {
-                    modelPhoto?.let { downloadPhoto(context, it) }
-                    outfitPhoto?.let { downloadPhoto(context, it) }
+                    modelPhoto?.let { viewModel.downloadPhoto(context, it) }
+                    outfitPhotos.forEach { uri -> viewModel.downloadPhoto(context, uri) }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,37 +137,4 @@ fun DownloadPhotoScreen(navController: NavController) {
             }
         }
     }
-}
-
-
-fun getLatestPhoto(context: Context, folderName: String): Uri? {
-    val projection = arrayOf(
-        MediaStore.Images.Media._ID,
-        MediaStore.Images.Media.DISPLAY_NAME,
-        MediaStore.Images.Media.DATE_ADDED
-    )
-    val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
-    val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-    val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-    val selectionArgs = arrayOf("%Pictures/$folderName%")
-
-    context.contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)?.use { cursor ->
-        if (cursor.moveToFirst()) {
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            val id = cursor.getLong(idColumn)
-            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-        }
-    }
-    return null
-}
-
-fun downloadPhoto(context: Context, uri: Uri) {
-    val inputStream = context.contentResolver.openInputStream(uri)
-    val fileName = "Download_${System.currentTimeMillis()}.jpg"
-    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
-    val outputStream = FileOutputStream(file)
-    inputStream?.copyTo(outputStream)
-    inputStream?.close()
-    outputStream.close()
-    Toast.makeText(context, "Photo downloaded to Downloads folder", Toast.LENGTH_SHORT).show()
 }
