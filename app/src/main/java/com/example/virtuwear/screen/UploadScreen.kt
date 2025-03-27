@@ -15,6 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,9 +53,9 @@ fun UploadPhotoScreen(navController: NavController) {
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
-                    painter = painterResource(id = android.R.drawable.ic_media_previous),
+                    Icons.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Gray
+                    tint = Color.Black
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -159,7 +161,7 @@ fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
 
     Box(
         modifier = Modifier
-            .size(120.dp)
+            .size(200.dp)
             .background(Color.White, RoundedCornerShape(8.dp))
             .clickable { imagePickerLauncher.launch("image/*") },
         contentAlignment = Alignment.Center

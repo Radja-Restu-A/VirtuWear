@@ -11,6 +11,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,160 +29,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
-
-//@Composable
-//fun DownloadPhotoScreen(navController: NavController) {
-//    val context = LocalContext.current
-//    val modelPhotoUri = getImageUri(context, "model")
-//    val outfitPhotoUri = getImageUri(context, "outfit")
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color(0xFFF5F5F5)),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Spacer(modifier = Modifier.height(40.dp))
-//
-//        // Header
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(Color.White)
-//                .padding(16.dp),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            IconButton(onClick = { navController.popBackStack() }) {
-//                Icon(
-//                    painter = painterResource(id = android.R.drawable.ic_media_previous),
-//                    contentDescription = "Back",
-//                    tint = Color.Gray
-//                )
-//            }
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Text(
-//                text = "Download Photo",
-//                fontSize = 20.sp,
-//                fontWeight = FontWeight.Bold
-//            )
-//        }
-//
-//        // Box utama untuk menampilkan gambar
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .weight(1f)
-//                .background(Color(0xFFEAECF0), RoundedCornerShape(12.dp))
-//                .padding(16.dp),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                DisplayPhoto(imageUri = modelPhotoUri, label = "Model Photo")
-//                Spacer(modifier = Modifier.width(16.dp))
-//                DisplayPhoto(imageUri = outfitPhotoUri, label = "Outfit Photo")
-//            }
-//        }
-//
-//        // Box untuk tombol Download Photo
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(Color.White, RoundedCornerShape(12.dp))
-//                .padding(16.dp),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Button(
-//                onClick = {
-//                    modelPhotoUri?.let { downloadImage(context, it, "model_downloaded.jpg") }
-//                    outfitPhotoUri?.let { downloadImage(context, it, "outfit_downloaded.jpg") }
-//                    Toast.makeText(context, "Foto berhasil diunduh!", Toast.LENGTH_SHORT).show()
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(50.dp),
-//                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-//            ) {
-//                Text(text = "Download Photo", color = Color.White)
-//            }
-//        }
-//    }
-//}
-//
-//// Fungsi untuk menampilkan gambar
-//@Composable
-//fun DisplayPhoto(imageUri: Uri?, label: String) {
-//    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//        Box(
-//            modifier = Modifier
-//                .size(150.dp)
-//                .background(Color.White, RoundedCornerShape(8.dp)),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            if (imageUri != null) {
-//                Image(
-//                    painter = rememberAsyncImagePainter(imageUri),
-//                    contentDescription = label,
-//                    modifier = Modifier.fillMaxSize()
-//                )
-//            } else {
-//                Icon(
-//                    painter = painterResource(id = android.R.drawable.ic_menu_report_image),
-//                    contentDescription = "No Image",
-//                    tint = Color.Gray
-//                )
-//            }
-//        }
-//        Spacer(modifier = Modifier.height(8.dp))
-//        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-//    }
-//}
-//
-//// Fungsi untuk mendapatkan URI gambar dari local storage
-//fun getImageUri(context: Context, folder: String): Uri? {
-//    val projection = arrayOf(MediaStore.Images.Media._ID)
-//    val selection = "${MediaStore.Images.Media.RELATIVE_PATH} = ?"
-//    val selectionArgs = arrayOf("Pictures/$folder")
-//
-//    context.contentResolver.query(
-//        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//        projection, selection, selectionArgs, "${MediaStore.Images.Media.DATE_ADDED} DESC"
-//    )?.use { cursor ->
-//        if (cursor.moveToFirst()) {
-//            val id = cursor.getLong(0)
-//            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-//        }
-//    }
-//    return null
-//}
-//
-//// Fungsi untuk mendownload gambar ke penyimpanan lokal
-//fun downloadImage(context: Context, imageUri: Uri, fileName: String) {
-//    val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
-//    val outputStream: OutputStream?
-//
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//        val values = ContentValues().apply {
-//            put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-//            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-//            put(MediaStore.Images.Media.RELATIVE_PATH, "Download")
-//        }
-//        val downloadUri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-//        outputStream = downloadUri?.let { context.contentResolver.openOutputStream(it) }
-//    } else {
-//        val storageDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "")
-//        if (!storageDir.exists()) storageDir.mkdirs()
-//        val file = File(storageDir, fileName)
-//        outputStream = FileOutputStream(file)
-//    }
-//
-//    inputStream?.copyTo(outputStream!!)
-//    inputStream?.close()
-//    outputStream?.close()
-//}
-
 
 
 @Composable
@@ -205,9 +53,9 @@ fun DownloadPhotoScreen(navController: NavController) {
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
-                    painter = painterResource(id = android.R.drawable.ic_media_previous),
+                    Icons.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Gray
+                    tint = Color.Black
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -226,28 +74,35 @@ fun DownloadPhotoScreen(navController: NavController) {
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-//                horizontalAlignment = Alignment.CenterHorizontally,
-//                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                modelPhoto?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = "Model Photo",
-                        modifier = Modifier.size(150.dp)
-                    )
-                }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Outfit Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                outfitPhoto?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = "Outfit Photo",
-                        modifier = Modifier.size(150.dp)
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        modelPhoto?.let {
+                            Image(
+                                painter = rememberAsyncImagePainter(it),
+                                contentDescription = "Model Photo",
+                                modifier = Modifier.size(200.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        outfitPhoto?.let {
+                            Image(
+                                painter = rememberAsyncImagePainter(it),
+                                contentDescription = "Outfit Photo",
+                                modifier = Modifier.size(200.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Outfit Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -274,6 +129,7 @@ fun DownloadPhotoScreen(navController: NavController) {
         }
     }
 }
+
 
 fun getLatestPhoto(context: Context, folderName: String): Uri? {
     val projection = arrayOf(
