@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.coil.compose) // Untuk Jetpack Compose
     implementation(libs.coil.network.okhttp) //hande api image url
 
+
     ///Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
