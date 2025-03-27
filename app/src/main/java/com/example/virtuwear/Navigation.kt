@@ -1,13 +1,15 @@
 package com.example.virtuwear
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.virtuwear.screen.DownloadPhotoScreen
+import androidx.navigation.navArgument
+import com.example.virtuwear.screen.DownloadScreen
 import com.example.virtuwear.screen.HomeScreen
 import com.example.virtuwear.screen.LoginScreen
-import com.example.virtuwear.screen.DownloadPhotoScreen
+import com.example.virtuwear.screen.DownloadScreen
 import com.example.virtuwear.screen.UploadPhotoScreen
 
 sealed class Screen(val route: String) {
@@ -15,7 +17,6 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Home : Screen("home")
     object Upload : Screen("upload")
-    object Download : Screen("download")
 }
 
 @Composable
@@ -33,8 +34,19 @@ fun AppNavHost(isUserLoggedIn: Boolean) {
         }
         composable(Screen.Home.route) { HomeScreen(navController) }
         composable(Screen.Upload.route) { UploadPhotoScreen(navController) }
-        composable(Screen.Download.route) { DownloadPhotoScreen(navController) }
-
+        // Bikin route buat passing garmentType
+        composable(
+            route = "download?garmentType={garmentType}",
+            arguments = listOf(
+                navArgument("garmentType") {
+                    type = NavType.StringType
+                    defaultValue = "Single Garment"
+                }
+            )
+        ) { backStackEntry ->
+            val garmentType = backStackEntry.arguments?.getString("garmentType") ?: "Single Garment"
+            DownloadScreen(navController = navController, garmentType = garmentType)
+        }
     }
 }
 

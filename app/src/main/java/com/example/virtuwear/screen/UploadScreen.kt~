@@ -1,4 +1,4 @@
-package com.example.virtuwear.screen
+    package com.example.virtuwear.screen
 
 import android.content.ContentValues
 import android.content.Context
@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Space
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -104,8 +105,7 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
         ) {
             Button(
                 onClick = {
-                    // Pass the selectedGarmentType as a navigation argument
-                    navController.navigate("download?garmentType=$selectedGarmentType")
+                    navController.navigate("download")
                     viewModel.saveImages(
                         context,
                         onSuccess = {
