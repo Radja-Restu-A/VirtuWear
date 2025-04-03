@@ -10,10 +10,11 @@ import com.example.virtuwear.screen.DownloadScreen
 import com.example.virtuwear.screen.HomeScreen
 import com.example.virtuwear.screen.LoginScreen
 import com.example.virtuwear.screen.DownloadScreen
+import com.example.virtuwear.screen.OnBoardingScreen
 import com.example.virtuwear.screen.UploadPhotoScreen
 
 sealed class Screen(val route: String) {
-    object Onboarding : Screen("onboarding")
+    object OnBoarding : Screen("onboarding")
     object Login : Screen("login")
     object Home : Screen("home")
     object Upload : Screen("upload")
@@ -22,7 +23,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavHost(isUserLoggedIn: Boolean) {
     val navController = rememberNavController()
-    val startDestination = if (isUserLoggedIn) Screen.Home.route else Screen.Login.route
+    val startDestination = if (isUserLoggedIn) Screen.Home.route else Screen.OnBoarding.route
 
     NavHost(navController, startDestination = startDestination) {
         composable(Screen.Login.route) {
@@ -32,6 +33,7 @@ fun AppNavHost(isUserLoggedIn: Boolean) {
                 }
             })
         }
+        composable(Screen.OnBoarding.route) { OnBoardingScreen(navController) }
         composable(Screen.Home.route) { HomeScreen(navController) }
         composable(Screen.Upload.route) { UploadPhotoScreen(navController) }
         // Bikin route buat passing garmentType
