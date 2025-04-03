@@ -1,8 +1,10 @@
 package com.example.virtuwear.screen
 
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +23,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.virtuwear.R
 
 @Composable
 fun DownloadScreen(
@@ -30,110 +34,141 @@ fun DownloadScreen(
     val context = LocalContext.current
     val modelPhoto by viewModel.modelPhoto.collectAsStateWithLifecycle()
     val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
+    val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5)),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(Color(0XFFEAECF0))
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(Color.White)
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Download Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(Color(0xFFEAECF0), RoundedCornerShape(12.dp))
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        modelPhoto?.let {
-                            Image(
-                                painter = rememberAsyncImagePainter(it),
-                                contentDescription = "Model Photo",
-                                modifier = Modifier.size(200.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (outfitPhotos.isNotEmpty()) {
-                            outfitPhotos.take(1).forEach { uri ->
-                                Image(
-                                    painter = rememberAsyncImagePainter(uri),
-                                    contentDescription = "Outfit Photo 1",
-                                    modifier = Modifier.size(200.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Outfit Photo 1", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-                if (outfitPhotos.size > 1) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Image(
-                                painter = rememberAsyncImagePainter(outfitPhotos[1]),
-                                contentDescription = "Outfit Photo 2",
-                                modifier = Modifier.size(200.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Outfit Photo 2", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Button(
-                onClick = {
-                    modelPhoto?.let { viewModel.downloadPhoto(context, it) }
-                    outfitPhotos.forEach { uri -> viewModel.downloadPhoto(context, uri) }
-                },
+            Spacer(modifier = Modifier.height(40.dp))
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                    .background(Color.White)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Download Photo", color = Color.White)
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Result", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .background(Color(0XFFEAECF0))
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0XFFEAECF0)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0XFFEAECF0), RoundedCornerShape(12.dp))
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Image(
+                                    painter = painterResource(id = R.drawable.contohresult),
+                                    contentDescription = "Hardcode Result",
+                                    modifier = Modifier.size(500.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                TextButton(onClick = { viewModel.toggleDetailsVisibility() }) {
+                                    Text(
+                                        text = if (isDetailsVisible) "Hide Details" else "Show Details",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (isDetailsVisible) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0XFFEAECF0))
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                modelPhoto?.let {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(it),
+                                        contentDescription = "Model Photo",
+                                        modifier = Modifier.size(200.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+
+                        items(outfitPhotos.size) { index ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0XFFEAECF0))
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(text = "Outfit Photo ${index + 1}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Image(
+                                    painter = rememberAsyncImagePainter(outfitPhotos[index]),
+                                    contentDescription = "Outfit Photo ${index + 1}",
+                                    modifier = Modifier.size(200.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Download Button at the Bottom
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Button(
+                    onClick = {
+                        modelPhoto?.let { viewModel.downloadPhoto(context, it) }
+                        outfitPhotos.forEach { uri -> viewModel.downloadPhoto(context, uri) }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text(text = "Download Photo", color = Color.White)
+                }
             }
         }
     }

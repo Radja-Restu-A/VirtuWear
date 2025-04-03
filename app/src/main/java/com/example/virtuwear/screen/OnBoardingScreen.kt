@@ -28,8 +28,8 @@ fun OnBoardingScreen(navController: NavController) {
 
     val backgroundImage1 = painterResource(id = R.drawable.background1)
     val backgroundImage2 = painterResource(id = R.drawable.background2)
-    val onboardingImage1 = painterResource(id = R.drawable.onboarding1) // Ganti dengan gambar onboarding pertama
-    val onboardingImage2 = painterResource(id = R.drawable.onboarding2) // Ganti dengan gambar onboarding kedua
+    val onboardingImage1 = painterResource(id = R.drawable.onboarding1)
+    val onboardingImage2 = painterResource(id = R.drawable.onboarding2)
 
     header()
 
@@ -116,7 +116,7 @@ fun OnBoardingScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
@@ -134,6 +134,8 @@ fun OnBoardingScreen(navController: NavController) {
                     fontSize = 16.sp
                 )
             }
+
+            Spacer(modifier = Modifier.width(200.dp))
 
             Button(
                 onClick = {

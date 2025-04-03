@@ -6,11 +6,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.virtuwear.screen.DownloadScreen
 import com.example.virtuwear.screen.HomeScreen
 import com.example.virtuwear.screen.LoginScreen
+import com.example.virtuwear.screen.DownloadScreen
 import com.example.virtuwear.screen.OnBoardingScreen
 import com.example.virtuwear.screen.UploadPhotoScreen
-import com.example.virtuwear.screen.DownloadScreen
+
 sealed class Screen(val route: String) {
     object OnBoarding : Screen("onboarding")
     object Login : Screen("login")

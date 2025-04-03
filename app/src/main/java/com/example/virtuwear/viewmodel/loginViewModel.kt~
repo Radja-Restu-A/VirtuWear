@@ -39,17 +39,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         return FirebaseAuth.getInstance().currentUser
     }
 
-    fun insertProfile(email: String, koin: Int) {
+    fun insertProfile(email:String, koin:Int){
         viewModelScope.launch {
-            val existingProfile = daoProfile.getProfileByEmail(email)
-            if (existingProfile == null) {
-                daoProfile.insert(ProfileEntity(
-                    email = email,
-                    koin = koin
-                ))
-            } else {
-                daoProfile.updateKoinByEmail(email, koin)
-            }
+            daoProfile.insert(ProfileEntity(
+                email = email,
+                koin = koin
+            ))
         }
     }
 

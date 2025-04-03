@@ -24,19 +24,15 @@ import com.example.virtuwear.components.header
 
 @Composable
 fun OnBoardingScreen(navController: NavController) {
-    // State untuk melacak halaman onboarding saat ini (1 atau 2)
     var currentPage by remember { mutableStateOf(1) }
 
-    // Gambar yang digunakan
     val backgroundImage1 = painterResource(id = R.drawable.background1)
     val backgroundImage2 = painterResource(id = R.drawable.background2)
-    val onboardingImage1 = painterResource(id = R.drawable.onboarding1) // Ganti dengan gambar onboarding pertama
-    val onboardingImage2 = painterResource(id = R.drawable.onboarding2) // Ganti dengan gambar onboarding kedua
+    val onboardingImage1 = painterResource(id = R.drawable.onboarding1)
+    val onboardingImage2 = painterResource(id = R.drawable.onboarding2)
 
-    // Header (sesuai dengan LoginScreen)
     header()
 
-    // Bagian utama untuk gambar dan teks
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,7 +40,6 @@ fun OnBoardingScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Box untuk gambar latar belakang dan gambar onboarding
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(500.dp)
@@ -55,12 +50,11 @@ fun OnBoardingScreen(navController: NavController) {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Animasi transisi untuk gambar onboarding
             Crossfade(
                 targetState = currentPage,
                 animationSpec = tween(
-                    durationMillis = 500, // Durasi animasi 500ms
-                    easing = FastOutSlowInEasing // Kurva animasi Ease In Out
+                    durationMillis = 500,
+                    easing = FastOutSlowInEasing
                 ),
                 modifier = Modifier.size(280.dp)
             ) { page ->
@@ -74,7 +68,6 @@ fun OnBoardingScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Animasi transisi untuk teks judul
         Crossfade(
             targetState = currentPage,
             animationSpec = tween(
@@ -92,7 +85,6 @@ fun OnBoardingScreen(navController: NavController) {
             )
         }
 
-        // Animasi transisi untuk teks deskripsi
         Crossfade(
             targetState = currentPage,
             animationSpec = tween(
@@ -113,7 +105,6 @@ fun OnBoardingScreen(navController: NavController) {
         }
     }
 
-    // Bagian untuk tombol "Skip" dan "Next"
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -125,13 +116,11 @@ fun OnBoardingScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Tombol Skip
             TextButton(
                 onClick = {
-                    // Langsung ke layar login jika tombol Skip ditekan
                     navController.navigate("login") {
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
@@ -146,14 +135,13 @@ fun OnBoardingScreen(navController: NavController) {
                 )
             }
 
-            // Tombol Next
+            Spacer(modifier = Modifier.width(16.dp))
+
             Button(
                 onClick = {
                     if (currentPage == 1) {
-                        // Pindah ke halaman kedua
                         currentPage = 2
                     } else {
-                        // Pindah ke layar login
                         navController.navigate("login") {
                             popUpTo(navController.graph.startDestinationId) {
                                 inclusive = true

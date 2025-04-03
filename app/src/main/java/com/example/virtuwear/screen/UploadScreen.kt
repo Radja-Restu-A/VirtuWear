@@ -54,7 +54,7 @@ fun UploadPhotoScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black)
+                .background(Color.White)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
