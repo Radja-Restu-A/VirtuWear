@@ -1,6 +1,5 @@
 package com.example.virtuwear.screen
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,6 +24,7 @@ import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.virtuwear.R
 
+
 @Composable
 fun DownloadScreen(
     navController: NavController,
@@ -43,7 +43,7 @@ fun DownloadScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0XFFEAECF0))
+            .background(Color.White)
     ) {
         Column(
             modifier = Modifier
@@ -69,12 +69,12 @@ fun DownloadScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .background(Color(0XFFEAECF0))
+                    .background(Color(0xFFEAECF0))
             ) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0XFFEAECF0)),
+                        .background(Color(0xFFEAECF0)),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
@@ -82,7 +82,7 @@ fun DownloadScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0XFFEAECF0), RoundedCornerShape(12.dp))
+                                .background(Color(0xFFEAECF0), RoundedCornerShape(12.dp))
                                 .padding(16.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -112,7 +112,7 @@ fun DownloadScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color(0XFFEAECF0))
+                                    .background(Color(0xFFEAECF0))
                                     .padding(horizontal = 16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -133,7 +133,7 @@ fun DownloadScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color(0XFFEAECF0))
+                                    .background(Color(0xFFEAECF0))
                                     .padding(horizontal = 16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -150,8 +150,7 @@ fun DownloadScreen(
                     }
                 }
             }
-
-            // Download Button at the Bottom
+            
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
