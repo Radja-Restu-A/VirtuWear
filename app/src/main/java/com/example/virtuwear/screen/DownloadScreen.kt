@@ -1,6 +1,5 @@
 package com.example.virtuwear.screen
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +23,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.virtuwear.R
+
 
 @Composable
 fun DownloadScreen(
@@ -87,7 +87,11 @@ fun DownloadScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Result Disini",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Image(
                                     painter = painterResource(id = R.drawable.contohresult),
@@ -117,7 +121,11 @@ fun DownloadScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Model Photo",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 modelPhoto?.let {
                                     Image(
                                         painter = rememberAsyncImagePainter(it),
@@ -138,7 +146,11 @@ fun DownloadScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text(text = "Outfit Photo ${index + 1}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Outfit Photo ${index + 1}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Image(
                                     painter = rememberAsyncImagePainter(outfitPhotos[index]),
                                     contentDescription = "Outfit Photo ${index + 1}",
@@ -146,28 +158,44 @@ fun DownloadScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+
                         }
                     }
                 }
-            }
-
-            // Download Button at the Bottom
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Button(
-                    onClick = {
-                        modelPhoto?.let { viewModel.downloadPhoto(context, it) }
-                        outfitPhotos.forEach { uri -> viewModel.downloadPhoto(context, uri) }
-                    },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        .background(Color.White, RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Download Photo", color = Color.White)
+                    Button(
+                        onClick = {
+                            modelPhoto?.let { viewModel.downloadPhoto(context, it) }
+                            outfitPhotos.forEach { uri -> viewModel.downloadPhoto(context, uri) }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                modelPhoto?.let { viewModel.downloadPhoto(context, it) }
+                                outfitPhotos.forEach { uri ->
+                                    viewModel.downloadPhoto(
+                                        context,
+                                        uri
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
+                            Text(text = "Download Photo", color = Color.White)
+                        }
+                    }
                 }
             }
         }
