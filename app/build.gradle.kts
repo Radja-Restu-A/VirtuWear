@@ -104,6 +104,4 @@ dependencies {
     //facebook
     implementation (libs.facebook.android.sdk)
 
-    //twitter
-
 }
