@@ -30,12 +30,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.UploadViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.firebase.auth.FirebaseAuth
+import com.example.virtuwear.viewmodel.LoginViewModel
 
 @Composable
-fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel = hiltViewModel()) {
+fun UploadPhotoScreen(
+    navController: NavController,
+    uploadViewModel: UploadViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val selectedGarmentType by viewModel.selectedGarmentType
-    val imageUris by viewModel.imageUris
+    val selectedGarmentType by uploadViewModel.selectedGarmentType
+    val imageUris by uploadViewModel.imageUris
 
     Column(
         modifier = Modifier
@@ -56,6 +63,22 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
+                        navController.navigate("login") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                        }
+                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            ) {
+                Text("Logout", color = Color.Red)
+            }
         }
 
         Box(
@@ -71,7 +94,7 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                UploadBox(imageUri = imageUris.getOrNull(0)) { uri -> viewModel.addImageUris(uri, 0) }
+                UploadBox(imageUri = imageUris.getOrNull(0)) { uri -> uploadViewModel.addImageUris(uri, 0) }
                 Text(text = "PNG    JPG    JPEG    <10MB", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "Garment Type", fontWeight = FontWeight.Bold, modifier = Modifier)
@@ -79,19 +102,19 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    ToggleButton("Single Garment", selectedGarmentType) { viewModel.setGarmentType(it) }
+                    ToggleButton("Single Garment", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
                     Spacer(modifier = Modifier.width(8.dp))
-                    ToggleButton("Multiple Garments", selectedGarmentType) { viewModel.setGarmentType(it) }
+                    ToggleButton("Multiple Garments", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 if (selectedGarmentType == "Multiple Garments") {
                     Row {
-                        UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> viewModel.addImageUris(uri, 1) }
+                        UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
                         Spacer(modifier = Modifier.width(8.dp))
-                        UploadBox(imageUri = imageUris.getOrNull(2)) { uri -> viewModel.addImageUris(uri, 2) }
+                        UploadBox(imageUri = imageUris.getOrNull(2)) { uri -> uploadViewModel.addImageUris(uri, 2) }
                     }
                 } else {
-                    UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> viewModel.addImageUris(uri, 1) }
+                    UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
                 }
             }
         }
@@ -104,9 +127,8 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
         ) {
             Button(
                 onClick = {
-                    // Pass the selectedGarmentType as a navigation argument
                     navController.navigate("download?garmentType=$selectedGarmentType")
-                    viewModel.saveImages(
+                    uploadViewModel.saveImages(
                         context,
                         onSuccess = {
                             Log.d("Success", "Berhasil menyimpan gambar")
@@ -125,7 +147,7 @@ fun UploadPhotoScreen(navController: NavController, viewModel: UploadViewModel =
     }
 }
 
-// Upload Box
+// UploadBox and ToggleButton remain unchanged
 @Composable
 fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -157,7 +179,6 @@ fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
     }
 }
 
-// Toggle Button Type Garment
 @Composable
 fun ToggleButton(label: String, selected: String, onClick: (String) -> Unit) {
     Button(

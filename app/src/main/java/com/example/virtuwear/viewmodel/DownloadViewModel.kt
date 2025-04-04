@@ -23,6 +23,13 @@ class DownloadViewModel : ViewModel() {
     private val _outfitPhotos = MutableStateFlow<List<Uri>>(emptyList())
     val outfitPhotos: StateFlow<List<Uri>> = _outfitPhotos
 
+    private val _isDetailsVisible = MutableStateFlow(false)
+    val isDetailsVisible: StateFlow<Boolean> = _isDetailsVisible
+
+    fun toggleDetailsVisibility() {
+        _isDetailsVisible.value = !_isDetailsVisible.value
+    }
+
     fun getLatestPhoto(context: Context, garmentType: String) {
         viewModelScope.launch {
             getLatestFromFolder(context, "virtuwear/model", "model")
