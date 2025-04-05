@@ -20,7 +20,7 @@
 
         <!-- SPLASH SCREEN -->
         <activity
-            android:name=".screen.SplashActivity"
+            android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.VirtuWear.Splash">
             <intent-filter>

@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.virtuwear.R
 
-val font = FontFamily(Font(R.font.airbnb_cereal_w_xbd))
+val font = FontFamilyFont(R.font.airbnb_cereal_w_xbd)
 
 @Composable
 fun header(){
@@ -42,7 +41,7 @@ fun header(){
                 text = "VirtuWear",
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                fontFamily = font,
+                fontFamily = R.font.airbnb_cereal_w_xbd,
                 fontSize = 12.sp
             )
         }

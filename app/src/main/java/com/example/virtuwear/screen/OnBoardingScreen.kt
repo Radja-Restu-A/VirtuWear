@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,15 +22,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.virtuwear.R
 import com.example.virtuwear.components.header
+import com.example.virtuwear.data.OnboardingManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun OnBoardingScreen(navController: NavController) {
     var currentPage by remember { mutableStateOf(1) }
-
+    val context = LocalContext.current
     val backgroundImage1 = painterResource(id = R.drawable.background1)
     val backgroundImage2 = painterResource(id = R.drawable.background2)
     val onboardingImage1 = painterResource(id = R.drawable.onboarding1)
     val onboardingImage2 = painterResource(id = R.drawable.onboarding2)
+    val onboardingManager = remember { OnboardingManager(context) }
+    val scope = rememberCoroutineScope()
 
     header()
 
@@ -42,7 +47,7 @@ fun OnBoardingScreen(navController: NavController) {
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(500.dp)
+            modifier = Modifier.size(525.dp)
         ) {
             Image(
                 painter = if (currentPage == 1) backgroundImage1 else backgroundImage2,
@@ -53,7 +58,7 @@ fun OnBoardingScreen(navController: NavController) {
             Crossfade(
                 targetState = currentPage,
                 animationSpec = tween(
-                    durationMillis = 500,
+                    durationMillis = 1000,
                     easing = FastOutSlowInEasing
                 ),
                 modifier = Modifier.size(280.dp)
@@ -71,15 +76,15 @@ fun OnBoardingScreen(navController: NavController) {
         Crossfade(
             targetState = currentPage,
             animationSpec = tween(
-                durationMillis = 500,
+                durationMillis = 1000,
                 easing = FastOutSlowInEasing
             )
         ) { page ->
             Text(
-                text = if (page == 1) "VirtuWear hadir untuk membantu!" else "Kenakan pakaian sesuai keinginanmu!",
+                text = if (page == 1) "VirtuWear is here to assist you!" else "Wear clothes as you desire!",
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.size(160.dp),
+                modifier = Modifier.width(300.dp),
                 fontSize = 20.sp,
                 lineHeight = 28.sp
             )
@@ -88,17 +93,17 @@ fun OnBoardingScreen(navController: NavController) {
         Crossfade(
             targetState = currentPage,
             animationSpec = tween(
-                durationMillis = 500,
+                durationMillis = 1000,
                 easing = FastOutSlowInEasing
             )
         ) { page ->
             Text(
-                text = if (page == 1) "Untuk membantu kamu mencoba pakaian yang ingin kamu beli secara online" else "Kamu juga bisa mencoba pakaian secara bersamaan di e-commerce",
+                text = if (page == 1) "To help you try on clothes you want to buy online." else "You can also try on multiple outfits simultaneously on e-commerce.",
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 color = Color.Gray,
                 modifier = Modifier
-                    .size(200.dp)
+                    .width(300.dp)
                     .padding(top = 8.dp),
                 lineHeight = 20.sp
             )
@@ -108,22 +113,26 @@ fun OnBoardingScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(200.dp))
+
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.Center,
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
                 onClick = {
-                    navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
+                    scope.launch {
+                        onboardingManager.setOnboardingCompleted()
+                        navController.navigate("login") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
                         }
                     }
                 }
@@ -135,16 +144,17 @@ fun OnBoardingScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.width(200.dp))
-
             Button(
                 onClick = {
                     if (currentPage == 1) {
                         currentPage = 2
                     } else {
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
+                        scope.launch {
+                            onboardingManager.setOnboardingCompleted()
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }

@@ -22,7 +22,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberImagePainter
 import com.example.virtuwear.R
 
 
@@ -91,9 +90,8 @@ fun DownloadScreen(
                                 Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Image(
-                                    //tes hasil upload masih hard code sabar yak belum nge get dari db
-                                    painter = rememberImagePainter("https://i.ibb.co.com/x8r44mpW/1000103562.jpg"),
-                                    contentDescription = "Uploaded Image",
+                                    painter = painterResource(id = R.drawable.contohresult),
+                                    contentDescription = "Hardcode Result",
                                     modifier = Modifier.size(500.dp)
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -152,7 +150,6 @@ fun DownloadScreen(
                     }
                 }
             }
-            
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
