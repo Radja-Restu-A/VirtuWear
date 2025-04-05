@@ -127,16 +127,8 @@ fun UploadPhotoScreen(
         ) {
             Button(
                 onClick = {
+                    uploadViewModel.uploadImage()
                     navController.navigate("download?garmentType=$selectedGarmentType")
-                    uploadViewModel.saveImages(
-                        context,
-                        onSuccess = {
-                            Log.d("Success", "Berhasil menyimpan gambar")
-                        },
-                        onError = {
-                            Log.e("Error", "Gagal menyimpan gambar")
-                        }
-                    )
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)

@@ -1,6 +1,6 @@
 package com.example.virtuwear.di
 
-import com.example.virtuwear.data.AuthService
+import com.example.virtuwear.data.ImagebbApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,28 +13,22 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+object ImageBBModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    @Named("AuthRetrofit") // Tandai Retrofit ini untuk Auth AP
-    fun provideRetrofit(): Retrofit {
+    @Named("ImgBBRetrofit")
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://172.20.10.2:8080/") // Ganti sesuai kebutuhan
+            .baseUrl("https://api.imgbb.com/1/") // Base URL ImgBB
+            .client(okHttpClient) // Pakai OkHttpClient dari NetworkModule
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideAuthService(@Named("AuthRetrofit") retrofit: Retrofit): AuthService {
-        return retrofit.create(AuthService::class.java)
+    fun provideImgBBApi(@Named("ImgBBRetrofit") retrofit: Retrofit): ImagebbApiService {
+        return retrofit.create(ImagebbApiService::class.java)
     }
 }
