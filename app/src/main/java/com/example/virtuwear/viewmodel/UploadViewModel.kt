@@ -3,22 +3,27 @@ package com.example.virtuwear.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.service.ImagebbApiService
+import com.example.virtuwear.data.service.SingleGarmentService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
-    private val repository: ImagebbApiService,
+    private val imageBBService: ImagebbApiService,
+    private val singleGarmentService: SingleGarmentService,
     private val context: Application
 ) : ViewModel() {
     var selectedGarmentType = mutableStateOf("Single Garment")
@@ -39,41 +44,42 @@ class UploadViewModel @Inject constructor(
         imageUris.value = newList
     }
 
-    fun uploadImage() {
-        viewModelScope.launch {
-            val apiKey = "98b550fd3318f73deb836066e8e2106b"
-            val urlsView = mutableListOf<String?>()
+    suspend fun uploadImage(): List<String?> {
+        val apiKey = "98b550fd3318f73deb836066e8e2106b"
+        val urlsView = mutableListOf<String?>()
 
-            imageUris.value
-                .filter { it != Uri.EMPTY }
-                .forEachIndexed { i, uri ->
-                    val file = uri?.let { getRealFileFromUri(it) }
-                    val requestFile = file?.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = requestFile?.let {
-                        MultipartBody.Part.createFormData("image", file.name, it)
-                    }
+        imageUris.value
+            .filter { it != Uri.EMPTY }
+            .forEachIndexed { i, uri ->
+                val file = uri?.let { getRealFileFromUri(it) }
+                val requestFile = file?.asRequestBody("image/*".toMediaTypeOrNull())
+                val body = requestFile?.let {
+                    MultipartBody.Part.createFormData("image", file.name, it)
+                }
 
-                    if (body != null) {
-                        try {
-                            val response = repository.uploadImage(apiKey, body)
+                if (body != null) {
+                    try {
+                        val response = imageBBService.uploadImage(apiKey, body)
 
-                            if (response.isSuccessful) {
-                                val urlView = response.body()?.data?.image?.url
-                                val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
-                                urlsView.add(fixedViewerUrl)
-                            } else {
-                                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
-                                Log.e("UploadViewModel", "Failed to upload image #$i: $errorMsg")
-                            }
-                        } catch (e: Exception) {
-                            Log.e("UploadViewModel", "Upload gagal: ${e.message}")
+                        if (response.isSuccessful) {
+                            val urlView = response.body()?.data?.image?.url
+                            val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
+                            urlsView.add(fixedViewerUrl)
+                            Log.d("UploadViewModel", "Image #$i uploaded: $fixedViewerUrl")
+                        } else {
+                            val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                            Log.e("UploadViewModel", "Failed to upload image #$i: $errorMsg")
                         }
+                    } catch (e: Exception) {
+                        Log.e("UploadViewModel", "Upload gagal di image #$i: ${e.message}")
                     }
                 }
-            uploadedUrlsView.value = urlsView
-            Log.d("UploadViewModel", "ini link view: $uploadedUrlsView")
-        }
+            }
+
+        Log.d("UploadViewModel", "Final URLs: $urlsView")
+        return urlsView
     }
+
 
     private fun getRealFileFromUri(uri: Uri): File? {
         return try {
@@ -87,6 +93,24 @@ class UploadViewModel @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    suspend fun createRow(singleGarmentModel: SingleGarmentModel): Response<SingleGarmentModel> {
+        return try {
+            val response = singleGarmentService.createGarment(singleGarmentModel)
+            if (response.isSuccessful) {
+                Log.d("SingleGarmentRepo", "Create garment success: ${response.body()}")
+            } else {
+                Log.e(
+                    "SingleGarmentRepo",
+                    "Create garment failed: Code=${response.code()}, Message=${response.message()}"
+                )
+            }
+            response
+        } catch (e: Exception) {
+            Log.e("SingleGarmentRepo", "Exception during create garment: ${e.localizedMessage}", e)
+            throw e
         }
     }
 }

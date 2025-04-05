@@ -1,5 +1,6 @@
 package com.example.virtuwear.screen
 
+import android.R
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -10,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,10 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.viewmodel.UploadViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.example.virtuwear.viewmodel.LoginViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun UploadPhotoScreen(
@@ -41,8 +45,14 @@ fun UploadPhotoScreen(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     val selectedGarmentType by uploadViewModel.selectedGarmentType
     val imageUris by uploadViewModel.imageUris
+
+    val firebase = loginViewModel.getCurrentUser()
+    val user = firebase?.uid
+
 
     Column(
         modifier = Modifier
@@ -127,8 +137,29 @@ fun UploadPhotoScreen(
         ) {
             Button(
                 onClick = {
-                    uploadViewModel.uploadImage()
-                    navController.navigate("download?garmentType=$selectedGarmentType")
+                    coroutineScope.launch {
+                        try {
+                            val listImg = uploadViewModel.uploadImage()
+
+                            val newModel = SingleGarmentModel(
+                                userId = user ?: "",
+                                modelImg = listImg.component1(),
+                                garmentImg = listImg.component2()
+                            )
+                            Log.e("LIAT","cocote : $newModel")
+
+                            val response = uploadViewModel.createRow(newModel)
+
+                            if (response.isSuccessful) {
+                                navController.navigate("download?garmentType=$selectedGarmentType")
+                            } else {
+                                Log.e("TestLog", "Failed to create row: ${response.code()}")
+                            }
+
+                        } catch (e: Exception) {
+                            Log.e("TestLog", "Upload or save failed: ${e.message}", e)
+                        }
+                    }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
@@ -156,14 +187,14 @@ fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         if (imageUri != null) {
-            androidx.compose.foundation.Image(
+            Image(
                 painter = rememberAsyncImagePainter(imageUri),
                 contentDescription = "Selected Image",
                 modifier = Modifier.fillMaxSize()
             )
         } else {
             Icon(
-                painter = painterResource(id = android.R.drawable.ic_input_add),
+                painter = painterResource(id = R.drawable.ic_input_add),
                 contentDescription = "Upload",
                 tint = Color.Gray
             )
