@@ -1,6 +1,6 @@
 package com.example.virtuwear.di
 
-import com.example.virtuwear.data.ImagebbApiService
+import com.example.virtuwear.data.service.ImagebbApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

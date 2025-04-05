@@ -1,4 +1,4 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.model
 
 import com.google.gson.annotations.SerializedName
 

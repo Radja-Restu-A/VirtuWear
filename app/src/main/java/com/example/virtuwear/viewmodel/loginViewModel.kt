@@ -1,12 +1,11 @@
 package com.example.virtuwear.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.virtuwear.R
 import com.example.virtuwear.data.AppDatabase
-import com.example.virtuwear.data.ProfileEntity
+import com.example.virtuwear.data.entity.ProfileEntity
 import com.example.virtuwear.repository.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -41,10 +40,12 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val existingProfile = daoProfile.getProfileByEmail(email)
             if (existingProfile == null) {
-                daoProfile.insert(ProfileEntity(
+                daoProfile.insert(
+                    ProfileEntity(
                     email = email,
                     koin = koin
-                ))
+                )
+                )
             } else {
                 daoProfile.updateKoinByEmail(email, koin)
             }

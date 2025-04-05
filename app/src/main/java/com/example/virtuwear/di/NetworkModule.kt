@@ -1,6 +1,6 @@
 package com.example.virtuwear.di
 
-import com.example.virtuwear.data.AuthService
+import com.example.virtuwear.data.service.AuthService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

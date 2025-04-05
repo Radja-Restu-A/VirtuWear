@@ -1,4 +1,4 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
