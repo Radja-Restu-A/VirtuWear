@@ -2,7 +2,6 @@ package com.example.virtuwear.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,9 +13,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
-
-
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
@@ -49,7 +47,7 @@ class UploadViewModel @Inject constructor(
             imageUris.value
                 .filter { it != Uri.EMPTY }
                 .forEachIndexed { i, uri ->
-                    val file = uri?.let { getRealPathFromUri(it) }?.let { File(it) }
+                    val file = uri?.let { getRealFileFromUri(it) }
                     val requestFile = file?.asRequestBody("image/*".toMediaTypeOrNull())
                     val body = requestFile?.let {
                         MultipartBody.Part.createFormData("image", file.name, it)
@@ -57,7 +55,7 @@ class UploadViewModel @Inject constructor(
 
                     if (body != null) {
                         try {
-                            val response = repository.uploadImage(apiKey, body) // Pastikan tipe Response<ImgBBModel>
+                            val response = repository.uploadImage(apiKey, body)
 
                             if (response.isSuccessful) {
                                 val urlView = response.body()?.data?.image?.url
@@ -77,16 +75,18 @@ class UploadViewModel @Inject constructor(
         }
     }
 
-
-    private fun getRealPathFromUri(uri: Uri): String {
-        val cursor = context.contentResolver.query(uri, null, null, null, null)
-        return if (cursor != null && cursor.moveToFirst()) {
-            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-            val path = cursor.getString(idx)
-            cursor.close()
-            path
-        } else {
-            uri.path ?: ""
+    private fun getRealFileFromUri(uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val tempFile = File.createTempFile("upload_temp_", ".jpg", context.cacheDir)
+            val outputStream = FileOutputStream(tempFile)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
