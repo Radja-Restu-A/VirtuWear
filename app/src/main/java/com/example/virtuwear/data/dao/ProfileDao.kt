@@ -1,8 +1,9 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.virtuwear.data.entity.ProfileEntity
 
 @Dao
 interface ProfileDao {

@@ -1,4 +1,4 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.model
 
 import com.google.gson.annotations.SerializedName
 
@@ -11,9 +11,10 @@ data class ImgBBModel(
 data class ImageData(
     @SerializedName("url") val url: String,
     @SerializedName("url_viewer") val urlViewer: String,
-    @SerializedName("thumbnail") val thumbnail: Thumbnail
+    @SerializedName("image") val image: ImageRespon,
 )
 
-data class Thumbnail(
-    @SerializedName("url") val url: String
+
+data class ImageRespon(
+    @SerializedName("url") val url: String,
 )

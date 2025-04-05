@@ -2,8 +2,8 @@ package com.example.virtuwear.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.virtuwear.data.ImageDao
-import com.example.virtuwear.data.ImageEntity
+import com.example.virtuwear.data.dao.ImageDao
+import com.example.virtuwear.data.entity.ImageEntity
 import kotlinx.coroutines.launch
 
 class ImageViewModel(private val imageDao: ImageDao) : ViewModel() {

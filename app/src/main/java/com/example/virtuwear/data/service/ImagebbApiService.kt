@@ -1,5 +1,6 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.service
 
+import com.example.virtuwear.data.model.ImgBBModel
 import okhttp3.MultipartBody
 import retrofit2.http.Multipart
 import retrofit2.http.POST

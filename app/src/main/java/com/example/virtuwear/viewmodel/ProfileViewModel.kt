@@ -2,8 +2,8 @@ package com.example.virtuwear.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.virtuwear.data.ProfileDao
-import com.example.virtuwear.data.ProfileEntity
+import com.example.virtuwear.data.dao.ProfileDao
+import com.example.virtuwear.data.entity.ProfileEntity
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val profileDao: ProfileDao) : ViewModel() {

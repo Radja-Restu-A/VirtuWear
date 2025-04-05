@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.virtuwear.data.dao.ImageDao
+import com.example.virtuwear.data.dao.ProfileDao
+import com.example.virtuwear.data.entity.ImageEntity
+import com.example.virtuwear.data.entity.ProfileEntity
 
 @Database(entities = [ProfileEntity::class, ImageEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase:RoomDatabase() {

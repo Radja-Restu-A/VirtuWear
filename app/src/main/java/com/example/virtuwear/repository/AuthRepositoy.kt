@@ -1,8 +1,8 @@
 package com.example.virtuwear.repository
 
 import android.util.Log
-import com.example.virtuwear.data.AuthService
-import com.example.virtuwear.data.UserRequest
+import com.example.virtuwear.data.service.AuthService
+import com.example.virtuwear.data.model.UserRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

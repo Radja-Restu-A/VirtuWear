@@ -1,4 +1,4 @@
-package com.example.virtuwear.data
+package com.example.virtuwear.data.model
 
 data class Referral(
     val referralCode: String = "-",

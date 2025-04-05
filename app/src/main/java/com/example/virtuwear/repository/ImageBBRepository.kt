@@ -1,6 +1,6 @@
 package com.example.virtuwear.repository
 
-import com.example.virtuwear.data.ImagebbApiService
+import com.example.virtuwear.data.service.ImagebbApiService
 import okhttp3.MultipartBody
 import javax.inject.Inject
 

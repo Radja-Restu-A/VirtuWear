@@ -1,6 +1,7 @@
 package com.example.virtuwear.di
 
-import com.example.virtuwear.data.AuthService
+import com.example.virtuwear.data.service.AuthService
+import com.example.virtuwear.data.service.SingleGarmentService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +28,7 @@ object NetworkModule {
     @Named("AuthRetrofit") // Tandai Retrofit ini untuk Auth AP
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://172.20.10.2:8080/") // Ganti sesuai kebutuhan
+            .baseUrl("http://172.20.10.3:8080/") // Ganti sesuai kebutuhan
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -36,5 +37,11 @@ object NetworkModule {
     @Singleton
     fun provideAuthService(@Named("AuthRetrofit") retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSingleGarmentService(@Named("AuthRetrofit") retrofit: Retrofit): SingleGarmentService {
+        return retrofit.create(SingleGarmentService::class.java)
     }
 }
