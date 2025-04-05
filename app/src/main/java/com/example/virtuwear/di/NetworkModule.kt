@@ -27,7 +27,7 @@ object NetworkModule {
     @Named("AuthRetrofit") // Tandai Retrofit ini untuk Auth AP
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://172.20.10.2:8080/") // Ganti sesuai kebutuhan
+            .baseUrl("http://172.20.10.3:8080/") // Ganti sesuai kebutuhan
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

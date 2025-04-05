@@ -67,8 +67,8 @@ class UploadViewModel @Inject constructor(
                             val response = repository.uploadImage(apiKey, body) // Pastikan tipe Response<ImgBBModel>
 
                             if (response.isSuccessful) {
-                                val urlView = response.body()?.data?.urlViewer
-                                val fixedViewerUrl = urlView?.replace("https://ibb.co", "https://ibb.co.com")
+                                val urlView = response.body()?.data?.image?.url
+                                val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
                                 urlsView.add(fixedViewerUrl)
                             } else {
                                 val errorMsg = response.errorBody()?.string() ?: "Unknown error"
@@ -94,52 +94,6 @@ class UploadViewModel @Inject constructor(
             path
         } else {
             uri.path ?: ""
-        }
-    }
-
-    fun saveImages(context: Context, onSuccess: () -> Unit, onError: () -> Unit) {
-        viewModelScope.launch {
-            val success = imageUris.value.mapIndexed { index, uri -> saveImage(context, uri, index) }.all { it }
-            if (success) onSuccess() else onError()
-        }
-    }
-
-    private fun saveImage(context: Context, uri: Uri?, index: Int): Boolean {
-        if (uri == null) return false
-        val fileName = "${System.currentTimeMillis()}.jpg"
-        val baseFolderName = "virtuwear"
-        val subFolderName = if (index == 0) "model" else "outfit"
-
-        return try {
-            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-            val outputStream: OutputStream?
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val values = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                    put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/$baseFolderName/$subFolderName")
-                }
-                val imageUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                outputStream = imageUri?.let { context.contentResolver.openOutputStream(it) }
-            } else {
-                val storageDir = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                    "$baseFolderName/$subFolderName"
-                )
-                if (!storageDir.exists()) storageDir.mkdirs()
-                val file = File(storageDir, fileName)
-                outputStream = FileOutputStream(file)
-            }
-
-            inputStream?.copyTo(outputStream!!)
-            inputStream?.close()
-            outputStream?.close()
-            Log.d("FileSaved", "Image saved at: $baseFolderName/$subFolderName/$fileName")
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
         }
     }
 }
