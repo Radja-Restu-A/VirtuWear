@@ -19,9 +19,8 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavHost(isUserLoggedIn: Boolean) {
+fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
     val navController = rememberNavController()
-    val startDestination = if (isUserLoggedIn) Screen.Home.route else Screen.OnBoarding.route
 
     NavHost(navController, startDestination = startDestination) {
         composable(Screen.Login.route) {
@@ -31,10 +30,15 @@ fun AppNavHost(isUserLoggedIn: Boolean) {
                 }
             })
         }
-        composable(Screen.OnBoarding.route) { OnBoardingScreen(navController) }
-        composable(Screen.Home.route) { HomeScreen(navController) }
-        composable(Screen.Upload.route) { UploadPhotoScreen(navController) }
-        // Bikin route buat passing garmentType
+        composable(Screen.OnBoarding.route) {
+            OnBoardingScreen(navController = navController)
+        }
+        composable(Screen.Home.route) {
+            HomeScreen(navController = navController)
+        }
+        composable(Screen.Upload.route) {
+            UploadPhotoScreen(navController = navController)
+        }
         composable(
             route = "download?garmentType={garmentType}",
             arguments = listOf(
