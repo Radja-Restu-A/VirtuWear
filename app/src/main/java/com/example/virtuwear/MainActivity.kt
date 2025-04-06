@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
             val isUserLoggedIn = auth.currentUser != null
             val startDestination = when {
                 !onboardingDone -> Screen.OnBoarding.route
-                isUserLoggedIn -> Screen.Home.route
+                isUserLoggedIn -> Screen.Upload.route
                 else -> Screen.Login.route
             }
 

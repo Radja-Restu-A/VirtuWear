@@ -76,9 +76,9 @@ fun UploadPhotoScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
-            }
+//            IconButton(onClick = { navController.popBackStack() }) {
+//                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+//            }
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
@@ -194,26 +194,6 @@ fun UploadPhotoScreen(
             {
                 Text(text = "Generate Try On", color = Color.White)
             }
-//            if (tryOnResultUrl != null) {
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(16.dp),
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    Text("Try-On Result", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-//                    Spacer(modifier = Modifier.height(8.dp))
-//                    AsyncImage(
-//                        model = tryOnResultUrl,
-//                        contentDescription = "Virtual Try-On Result",
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(400.dp)
-//                            .clip(RoundedCornerShape(12.dp))
-//                    )
-//                }
-//            }
-
         }
     }
 }

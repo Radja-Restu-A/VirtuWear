@@ -62,6 +62,7 @@ dependencies {
     androidTestImplementation(libs.junit.junit)
     debugImplementation (libs.ui.tooling)
 
+
     // Navigation Compose
     implementation (libs.androidx.navigation.compose)
 
