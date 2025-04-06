@@ -76,9 +76,7 @@ fun UploadPhotoScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            IconButton(onClick = { navController.popBackStack() }) {
-//                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
-//            }
+
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
