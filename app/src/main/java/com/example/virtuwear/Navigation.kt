@@ -146,25 +146,23 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
-    // Get the current navigation state
+    // state
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // List of bottom navigation items
     val bottomNavItems = listOf(
         BottomNavItem.History,
         BottomNavItem.Upload,
         BottomNavItem.Profile
     )
 
-    // List of routes where bottom navigation should be displayed
     val showBottomNavIn = listOf(
         Screen.History.route,
         Screen.Upload.route,
         Screen.Profile.route
     )
 
-    // Determine if we should show the bottom navigation for current route
+    // tampilkan atau jangan
     if (currentRoute in showBottomNavIn) {
         Box(
             modifier = Modifier
@@ -187,10 +185,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-
-
-
-                    // History icon
+                    // History
                     IconButton(
                         onClick = {
                             navController.navigate(Screen.History.route) {
@@ -211,7 +206,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                         )
                     }
 
-                    // Add button (centered)
+                    // Add button
                     Box(
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
