@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,13 +31,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import com.example.virtuwear.viewmodel.UploadViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.example.virtuwear.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun UploadPhotoScreen(
@@ -46,6 +51,9 @@ fun UploadPhotoScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val tryOnResultUrl by uploadViewModel.tryOnResultUrl
+
+
 
     val selectedGarmentType by uploadViewModel.selectedGarmentType
     val imageUris by uploadViewModel.imageUris
@@ -146,12 +154,30 @@ fun UploadPhotoScreen(
                                 modelImg = listImg.component1(),
                                 garmentImg = listImg.component2()
                             )
-                            Log.e("LIAT","cocote : $newModel")
 
                             val response = uploadViewModel.createRow(newModel)
+                            Log.d("VTO Result", "Response create: $response")
+
 
                             if (response.isSuccessful) {
-                                navController.navigate("download?garmentType=$selectedGarmentType")
+                                val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
+                                if (resultUrl != null) {
+                                    Log.d("VTO Result", "Image URL: $resultUrl")
+                                    val updateResult = SingleGarmentUpdateResult(
+                                        resultImg = resultUrl
+                                    )
+                                    val updateResultImg = response.body()?.idSingle?.let {
+                                        uploadViewModel.updateResultImage(
+                                            it, updateResult)
+                                    }
+                                    // Kirim ke screen selanjutnya atau tampilkan hasil
+                                    val encodedUrl = URLEncoder.encode(resultUrl, StandardCharsets.UTF_8.toString())
+                                    Log.d("VTO Result", "Encoded Image URL: $encodedUrl")
+                                    navController.navigate("download?garmentType=Single Garment&imageUrl=$encodedUrl")
+
+                                } else {
+                                    Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                }
                             } else {
                                 Log.e("TestLog", "Failed to create row: ${response.code()}")
                             }
@@ -163,9 +189,31 @@ fun UploadPhotoScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-            ) {
+            )
+
+            {
                 Text(text = "Generate Try On", color = Color.White)
             }
+//            if (tryOnResultUrl != null) {
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(16.dp),
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Text("Try-On Result", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                    AsyncImage(
+//                        model = tryOnResultUrl,
+//                        contentDescription = "Virtual Try-On Result",
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(400.dp)
+//                            .clip(RoundedCornerShape(12.dp))
+//                    )
+//                }
+//            }
+
         }
     }
 }

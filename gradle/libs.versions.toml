@@ -41,6 +41,7 @@ runtimeLivedata = "1.7.8"
 monitor = "1.7.2"
 junitJunit = "4.12"
 junitKtx = "1.2.1"
+foundationLayoutAndroid = "1.7.2"
 
 
 [libraries]
@@ -98,6 +99,7 @@ androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtim
 androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

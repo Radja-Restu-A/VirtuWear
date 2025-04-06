@@ -7,9 +7,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.KlingAiRequestDto
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import com.example.virtuwear.data.service.ImagebbApiService
 import com.example.virtuwear.data.service.SingleGarmentService
+import com.example.virtuwear.repository.KlingAiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -24,11 +27,15 @@ import javax.inject.Inject
 class UploadViewModel @Inject constructor(
     private val imageBBService: ImagebbApiService,
     private val singleGarmentService: SingleGarmentService,
-    private val context: Application
+    private val context: Application,
+    private val tryOnHandler: KlingAiRepository
 ) : ViewModel() {
     var selectedGarmentType = mutableStateOf("Single Garment")
     var imageUris = mutableStateOf(listOf<Uri?>())
+
     private var uploadedUrlsView = mutableStateOf(listOf<String?>())
+    val tryOnResultUrl = mutableStateOf<String?>(null)
+
 
     fun setGarmentType(type: String) {
         selectedGarmentType.value = type
@@ -113,4 +120,52 @@ class UploadViewModel @Inject constructor(
             throw e
         }
     }
+
+    fun updateResultImage(id: Long, model: SingleGarmentUpdateResult) {
+        viewModelScope.launch {
+            try {
+                val response = singleGarmentService.updateResultImage(id, model)
+                if (response.isSuccessful) {
+                    Log.d("VTO", "Update berhasil: ${response.body()}")
+                } else {
+                    Log.e("VTO", "Update gagal: ${response.code()} - ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("VTO", "Error update result image: ${e.message}")
+            }
+        }
+    }
+
+
+    suspend fun tryOnAfterUpload(urls: List<String?>): String? {
+        val modelImg = urls.getOrNull(0)
+        val clothImg = urls.getOrNull(1)
+
+        if (modelImg != null && clothImg != null) {
+            val request = KlingAiRequestDto(
+                model_name = "kolors-virtual-try-on-v1-5",
+                human_image = modelImg,
+                cloth_image = clothImg,
+                callback_url = "" // Kosong kalau tidak pakai callback
+            )
+
+            val taskId = tryOnHandler.createTryOn(request)
+            if (taskId != null) {
+                val result = tryOnHandler.pollKlingApiUntilComplete(taskId)
+                tryOnResultUrl.value = result
+                return result
+            }
+            else {
+                Log.e("VTO", "Failed to create task")
+            }
+        } else {
+            Log.e("VTO", "Model or cloth image is null")
+        }
+
+        tryOnResultUrl.value = null
+        return null
+    }
+
+
+
 }

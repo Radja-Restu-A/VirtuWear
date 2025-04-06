@@ -1,5 +1,6 @@
 package com.example.virtuwear.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,7 @@ import com.example.virtuwear.R
 fun DownloadScreen(
     navController: NavController,
     garmentType: String,
+    imageUrl: String,
     viewModel: DownloadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -40,6 +42,10 @@ fun DownloadScreen(
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
     }
+    LaunchedEffect(imageUrl) {
+        Log.d("DownloadScreen", "Image URL received: $imageUrl")
+    }
+
 
     Box(
         modifier = Modifier
@@ -90,12 +96,16 @@ fun DownloadScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(16.dp))
+                                // dari url
+                                Log.d("VTO Result", "Image URL in Download image: $imageUrl")
+
                                 Image(
-                                    //tes hasil upload masih hard code sabar yak belum nge get dari db
-                                    painter = rememberImagePainter("https://i.ibb.co.com/x8r44mpW/1000103562.jpg"),
+                                    painter = rememberAsyncImagePainter(imageUrl),
                                     contentDescription = "Uploaded Image",
                                     modifier = Modifier.size(500.dp)
                                 )
+
+
                                 Spacer(modifier = Modifier.height(16.dp))
                                 TextButton(onClick = { viewModel.toggleDetailsVisibility() }) {
                                     Text(

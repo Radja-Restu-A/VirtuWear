@@ -1,5 +1,6 @@
 package com.example.virtuwear
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,11 +12,16 @@ import com.example.virtuwear.screen.LoginScreen
 import com.example.virtuwear.screen.OnBoardingScreen
 import com.example.virtuwear.screen.UploadPhotoScreen
 import com.example.virtuwear.screen.DownloadScreen
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 sealed class Screen(val route: String) {
     object OnBoarding : Screen("onboarding")
     object Login : Screen("login")
     object Home : Screen("home")
     object Upload : Screen("upload")
+    object Result : Screen("result")
+
 }
 
 @Composable
@@ -36,16 +42,30 @@ fun AppNavHost(isUserLoggedIn: Boolean) {
         composable(Screen.Upload.route) { UploadPhotoScreen(navController) }
         // Bikin route buat passing garmentType
         composable(
-            route = "download?garmentType={garmentType}",
+            route = "download?garmentType={garmentType}&imageUrl={imageUrl}",
             arguments = listOf(
                 navArgument("garmentType") {
                     type = NavType.StringType
                     defaultValue = "Single Garment"
+                },
+                navArgument("imageUrl") {
+                    type = NavType.StringType
+                    defaultValue = "" // supaya nggak crash kalau belum dikirim
                 }
             )
         ) { backStackEntry ->
             val garmentType = backStackEntry.arguments?.getString("garmentType") ?: "Single Garment"
-            DownloadScreen(navController = navController, garmentType = garmentType)
+            val imageUrlEncoded = backStackEntry.arguments?.getString("imageUrl") ?: ""
+            Log.d("VTO Result", "Encoded Image URL in nav: $imageUrlEncoded")
+
+            val decodedUrl = URLDecoder.decode(imageUrlEncoded, StandardCharsets.UTF_8.toString())
+            Log.d("VTO Result", "decoded Image URL in nav: $decodedUrl")
+
+            DownloadScreen(
+                navController = navController,
+                garmentType = garmentType,
+                imageUrl = decodedUrl
+            )
         }
     }
 }

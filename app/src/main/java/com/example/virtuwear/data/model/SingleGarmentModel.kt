@@ -20,4 +20,8 @@ data class SingleGarmentModel(
     val userId: String
 )
 
+data class SingleGarmentUpdateResult(
+    val resultImg: String? = null,
+)
+
 

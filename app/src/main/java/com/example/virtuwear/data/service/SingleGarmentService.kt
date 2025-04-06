@@ -1,6 +1,7 @@
 package com.example.virtuwear.data.service
 
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -51,7 +52,7 @@ interface SingleGarmentService {
     @PUT("api/single-garments/update/result/{id}")
     suspend fun updateResultImage(
         @Path("id") id: Long,
-        @Body model: SingleGarmentModel
+        @Body model: SingleGarmentUpdateResult
     ): Response<SingleGarmentModel>
 
     @PUT("api/single-garments/update/outfit_name/{id}")

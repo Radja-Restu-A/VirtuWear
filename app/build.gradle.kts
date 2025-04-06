@@ -50,6 +50,10 @@ dependencies {
     implementation (libs.androidx.activity.compose.v180)
     implementation(libs.androidx.monitor)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
     testImplementation(libs.junit)
 
     // Jetpack Compose & Material3
