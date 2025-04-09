@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.android)
     testImplementation(libs.junit)
 
     // Jetpack Compose & Material3
@@ -108,6 +109,6 @@ dependencies {
     implementation (libs.facebook.android.sdk)
 
     //datastore onboarding
-    implementation ("androidx.datastore:datastore-preferences:1.1.1")
+    implementation (libs.androidx.datastore.preferences.v111)
 
 }

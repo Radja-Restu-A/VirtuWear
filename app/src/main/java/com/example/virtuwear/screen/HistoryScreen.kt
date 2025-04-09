@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -63,18 +66,36 @@ fun HistoryScreen(
 
         is HistoryUiState.Success -> {
             val garments = (state as HistoryUiState.Success).garments
+            val leftColumn = garments.filterIndexed { index, _ -> index % 2 == 0 }
+            val rightColumn = garments.filterIndexed { index, _ -> index % 2 != 0 }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+            // Scrollable Row wrapper (vertically)
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(8.dp)
+                    .verticalScroll(rememberScrollState()) // enable scrolling!
+                    .padding(8.dp)
             ) {
-                items(garments) { resultImg ->
-                    resultImg.resultImg?.let { HistoryItem(it) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        leftColumn.forEach { img ->
+                            img.resultImg?.let { HistoryItem(it) }
+                        }
+                    }
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rightColumn.forEach { img ->
+                            img.resultImg?.let { HistoryItem(it) }
+                        }
+                    }
                 }
             }
         }
@@ -92,19 +113,18 @@ fun HistoryScreen(
 }
 
 
+
 @Composable
 fun HistoryItem(resultImg: String) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(), // lebar tetap (karena grid 2 kolom)
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         AsyncImage(
             model = resultImg,
             contentDescription = null,
-            contentScale = ContentScale.FillWidth, // hanya isi lebar, tinggi mengikuti image asli
-            modifier = Modifier
-                .fillMaxWidth()
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
