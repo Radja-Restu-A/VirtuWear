@@ -32,8 +32,6 @@ class UploadViewModel @Inject constructor(
 ) : ViewModel() {
     var selectedGarmentType = mutableStateOf("Single Garment")
     var imageUris = mutableStateOf(listOf<Uri?>())
-
-    private var uploadedUrlsView = mutableStateOf(listOf<String?>())
     val tryOnResultUrl = mutableStateOf<String?>(null)
 
 

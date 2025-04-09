@@ -1,15 +1,6 @@
 package com.example.virtuwear.data.model
 
 data class SingleGarmentModel(
-//    val idSingle: String? = null,
-//    val userId: String,
-//    val outfitName: String? = null,
-//    val notes: String? = null,
-//    val isBookmarked: Boolean = false,
-//    val garmentImageUrl: String? = null,
-//    val modelImageUrl: String? = null,
-//    val resultImageUrl: String? = null
-
     val idSingle: Long? = null,
     val resultImg: String? = null,
     val modelImg: String? = null,
