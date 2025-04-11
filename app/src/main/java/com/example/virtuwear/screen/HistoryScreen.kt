@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.viewmodel.HistoryUiState
 import com.example.virtuwear.viewmodel.HistoryViewModel
@@ -114,17 +115,4 @@ fun HistoryScreen(
 
 
 
-@Composable
-fun HistoryItem(resultImg: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        AsyncImage(
-            model = resultImg,
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
+
