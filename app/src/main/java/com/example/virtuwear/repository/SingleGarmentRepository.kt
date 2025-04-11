@@ -12,6 +12,7 @@ class SingleGarmentRepository @Inject constructor(
 ) {
     /* yang lain belum ada log nya kalo mau tinggal tambahin :D */
     suspend fun getAllByUser(userId: String) = service.getAllGarmentsByUser(userId)
+    suspend fun searchByOutfitName(outfitName: String) = service.searchByOutfitName(outfitName)
     suspend fun getById(id: Long) = service.getSingleGarmentById(id)
     suspend fun create(model: SingleGarmentModel): Result<SingleGarmentModel> {
         return try {
