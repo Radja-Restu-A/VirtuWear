@@ -173,7 +173,7 @@ fun DownloadScreen(
                     }
                 }
             }
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
