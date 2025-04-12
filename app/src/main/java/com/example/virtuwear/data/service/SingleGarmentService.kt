@@ -9,12 +9,19 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface SingleGarmentService {
     @GET("api/single-garments/{userId}")
     suspend fun getAllGarmentsByUser(
         @Path("userId") userId: String
     ): Response<List<SingleGarmentModel>>
+
+    @GET("api/single-garments/search")
+    suspend fun searchByOutfitName(
+        @Query("outfitName") outfitName: String
+    ): Response<List<SingleGarmentModel>>
+
 
     @GET("api/single-garments/detail/{id}")
     suspend fun getSingleGarmentById(
