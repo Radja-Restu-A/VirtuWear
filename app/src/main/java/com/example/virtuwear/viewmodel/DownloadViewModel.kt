@@ -4,18 +4,30 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.SingleGarmentUpdateResult
+import com.example.virtuwear.data.service.SingleGarmentService
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import javax.inject.Inject
 
-class DownloadViewModel : ViewModel() {
+@HiltViewModel
+class DownloadViewModel @Inject constructor(
+    private val singleGarmentService: SingleGarmentService
+) : ViewModel() {
 
     private val _modelPhoto = MutableStateFlow<Uri?>(null)
     val modelPhoto: StateFlow<Uri?> = _modelPhoto
@@ -100,24 +112,40 @@ class DownloadViewModel : ViewModel() {
         }
     }
 
-    fun downloadPhoto(context: Context, uri: Uri) {
+    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String, garmentId: Long) {
         viewModelScope.launch {
+            val fileName = if (fileNameInput.endsWith(".jpg", true)) fileNameInput else "$fileNameInput.jpg"
             try {
-                val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                val fileName = "Download_${System.currentTimeMillis()}.jpg"
-                val file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    fileName
-                )
-                val outputStream: OutputStream = FileOutputStream(file)
+                withContext(Dispatchers.IO) {
+                    val response = singleGarmentService
+                    val url = URL(imageUrl)
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.doInput = true
+                    connection.connect()
 
-                inputStream?.copyTo(outputStream)
-                inputStream?.close()
-                outputStream.close()
+                    val inputStream = connection.inputStream
+                    val file = File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        fileName
+                    )
+                    val outputStream = FileOutputStream(file)
 
-                Toast.makeText(context, "Photo berhasil di download!", Toast.LENGTH_SHORT).show()
+                    inputStream.copyTo(outputStream)
+                    inputStream.close()
+                    outputStream.close()
+                }
+
+                val updateResult = SingleGarmentUpdateResult(resultImg = fileName)
+                val response =  singleGarmentService.updateResultImage(garmentId, updateResult)
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Photo berhasil diganti namanya", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "gagal memperbarui result img: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+
+                Toast.makeText(context, "Gambar berhasil diunduh ke folder Downloads!", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "Download gagal!: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal download gambar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

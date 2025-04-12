@@ -145,23 +145,22 @@ fun UploadPhotoScreen(
                             val response = uploadViewModel.createRow(newModel)
                             Log.d("VTO Result", "Response create: $response")
 
-
                             if (response.isSuccessful) {
+                                val garmentId = response.body()?.idSingle ?: 0L
                                 val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
                                 if (resultUrl != null) {
                                     Log.d("VTO Result", "Image URL: $resultUrl")
                                     val updateResult = SingleGarmentUpdateResult(
                                         resultImg = resultUrl
                                     )
-                                    val updateResultImg = response.body()?.idSingle?.let {
-                                        uploadViewModel.updateResultImage(
-                                            it, updateResult)
-                                    }
+                                    val updateResultImg = uploadViewModel.updateResultImage(
+                                        garmentId, updateResult
+                                    )
                                     // Kirim ke screen selanjutnya atau tampilkan hasil
                                     val encodedUrl = URLEncoder.encode(resultUrl, StandardCharsets.UTF_8.toString())
                                     Log.d("VTO Result", "Encoded Image URL: $encodedUrl")
-                                    navController.navigate("download?garmentType=Single Garment&imageUrl=$encodedUrl")
-
+                                    // Navigasi ke DownloadScreen tambah garmentId
+                                    navController.navigate("download_screen/Single Garment/$encodedUrl/$garmentId")
                                 } else {
                                     Log.e("VTO", "Gagal mendapatkan hasil VTO")
                                 }
@@ -178,16 +177,13 @@ fun UploadPhotoScreen(
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-            )
-
-            {
+            ) {
                 Text(text = "Generate Try On", color = Color.White)
             }
         }
     }
 }
 
-// UploadBox and ToggleButton remain unchanged
 @Composable
 fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
     val imagePickerLauncher = rememberLauncherForActivityResult(

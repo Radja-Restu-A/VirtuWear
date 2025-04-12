@@ -107,29 +107,21 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                 ProfileScreen(navController = navController)
             }
             composable(
-                route = "download?garmentType={garmentType}&imageUrl={imageUrl}",
+                route = "download_screen/{garmentType}/{imageUrl}/{garmentId}",
                 arguments = listOf(
-                    navArgument("garmentType") {
-                        type = NavType.StringType
-                        defaultValue = "Single Garment"
-                    },
-                    navArgument("imageUrl") {
-                        type = NavType.StringType
-                        defaultValue = "" // supaya nggak crash kalau belum dikirim
-                    }
+                    navArgument("garmentType") { type = NavType.StringType },
+                    navArgument("imageUrl") { type = NavType.StringType },
+                    navArgument("garmentId") { type = NavType.LongType }
                 )
             ) { backStackEntry ->
-                val garmentType = backStackEntry.arguments?.getString("garmentType") ?: "Single Garment"
-                val imageUrlEncoded = backStackEntry.arguments?.getString("imageUrl") ?: ""
-                Log.d("VTO Result", "Encoded Image URL in nav: $imageUrlEncoded")
-
-                val decodedUrl = URLDecoder.decode(imageUrlEncoded, StandardCharsets.UTF_8.toString())
-                Log.d("VTO Result", "decoded Image URL in nav: $decodedUrl")
-
+                val garmentType = backStackEntry.arguments?.getString("garmentType") ?: ""
+                val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
+                val garmentId = backStackEntry.arguments?.getLong("garmentId") ?: 0L
                 DownloadScreen(
                     navController = navController,
                     garmentType = garmentType,
-                    imageUrl = decodedUrl
+                    imageUrl = imageUrl,
+                    garmentId = garmentId
                 )
             }
         }
