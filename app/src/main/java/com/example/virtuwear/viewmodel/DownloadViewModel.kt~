@@ -112,7 +112,7 @@ class DownloadViewModel @Inject constructor(
         }
     }
 
-    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String, garmentId: Long) {
+    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String, garmentId: String) {
         viewModelScope.launch {
             val fileName = if (fileNameInput.endsWith(".jpg", true)) fileNameInput else "$fileNameInput.jpg"
             try {

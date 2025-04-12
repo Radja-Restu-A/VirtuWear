@@ -36,5 +36,4 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.VirtuWear" />
     </application>
-
 </manifest>
