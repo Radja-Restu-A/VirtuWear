@@ -4,30 +4,22 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.virtuwear.data.model.SingleGarmentUpdateResult
-import com.example.virtuwear.data.service.SingleGarmentService
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
-import javax.inject.Inject
 
-@HiltViewModel
-class DownloadViewModel @Inject constructor(
-    private val singleGarmentService: SingleGarmentService
-) : ViewModel() {
+
+class DownloadViewModel : ViewModel() {
 
     private val _modelPhoto = MutableStateFlow<Uri?>(null)
     val modelPhoto: StateFlow<Uri?> = _modelPhoto
@@ -112,12 +104,11 @@ class DownloadViewModel @Inject constructor(
         }
     }
 
-    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String, garmentId: Long) {
+    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String) {
         viewModelScope.launch {
             val fileName = if (fileNameInput.endsWith(".jpg", true)) fileNameInput else "$fileNameInput.jpg"
             try {
                 withContext(Dispatchers.IO) {
-                    val response = singleGarmentService
                     val url = URL(imageUrl)
                     val connection = url.openConnection() as HttpURLConnection
                     connection.doInput = true
@@ -133,14 +124,6 @@ class DownloadViewModel @Inject constructor(
                     inputStream.copyTo(outputStream)
                     inputStream.close()
                     outputStream.close()
-                }
-
-                val updateResult = SingleGarmentUpdateResult(resultImg = fileName)
-                val response =  singleGarmentService.updateResultImage(garmentId, updateResult)
-                if (response.isSuccessful) {
-                    Toast.makeText(context, "Photo berhasil diganti namanya", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "gagal memperbarui result img: ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
 
                 Toast.makeText(context, "Gambar berhasil diunduh ke folder Downloads!", Toast.LENGTH_SHORT).show()

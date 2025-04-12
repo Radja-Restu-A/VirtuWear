@@ -32,7 +32,6 @@ fun DownloadScreen(
     navController: NavController,
     garmentType: String,
     imageUrl: String,
-    garmentId: Long,
     viewModel: DownloadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -40,7 +39,6 @@ fun DownloadScreen(
     val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
     val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
     val fileNameInput = remember { mutableStateOf("") }
-    val garmentId =
 
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
@@ -182,7 +180,7 @@ fun DownloadScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.downloadPhoto(context, imageUrl, fileNameInput.value, garmentId)
+                        
                     },
                     modifier = Modifier
                         .fillMaxWidth()
