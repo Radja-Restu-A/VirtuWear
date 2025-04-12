@@ -32,7 +32,6 @@ fun DownloadScreen(
     navController: NavController,
     garmentType: String,
     imageUrl: String,
-    garmentId: Long,
     viewModel: DownloadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -181,7 +180,7 @@ fun DownloadScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.downloadPhoto(context, imageUrl, fileNameInput.value, garmentId)
+                        viewModel.downloadPhoto(context, imageUrl, fileNameInput.value)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
