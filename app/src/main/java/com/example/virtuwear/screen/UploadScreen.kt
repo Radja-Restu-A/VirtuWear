@@ -19,12 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.virtuwear.components.font
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import com.example.virtuwear.viewmodel.UploadViewModel
@@ -204,8 +206,7 @@ fun UploadPhotoScreen(
             Card(
                 modifier = Modifier
                     .size(200.dp)
-                    .padding(16.dp)
-                    .background(Color.White),
+                    .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(
@@ -226,7 +227,9 @@ fun UploadPhotoScreen(
                         "Please wait while we generate your virtual try-on",
                         fontSize = 14.sp,
                         color = Color.Gray,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
                     )
                 }
             }
