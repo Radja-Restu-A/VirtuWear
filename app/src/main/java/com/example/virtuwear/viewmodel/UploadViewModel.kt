@@ -145,7 +145,7 @@ class UploadViewModel @Inject constructor(
                 model_name = "kolors-virtual-try-on-v1-5",
                 human_image = modelImg,
                 cloth_image = clothImg,
-                callback_url = "" // Kosong kalau tidak pakai callback
+                callback_url = "" // Kosong kalau tidak pakai callback, stelah hosting backend
             )
 
             val taskId = tryOnHandler.createTryOn(request)

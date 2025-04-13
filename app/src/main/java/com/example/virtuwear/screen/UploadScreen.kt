@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -44,6 +45,8 @@ fun UploadPhotoScreen(
 
     val selectedGarmentType by uploadViewModel.selectedGarmentType
     val imageUris by uploadViewModel.imageUris
+    var isLoading by remember { mutableStateOf(false) }
+
 
     val firebase = loginViewModel.getCurrentUser()
     val user = firebase?.uid
@@ -132,6 +135,7 @@ fun UploadPhotoScreen(
         ) {
             Button(
                 onClick = {
+                    isLoading = true
                     coroutineScope.launch {
                         try {
                             val listImg = uploadViewModel.uploadImage()
@@ -145,7 +149,6 @@ fun UploadPhotoScreen(
                             val response = uploadViewModel.createRow(newModel)
                             Log.d("VTO Result", "Response create: $response")
 
-
                             if (response.isSuccessful) {
                                 val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
                                 if (resultUrl != null) {
@@ -157,31 +160,75 @@ fun UploadPhotoScreen(
                                         uploadViewModel.updateResultImage(
                                             it, updateResult)
                                     }
-                                    // Kirim ke screen selanjutnya atau tampilkan hasil
                                     val encodedUrl = URLEncoder.encode(resultUrl, StandardCharsets.UTF_8.toString())
                                     Log.d("VTO Result", "Encoded Image URL: $encodedUrl")
+                                    isLoading = false
                                     navController.navigate("download?garmentType=Single Garment&imageUrl=$encodedUrl")
-
                                 } else {
+                                    isLoading = false
                                     Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                    Toast.makeText(context, "Failed to get try-on result", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
+                                isLoading = false
                                 Log.e("TestLog", "Failed to create row: ${response.code()}")
+                                Toast.makeText(context, "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                             }
-
                         } catch (e: Exception) {
+                            isLoading = false
                             Log.e("TestLog", "Upload or save failed: ${e.message}", e)
+                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-            )
-
-            {
-                Text(text = "Generate Try On", color = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(text = "Generate Try On", color = Color.White)
+                }
+            }
+        }
+    }
+    // Loading dialog
+    if (isLoading) {
+        Dialog(onDismissRequest = { /* gabisa di close */ }) {
+            Card(
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(16.dp)
+                    .background(Color.White),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(color = Color.Black)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Processing...",
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Please wait while we generate your virtual try-on",
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ package com.example.virtuwear.di
 import com.example.virtuwear.data.service.AuthService
 import com.example.virtuwear.data.service.KlingAiApiService
 import com.example.virtuwear.data.service.SingleGarmentService
+import com.example.virtuwear.data.service.UserService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,5 +50,11 @@ object NetworkModule {
     @Singleton
     fun provideKlingAiApiService(@Named("BackendRetrofit") retrofit: Retrofit): KlingAiApiService {
         return retrofit.create(KlingAiApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(@Named("BackendRetrofit") retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 }

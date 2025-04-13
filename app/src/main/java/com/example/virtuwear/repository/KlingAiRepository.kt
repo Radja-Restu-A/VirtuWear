@@ -24,60 +24,6 @@ class KlingAiRepository @Inject constructor (
         return null
     }
 
-//    suspend fun pollResult(taskId: String): String? {
-//        repeat(10) { attempt ->
-//            val res = service.getTaskStatus(taskId)
-//            if (res.isSuccessful) {
-//                val responseBody = res.body()
-//                val status = responseBody?.data?.task_status
-//                val statusMsg = responseBody?.data?.task_status_msg
-//
-//                Log.d("VTO Polling", "Attempt $attempt - Status: $status - Message: $statusMsg")
-//
-//                // Berhenti kalau sukses
-//                if (status == "succeed") {
-//                    val resultUrl = responseBody.data.task_result?.images?.firstOrNull()?.url
-//                    if (resultUrl != null) {
-//                        return resultUrl
-//                    } else {
-//                        Log.e("VTO Polling", "Task succeeded but no result image found.")
-//                        return null
-//                    }
-//                }
-//
-//                // Berhenti kalau gagal
-//                if (statusMsg == "failed") {
-//                    Log.e("VTO Polling", "Task failed: $statusMsg")
-//                    return null
-//                }
-//            } else {
-//                Log.e("VTO Polling", "Failed to fetch task status: ${res.code()}")
-//            }
-//
-//            delay(30_000)
-//        }
-//
-//        Log.e("VTO Polling", "Polling finished. Task did not complete in time.")
-//        return null
-//    }
-
-//    suspend fun getPolledResultFromBackend(taskId: String): String? {
-//        val response = service.getTryOnTaskStatusWithPolling(taskId)
-//        if (response.isSuccessful) {
-//            val data = response.body()?.data
-//            val resultUrl = data?.task_result?.images?.firstOrNull()?.url
-//            if (resultUrl != null) {
-//                Log.d("VTO Backend Poll", "Received image URL from backend: $resultUrl")
-//                return resultUrl
-//            } else {
-//                Log.e("VTO Backend Poll", "No image found in backend polling result")
-//            }
-//        } else {
-//            Log.e("VTO Backend Poll", "Failed to poll from backend: ${response.code()}")
-//        }
-//        return null
-//    }
-
     suspend fun pollKlingApiUntilComplete(taskId: String): String? {
         repeat(10) { attempt ->
             try {
