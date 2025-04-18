@@ -25,11 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.virtuwear.components.GarmentDetail
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
 import com.example.virtuwear.viewmodel.HistoryViewModel
 import com.example.virtuwear.viewmodel.LoginViewModel
+import com.example.virtuwear.data.model.SingleGarmentModel
 
 @Composable
 fun HistoryScreen(
@@ -41,6 +43,7 @@ fun HistoryScreen(
     val firebase = loginViewModel.getCurrentUser()
     val uid = firebase?.uid
     var query by remember { mutableStateOf("") }
+    var selectedGarment by remember { mutableStateOf<SingleGarmentModel?>(null) }
 
     LaunchedEffect(uid) {
         if (uid != null) {
@@ -96,7 +99,9 @@ fun HistoryScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 leftColumn.forEach { img ->
-                                    img.resultImg?.let { HistoryItem(it) }
+                                    img.resultImg?.let {
+                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                    }
                                 }
                             }
                             Column(
@@ -104,7 +109,9 @@ fun HistoryScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 rightColumn.forEach { img ->
-                                    img.resultImg?.let { HistoryItem(it) }
+                                    img.resultImg?.let {
+                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                    }
                                 }
                             }
                         }
@@ -130,5 +137,8 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+    selectedGarment?.let { garment ->
+        GarmentDetail(garment = garment, onDismiss = { selectedGarment = null })
     }
 }

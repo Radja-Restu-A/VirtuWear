@@ -1,7 +1,8 @@
 [versions]
 accompanistDrawablepainter = "0.36.0"
+accompanistSystemuicontroller = "0.35.0-alpha"
 activityComposeVersion = "1.10.1"
-agp = "8.7.3"
+agp = "8.8.0"
 androidxActivityCompose = "1.8.0"
 coilCompose = "2.7.0"
 coilNetworkOkhttp = "3.1.0"
@@ -49,6 +50,7 @@ foundationAndroid = "1.7.2"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
+accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-activity-compose-v180 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityComposeVersion" }
