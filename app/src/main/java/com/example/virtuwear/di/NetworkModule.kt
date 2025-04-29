@@ -30,7 +30,7 @@ object NetworkModule {
     @Named("BackendRetrofit")
     fun provideBackendRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8090/")
+            .baseUrl("http://10.0.2.2:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
