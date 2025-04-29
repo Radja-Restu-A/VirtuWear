@@ -16,6 +16,7 @@ import android.net.Uri
 
 
 
+
 sealed class HistoryUiState {
     object Loading : HistoryUiState()
     data class Success(val garments: List<SingleGarmentModel>) : HistoryUiState()
@@ -27,6 +28,8 @@ sealed class HistoryUiState {
 class HistoryViewModel @Inject constructor(
     private val singleGarmentService: SingleGarmentService
 ) : ViewModel() {
+
+
 
     private val _uiState = mutableStateOf<HistoryUiState>(HistoryUiState.Loading)
     val uiState: State<HistoryUiState> = _uiState
@@ -77,5 +80,4 @@ class HistoryViewModel @Inject constructor(
             }
         }
     }
-
 }

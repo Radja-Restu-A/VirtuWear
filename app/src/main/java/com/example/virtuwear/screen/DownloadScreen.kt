@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,29 +24,39 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import coil.compose.rememberImagePainter
 import com.example.virtuwear.R
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.virtuwear.components.BookmarkButton
+import com.example.virtuwear.viewmodel.GarmentViewModel
 
 
 @Composable
 fun DownloadScreen(
     navController: NavController,
     garmentType: String,
-    imageUrl: String,
-    viewModel: DownloadViewModel = hiltViewModel()
+    id: Long,
+    viewModel: DownloadViewModel = hiltViewModel(),
+    garmentViewModel: GarmentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val modelPhoto by viewModel.modelPhoto.collectAsStateWithLifecycle()
-    val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
     val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
     val fileNameInput = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
     }
-    LaunchedEffect(imageUrl) {
-        Log.d("DownloadScreen", "Image URL received: $imageUrl")
+    LaunchedEffect(id) {
+        Log.d("DownloadScreen", "id received: $id")
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.getResultById(id)
+    }
+    val response = viewModel.singleResponse.observeAsState()
 
 
     Box(
@@ -95,16 +106,33 @@ fun DownloadScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Result Disini",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 // dari url
-                                Log.d("VTO Result", "Image URL in Download image: $imageUrl")
+                                Log.d("VTO Result", "Image URL in Download image: $id")
+                                if (response.value?.isSuccessful == true) {
+                                    val singleGarment = response.value?.body()
+                                    singleGarment?.let {
+//                                        Text("Outfit Name: ${it.outfitName}")
+//                                        Text("User ID: ${it.userId}")
+                                        Image(
+                                            painter = rememberAsyncImagePainter(it.resultImg),
+                                            contentDescription = "Uploaded Image",
+                                            modifier = Modifier.size(500.dp)
+                                        )
+                                    }
 
-                                Image(
-                                    painter = rememberAsyncImagePainter(imageUrl),
-                                    contentDescription = "Uploaded Image",
-                                    modifier = Modifier.size(500.dp)
-                                )
+
+                                } else if (response.value != null) {
+                                    Text("Failed to fetch data. Error: ${response.value?.code()}")
+                                } else {
+                                    Text("Loading...")
+                                }
+
                                 TextField(
                                     value = fileNameInput.value,
                                     onValueChange = { fileNameInput.value = it },
@@ -139,17 +167,33 @@ fun DownloadScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                modelPhoto?.let {
-                                    Image(
-                                        painter = rememberAsyncImagePainter(it),
-                                        contentDescription = "Model Photo",
-                                        modifier = Modifier.size(200.dp)
-                                    )
+                                if (response.value?.isSuccessful == true) {
+                                    val singleGarment = response.value?.body()
+                                    singleGarment?.let {
+                                        Log.d("modelImg", "Model yang diambil: ${it.modelImg}")
+                                        Image(
+                                            painter = rememberAsyncImagePainter(it.modelImg.toString()),
+                                            contentDescription = "Model Photo",
+                                            modifier = Modifier.size(200.dp)
+                                        )
+                                    }
+                                } else if (response.value != null) {
+                                    Text("Failed to fetch data. Error: ${response.value?.code()}")
+                                } else {
+                                    Text("Loading...")
                                 }
+
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "Model Photo", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Model Photo",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
+                        val outfitPhotos =
+                            response.value?.body()?.garmentImg?.split(",") ?: emptyList()
+
 
                         items(outfitPhotos.size) { index ->
                             Column(
@@ -160,34 +204,75 @@ fun DownloadScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Image(
-                                    painter = rememberAsyncImagePainter(outfitPhotos[index]),
-                                    contentDescription = "Outfit Photo ${index + 1}",
-                                    modifier = Modifier.size(200.dp)
-                                )
+
+                                // Logika untuk menampilkan gambar berdasarkan jumlah outfit
+                                if (outfitPhotos.size == 1) {
+                                    // Kasus: hanya ada satu outfit
+                                    Image(
+                                        painter = rememberAsyncImagePainter(outfitPhotos[0]),
+                                        contentDescription = "Outfit Photo 1",
+                                        modifier = Modifier.size(200.dp)
+                                    )
+                                } else if (outfitPhotos.size > 1) {
+                                    // Kasus: lebih dari satu outfit
+                                    Image(
+                                        painter = rememberAsyncImagePainter(outfitPhotos[index]),
+                                        contentDescription = "Outfit Photo ${index + 1}",
+                                        modifier = Modifier.size(200.dp)
+                                    )
+                                } else {
+                                    Text(text = "No outfit photos available.")
+                                }
+
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "Outfit Photo ${index + 1}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Outfit Photo ${index + 1}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
+
                     }
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+            Column(
+
             ) {
-                Button(
-                    onClick = {
-                        viewModel.downloadPhoto(context, imageUrl, fileNameInput.value)
-                    },
+//                BookmarkButton(
+//                    id = id,
+//                    isSingle = true,
+//                    viewModel = garmentViewModel
+//                )
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        .padding(16.dp)
                 ) {
-                    Text(text = "Download Photo", color = Color.White)
+                    Button(
+
+
+                        onClick = {
+                            if (response.value?.isSuccessful == true) {
+                                val singleGarment = response.value?.body()
+                                singleGarment?.let {
+                                    viewModel.downloadPhoto(
+                                        context,
+                                        it.resultImg,
+                                        fileNameInput.value
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                    ) {
+                        Text(text = "Download Photo", color = Color.White)
+                    }
                 }
             }
         }

@@ -1,9 +1,12 @@
 package com.example.virtuwear.repository
 
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.data.model.SingleGarmentUpdateBookmark
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import com.example.virtuwear.data.service.SingleGarmentService
+import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -75,5 +78,4 @@ class SingleGarmentRepository @Inject constructor(
 
     suspend fun updateOutfitName(id: Long, model: SingleGarmentModel) = service.updateOutfitName(id, model)
     suspend fun updateNotes(id: Long, model: SingleGarmentModel) = service.updateNotes(id, model)
-    suspend fun updateBookmark(id: Long, model: SingleGarmentModel) = service.updateBookmark(id, model)
 }

@@ -162,10 +162,8 @@ fun UploadPhotoScreen(
                                         uploadViewModel.updateResultImage(
                                             it, updateResult)
                                     }
-                                    val encodedUrl = URLEncoder.encode(resultUrl, StandardCharsets.UTF_8.toString())
-                                    Log.d("VTO Result", "Encoded Image URL: $encodedUrl")
                                     isLoading = false
-                                    navController.navigate("download?garmentType=Single Garment&imageUrl=$encodedUrl")
+                                    navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
                                 } else {
                                     isLoading = false
                                     Log.e("VTO", "Gagal mendapatkan hasil VTO")

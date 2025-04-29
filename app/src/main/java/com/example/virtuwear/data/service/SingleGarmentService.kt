@@ -1,6 +1,9 @@
 package com.example.virtuwear.data.service
 
+import com.example.virtuwear.data.model.SingleGarmentDto
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.data.model.SingleGarmentResponse
+import com.example.virtuwear.data.model.SingleGarmentUpdateBookmark
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import retrofit2.Response
 import retrofit2.http.Body
@@ -26,7 +29,7 @@ interface SingleGarmentService {
     @GET("api/single-garments/detail/{id}")
     suspend fun getSingleGarmentById(
         @Path("id") id: Long
-    ): Response<SingleGarmentModel>
+    ): Response<SingleGarmentResponse>
 
     @POST("api/single-garments")
     suspend fun createGarment(
@@ -74,9 +77,14 @@ interface SingleGarmentService {
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/update/bookmark/{id}")
+    @PUT("api/single-garments/update/bookmark-single/{id}")
     suspend fun updateBookmark(
         @Path("id") id: Long,
-        @Body model: SingleGarmentModel
-    ): Response<SingleGarmentModel>
+        @Body dto: SingleGarmentDto
+    ): Response<SingleGarmentDto>
+
+
+    @GET("api/single-garments/bookmarked")
+    suspend fun getBookmarkedItems(): Response<List<SingleGarmentResponse>>
+
 }
