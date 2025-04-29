@@ -3,6 +3,7 @@ package com.example.virtuwear.screen
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,15 +40,32 @@ fun DownloadScreen(
     val modelPhoto by viewModel.modelPhoto.collectAsStateWithLifecycle()
     val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
     val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
-    val fileNameInput = remember { mutableStateOf("") }
+    val fileNameInput = remember { mutableStateOf("filename.png") }
+
+    val showDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
     }
-    LaunchedEffect(imageUrl) {
-        Log.d("DownloadScreen", "Image URL received: $imageUrl")
-    }
 
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Edit Filename") },
+            text = {
+                TextField(
+                    value = fileNameInput.value,
+                    onValueChange = { fileNameInput.value = it },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -95,26 +114,29 @@ fun DownloadScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Result Disini", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.height(16.dp))
-                                // dari url
-                                Log.d("VTO Result", "Image URL in Download image: $imageUrl")
-
                                 Image(
                                     painter = rememberAsyncImagePainter(imageUrl),
                                     contentDescription = "Uploaded Image",
-                                    modifier = Modifier.size(500.dp)
-                                )
-                                TextField(
-                                    value = fileNameInput.value,
-                                    onValueChange = { fileNameInput.value = it },
-                                    label = { Text("File Name") },
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
-                                    singleLine = true
+                                        .size(500.dp)
+                                        .clip(RoundedCornerShape(12.dp))
                                 )
 
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = fileNameInput.value,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.clickable {
+                                            showDialog.value = true
+                                        }
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 TextButton(onClick = { viewModel.toggleDetailsVisibility() }) {
@@ -128,7 +150,6 @@ fun DownloadScreen(
                             }
                         }
                     }
-
                     if (isDetailsVisible) {
                         item {
                             Column(
