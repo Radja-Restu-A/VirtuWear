@@ -1,15 +1,20 @@
 package com.example.virtuwear.screen
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,14 +36,12 @@ import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
 import com.example.virtuwear.viewmodel.HistoryViewModel
 import com.example.virtuwear.viewmodel.LoginViewModel
-import com.example.virtuwear.data.model.SingleGarmentModel
 
 @Composable
 fun HistoryScreen(
     navController: NavController,
     historyViewModel: HistoryViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel(),
-
 ) {
     val state by historyViewModel.uiState
     val firebase = loginViewModel.getCurrentUser()
@@ -62,6 +65,7 @@ fun HistoryScreen(
             }
         )
 
+
         when (state) {
             is HistoryUiState.Loading -> {
                 Box(
@@ -82,9 +86,7 @@ fun HistoryScreen(
                         Text("Outfit yang kamu cari tidak ada.")
                     }
                 } else {
-                    val leftColumn = garments.filterIndexed { index, _ -> index % 2 == 0 }
-                    val rightColumn = garments.filterIndexed { index, _ -> index % 2 != 0 }
-
+                    // Create two equal columns using a better approach
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -95,28 +97,33 @@ fun HistoryScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Left column
                             Column(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                leftColumn.forEach { img ->
-                                    img.resultImg?.let {
-                                        HistoryItem(it, onClick = {
-                                            historyViewModel.selectGarment(img)
-                                            navController.navigate("garmentDetail/${img.idSingle}")
+                                // Take items at even indices (0, 2, 4, ...)
+                                for (i in garments.indices.filter { it % 2 == 1 }) {
+                                    garments[i].resultImg?.let { imageUrl ->
+                                        HistoryItem(imageUrl, onClick = {
+                                            historyViewModel.selectGarment(garments[i])
+                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
                                         })
                                     }
                                 }
                             }
+
+                            // Right column
                             Column(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                rightColumn.forEach { img ->
-                                    img.resultImg?.let {
-                                        HistoryItem(it, onClick = {
-                                            historyViewModel.selectGarment(img)
-                                            navController.navigate("garmentDetail/${img.idSingle}")
+                                // Take items at odd indices (1, 3, 5, ...)
+                                for (i in garments.indices.filter { it % 2 == 0 }) {
+                                    garments[i].resultImg?.let { imageUrl ->
+                                        HistoryItem(imageUrl, onClick = {
+                                            historyViewModel.selectGarment(garments[i])
+                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
                                         })
                                     }
                                 }
@@ -127,7 +134,6 @@ fun HistoryScreen(
             }
 
             is HistoryUiState.Error -> {
-                val error = (state as HistoryUiState.Error).message
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -145,7 +151,4 @@ fun HistoryScreen(
             }
         }
     }
-
-    // Navigasi langsung di atas akan membuka detail screen via selectedGarment
-    selectedGarment?.let { /* no-op, hanya observasi agar tidak dihapus oleh compiler */ }
 }
