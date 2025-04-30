@@ -197,14 +197,14 @@ fun DownloadScreen(
                                     Text("Loading...")
                                 }
 
-                                TextField(
-                                    value = fileNameInput.value,
-                                    onValueChange = { fileNameInput.value = it },
-                                    label = { Text("File Name") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 16.dp)
-                                )
+//                                TextField(
+//                                    value = fileNameInput.value,
+//                                    onValueChange = { fileNameInput.value = it },
+//                                    label = { Text("File Name") },
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .padding(vertical = 16.dp)
+//                                )
 
                                 Text(
                                     text = fileNameInput.value,
@@ -308,43 +308,42 @@ fun DownloadScreen(
                 }
             }
 
-            Column(
-
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-//                BookmarkButton(
-//                    id = id,
-//                    isSingle = true,
-//                    viewModel = garmentViewModel
-//                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Button(
-
-
-                        onClick = {
-                            if (response.value?.isSuccessful == true) {
-                                val singleGarment = response.value?.body()
-                                singleGarment?.let {
-                                    viewModel.downloadPhoto(
-                                        context,
-                                        it.resultImg,
-                                        fileNameInput.value
-                                    )
-                                }
+                Button(
+                    onClick = {
+                        if (response.value?.isSuccessful == true) {
+                            val singleGarment = response.value?.body()
+                            singleGarment?.let {
+                                viewModel.downloadPhoto(
+                                    context,
+                                    it.resultImg,
+                                    fileNameInput.value
+                                )
                             }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-                    ) {
-                        Text(text = "Download Photo", color = Color.White)
-                    }
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text(text = "Download Photo", color = Color.White)
                 }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                BookmarkButton(
+                    id = id,
+                    isSingle = true,
+                    viewModel = garmentViewModel,
+                    size = 50.dp // sesuaikan ukuran jika perlu
+                )
             }
         }
     }

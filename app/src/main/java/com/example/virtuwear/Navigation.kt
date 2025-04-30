@@ -48,6 +48,7 @@ sealed class Screen(val route: String) {
     object Upload : Screen("upload")
     object History : Screen("history")
     object Profile : Screen("profile")
+    object Download : Screen("download")
 }
 
 // Define bottom navigation items
@@ -96,6 +97,13 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
             }
             composable(Screen.OnBoarding.route) {
                 OnBoardingScreen(navController = navController)
+            }
+            composable(Screen.Download.route) {
+                DownloadScreen(
+                    navController = navController,
+                    garmentType = "Single",
+                    id = 1
+                )
             }
             composable(Screen.Upload.route) {
                 UploadPhotoScreen(navController = navController)
