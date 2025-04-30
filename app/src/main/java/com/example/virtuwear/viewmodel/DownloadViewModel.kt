@@ -4,9 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.SingleGarmentResponse
+import com.example.virtuwear.data.model.UserResponse
+import com.example.virtuwear.data.service.SingleGarmentService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,12 +20,19 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.inject.Inject
 
+@HiltViewModel
 
-class DownloadViewModel : ViewModel() {
+class DownloadViewModel @Inject constructor (
+    private val singleGarmentService: SingleGarmentService
+) : ViewModel () {
+
+    val singleResponse = MutableLiveData<Response<SingleGarmentResponse>>()
 
     private val _modelPhoto = MutableStateFlow<Uri?>(null)
     val modelPhoto: StateFlow<Uri?> = _modelPhoto
@@ -137,4 +150,22 @@ class DownloadViewModel : ViewModel() {
             }
         }
     }
+
+    fun getResultById(id: Long) {
+        viewModelScope.launch {
+            try {
+                val response = singleGarmentService.getSingleGarmentById(id)
+                if (response.isSuccessful) {
+                    singleResponse.postValue(response)
+                } else {
+                    Log.e("ViewModel", "Error: ${response.code()} - ${response.message()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+
 }

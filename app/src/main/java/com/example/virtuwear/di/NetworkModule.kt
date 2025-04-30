@@ -1,6 +1,7 @@
 package com.example.virtuwear.di
 
 import com.example.virtuwear.data.service.AuthService
+import com.example.virtuwear.data.service.DoubleGarmentService
 import com.example.virtuwear.data.service.KlingAiApiService
 import com.example.virtuwear.data.service.SingleGarmentService
 import com.example.virtuwear.data.service.UserService
@@ -44,6 +45,12 @@ object NetworkModule {
     @Singleton
     fun provideSingleGarmentService(@Named("BackendRetrofit") retrofit: Retrofit): SingleGarmentService {
         return retrofit.create(SingleGarmentService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDoubleGarmentService(@Named("BackendRetrofit") retrofit: Retrofit): DoubleGarmentService {
+        return retrofit.create(DoubleGarmentService::class.java)
     }
 
     @Provides

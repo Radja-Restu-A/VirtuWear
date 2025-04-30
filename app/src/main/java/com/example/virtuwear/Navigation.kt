@@ -107,18 +107,18 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                 ProfileScreen(navController = navController)
             }
             composable(
-                route = "download?garmentType={garmentType}&imageUrl={imageUrl}",
+                route = "download?garmentType={garmentType}&id={id}",
                 arguments = listOf(
                     navArgument("garmentType") { type = NavType.StringType },
-                    navArgument("imageUrl") { type = NavType.StringType },
+                    navArgument("id") { type = NavType.LongType },
                 )
             ) { backStackEntry ->
                 val garmentType = backStackEntry.arguments?.getString("garmentType") ?: ""
-                val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
+                val id = backStackEntry.arguments?.getLong("id") ?: 0L
                 DownloadScreen(
                     navController = navController,
                     garmentType = garmentType,
-                    imageUrl = imageUrl,
+                    id = id,
                 )
             }
         }
