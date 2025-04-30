@@ -3,6 +3,7 @@ package com.example.virtuwear.screen
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,6 +33,47 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.virtuwear.components.BookmarkButton
 import com.example.virtuwear.viewmodel.GarmentViewModel
+import androidx.compose.material3.TextField
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.*
+
+
+//import android.util.Log
+//import androidx.compose.foundation.Image
+//import androidx.compose.foundation.background
+//import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.lazy.LazyColumn
+//import androidx.compose.foundation.shape.RoundedCornerShape
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.ArrowBack
+//import androidx.compose.material3.*
+//import androidx.compose.runtime.*
+//import androidx.compose.runtime.livedata.observeAsState
+//
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.platform.LocalContext
+//import androidx.compose.ui.res.painterResource
+//import androidx.compose.ui.text.font.FontWeight
+//import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.unit.sp
+//import androidx.hilt.navigation.compose.hiltViewModel
+//import androidx.navigation.NavController
+//import coil.compose.rememberAsyncImagePainter
+//import com.example.virtuwear.viewmodel.DownloadViewModel
+//import androidx.lifecycle.compose.collectAsStateWithLifecycle
+//import androidx.lifecycle.findViewTreeLifecycleOwner
+//import coil.compose.rememberImagePainter
+//import com.example.virtuwear.R
+//import androidx.lifecycle.Observer
+//import androidx.lifecycle.ViewModelProvider
+//import com.example.virtuwear.components.BookmarkButton
+//import com.example.virtuwear.viewmodel.GarmentViewModel
 
 
 @Composable
@@ -43,8 +86,11 @@ fun DownloadScreen(
 ) {
     val context = LocalContext.current
     val modelPhoto by viewModel.modelPhoto.collectAsStateWithLifecycle()
+    val outfitPhotos by viewModel.outfitPhotos.collectAsStateWithLifecycle()
     val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
-    val fileNameInput = remember { mutableStateOf("") }
+    val fileNameInput = remember { mutableStateOf("filename.png") }
+
+    val showDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getLatestPhoto(context, garmentType)
@@ -58,6 +104,24 @@ fun DownloadScreen(
     }
     val response = viewModel.singleResponse.observeAsState()
 
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Edit Filename") },
+            text = {
+                TextField(
+                    value = fileNameInput.value,
+                    onValueChange = { fileNameInput.value = it },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -139,10 +203,17 @@ fun DownloadScreen(
                                     label = { Text("File Name") },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
-                                    singleLine = true
+                                        .padding(vertical = 16.dp)
                                 )
 
+                                Text(
+                                    text = fileNameInput.value,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.clickable {
+                                        showDialog.value = true
+                                    }
+                                )
 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 TextButton(onClick = { viewModel.toggleDetailsVisibility() }) {

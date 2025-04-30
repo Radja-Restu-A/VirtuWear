@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -97,34 +98,38 @@ fun UploadPhotoScreen(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Column(
+            LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                UploadBox(imageUri = imageUris.getOrNull(0)) { uri -> uploadViewModel.addImageUris(uri, 0) }
-                Text(text = "PNG    JPG    JPEG    <10MB", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Garment Type", fontWeight = FontWeight.Bold, modifier = Modifier)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    ToggleButton("Single Garment", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ToggleButton("Multiple Garments", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                if (selectedGarmentType == "Multiple Garments") {
-                    Row {
-                        UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
+                item {
+                    UploadBox(imageUri = imageUris.getOrNull(0)) { uri -> uploadViewModel.addImageUris(uri, 0) }
+                    Text(text = "PNG    JPG    JPEG    <10MB", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Garment Type", fontWeight = FontWeight.Bold, modifier = Modifier)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        ToggleButton("Single Garment", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
                         Spacer(modifier = Modifier.width(8.dp))
-                        UploadBox(imageUri = imageUris.getOrNull(2)) { uri -> uploadViewModel.addImageUris(uri, 2) }
+                        ToggleButton("Multiple Garments", selectedGarmentType) { uploadViewModel.setGarmentType(it) }
                     }
-                } else {
-                    UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                item {
+                    if (selectedGarmentType == "Multiple Garments") {
+                        Row {
+                            UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            UploadBox(imageUri = imageUris.getOrNull(2)) { uri -> uploadViewModel.addImageUris(uri, 2) }
+                        }
+                    } else {
+                        UploadBox(imageUri = imageUris.getOrNull(1)) { uri -> uploadViewModel.addImageUris(uri, 1) }
+                    }
                 }
             }
         }
@@ -198,7 +203,6 @@ fun UploadPhotoScreen(
             }
         }
     }
-    // Loading dialog
     if (isLoading) {
         Dialog(onDismissRequest = { /* gabisa di close */ }) {
             Card(
@@ -235,7 +239,6 @@ fun UploadPhotoScreen(
     }
 }
 
-// UploadBox and ToggleButton remain unchanged
 @Composable
 fun UploadBox(imageUri: Uri?, onImageSelected: (Uri) -> Unit) {
     val imagePickerLauncher = rememberLauncherForActivityResult(
