@@ -13,8 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.net.Uri
-
-
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 
 sealed class HistoryUiState {
@@ -29,11 +29,14 @@ class HistoryViewModel @Inject constructor(
     private val singleGarmentService: SingleGarmentService
 ) : ViewModel() {
 
-
-
     private val _uiState = mutableStateOf<HistoryUiState>(HistoryUiState.Loading)
     val uiState: State<HistoryUiState> = _uiState
-    var searchQuery by mutableStateOf("")
+    private val _selectedGarment = MutableStateFlow<SingleGarmentModel?>(null)
+    val selectedGarment: StateFlow<SingleGarmentModel?> = _selectedGarment
+
+    fun selectGarment(garment: SingleGarmentModel) {
+        _selectedGarment.value = garment
+    }
 
     fun getAllGarmentByUser(uid: String) {
         Log.d("HistoryViewModel", "Memulai permintaan data untuk uid: $uid")

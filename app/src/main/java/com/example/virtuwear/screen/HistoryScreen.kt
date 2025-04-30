@@ -13,6 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.virtuwear.components.GarmentDetail
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
@@ -37,13 +37,14 @@ import com.example.virtuwear.data.model.SingleGarmentModel
 fun HistoryScreen(
     navController: NavController,
     historyViewModel: HistoryViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+
 ) {
     val state by historyViewModel.uiState
     val firebase = loginViewModel.getCurrentUser()
     val uid = firebase?.uid
     var query by remember { mutableStateOf("") }
-    var selectedGarment by remember { mutableStateOf<SingleGarmentModel?>(null) }
+    val selectedGarment by historyViewModel.selectedGarment.collectAsState()
 
     LaunchedEffect(uid) {
         if (uid != null) {
@@ -100,7 +101,10 @@ fun HistoryScreen(
                             ) {
                                 leftColumn.forEach { img ->
                                     img.resultImg?.let {
-                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                        HistoryItem(it, onClick = {
+                                            historyViewModel.selectGarment(img)
+                                            navController.navigate("garmentDetail/${img.idSingle}")
+                                        })
                                     }
                                 }
                             }
@@ -110,7 +114,10 @@ fun HistoryScreen(
                             ) {
                                 rightColumn.forEach { img ->
                                     img.resultImg?.let {
-                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                        HistoryItem(it, onClick = {
+                                            historyViewModel.selectGarment(img)
+                                            navController.navigate("garmentDetail/${img.idSingle}")
+                                        })
                                     }
                                 }
                             }
@@ -138,7 +145,7 @@ fun HistoryScreen(
             }
         }
     }
-    selectedGarment?.let { garment ->
-        GarmentDetail(garment = garment, onDismiss = { selectedGarment = null })
-    }
+
+    // Navigasi langsung di atas akan membuka detail screen via selectedGarment
+    selectedGarment?.let { /* no-op, hanya observasi agar tidak dihapus oleh compiler */ }
 }

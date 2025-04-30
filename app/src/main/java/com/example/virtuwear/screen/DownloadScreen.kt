@@ -323,8 +323,6 @@ fun DownloadScreen(
                         .padding(16.dp)
                 ) {
                     Button(
-
-
                         onClick = {
                             if (response.value?.isSuccessful == true) {
                                 val singleGarment = response.value?.body()
