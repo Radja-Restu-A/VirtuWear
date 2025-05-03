@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.virtuwear.R
-import com.example.virtuwear.components.header
+import com.example.virtuwear.components.Header
 import com.example.virtuwear.data.OnboardingManager
 import kotlinx.coroutines.launch
 
@@ -36,7 +36,7 @@ fun OnBoardingScreen(navController: NavController) {
     val onboardingManager = remember { OnboardingManager(context) }
     val scope = rememberCoroutineScope()
 
-    header()
+    Header("VirtuWear")
 
     Column(
         modifier = Modifier

@@ -29,17 +29,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.virtuwear.screen.HistoryScreen
 import com.example.virtuwear.screen.LoginScreen
 import com.example.virtuwear.screen.OnBoardingScreen
 import com.example.virtuwear.screen.ProfileScreen
 import com.example.virtuwear.screen.UploadPhotoScreen
 import com.example.virtuwear.screen.DownloadScreen
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Refresh
+import com.example.virtuwear.screen.HistoryScreen
+import com.example.virtuwear.screen.GarmentDetailScreen
 
 
 sealed class Screen(val route: String) {
@@ -48,6 +47,7 @@ sealed class Screen(val route: String) {
     object Upload : Screen("upload")
     object History : Screen("history")
     object Profile : Screen("profile")
+    object GarmentDetail : Screen("garmentDetail/{idSingle}")
     object Download : Screen("download")
 }
 
@@ -98,13 +98,6 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
             composable(Screen.OnBoarding.route) {
                 OnBoardingScreen(navController = navController)
             }
-            composable(Screen.Download.route) {
-                DownloadScreen(
-                    navController = navController,
-                    garmentType = "Single",
-                    id = 1
-                )
-            }
             composable(Screen.Upload.route) {
                 UploadPhotoScreen(navController = navController)
             }
@@ -113,6 +106,23 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(navController = navController)
+            }
+            composable(Screen.Download.route) {
+                DownloadScreen(
+                    navController = navController,
+                    garmentType = "Single",
+                    id = 1
+                )
+            }
+            composable(
+                route = Screen.GarmentDetail.route,
+                arguments = listOf(navArgument("idSingle") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val idSingle = backStackEntry.arguments?.getLong("idSingle") ?: 0L
+                GarmentDetailScreen(
+                    idSingle = idSingle,
+                    onDismiss = { navController.popBackStack() }
+                )
             }
             composable(
                 route = "download?garmentType={garmentType}&id={id}",
@@ -190,7 +200,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                         Icon(
                             imageVector = Icons.Outlined.Refresh,
                             contentDescription = "Upload",
-                            tint = if (currentRoute == Screen.Upload.route) Color.Black else Color.Gray,
+                            tint = if (currentRoute == Screen.History.route) Color.Black else Color.Gray,
                             modifier = Modifier.size(28.dp)
                         )
                     }

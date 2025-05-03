@@ -23,7 +23,7 @@ import com.example.virtuwear.R
 val font = FontFamily(Font(R.font.airbnb_cereal_w_xbd))
 
 @Composable
-fun header(){
+fun Header(konten:String){
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -39,7 +39,7 @@ fun header(){
             padding(top = 20.dp)
         ){
             Text(
-                text = "VirtuWear",
+                text = konten,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 fontFamily = font,
