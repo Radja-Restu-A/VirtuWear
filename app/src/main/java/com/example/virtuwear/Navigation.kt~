@@ -108,7 +108,7 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                 ProfileScreen(navController = navController)
             }
             composable(Screen.Download.route) {
-                DownloadScreen(navController = navController, garmentType = "Single", id = 33)
+                DownloadScreen(navController = navController, garmentType = "Single", id = 37)
             }
             composable(
                 route = Screen.GarmentDetail.route,

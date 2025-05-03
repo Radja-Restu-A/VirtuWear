@@ -27,6 +27,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.virtuwear.components.Alert
+import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.components.font
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
@@ -45,7 +47,7 @@ fun UploadPhotoScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
+    var showError by remember { mutableStateOf(false) }
     val selectedGarmentType by uploadViewModel.selectedGarmentType
     val imageUris by uploadViewModel.imageUris
     var isLoading by remember { mutableStateOf(false) }
@@ -133,6 +135,19 @@ fun UploadPhotoScreen(
                 }
             }
         }
+        if (showError) {
+            Alert(
+                showDialog = showError,
+                onDismiss = { showError = false },
+                title = "Anda belum upload foto untuk salah satu",
+                message = "Pastikan gambar sudah di upload keseluruhan agar kami bisa memproses!",
+                confirmButtonText = "Confirm",
+                onConfirmClick = { showError = false },
+                onCancelClick = { showError = false },
+                type = AlertType.ERROR
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,6 +157,12 @@ fun UploadPhotoScreen(
         ) {
             Button(
                 onClick = {
+                    val kebutuhan = if (selectedGarmentType == "Single Garment") 2 else 3
+                    val terpenuhi = imageUris.take(kebutuhan).count { it != null }
+                    if (terpenuhi < kebutuhan) {
+                        showError = true
+                        return@Button
+                    }
                     isLoading = true
                     coroutineScope.launch {
                         try {

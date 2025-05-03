@@ -182,7 +182,8 @@ fun GarmentDetailScreen(
                             garment?.resultImg?.let {
                                 downloadViewModel.downloadPhoto(
                                     context,
-                                    it
+                                    it,
+                                    "VirtuWear"
                                 )
                             }
                         },
