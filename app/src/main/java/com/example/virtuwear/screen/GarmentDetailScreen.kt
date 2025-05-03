@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -52,8 +53,10 @@ import androidx.navigation.NavController
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import com.example.virtuwear.R
 import com.example.virtuwear.components.HistoryItem
+import com.example.virtuwear.components.Notes
 import com.example.virtuwear.data.model.SingleGarmentResponse
 import com.example.virtuwear.viewmodel.GarmentDetailViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,9 +70,17 @@ fun GarmentDetailScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var garment by remember { mutableStateOf<SingleGarmentResponse?>(null) }
+    val notesInput = remember { mutableStateOf("") }
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()
+        notesInput.value = garment?.notes ?: ""
+    }
+
+    LaunchedEffect(notesInput.value) {
+        garment?.idSingle?.let {
+            garmentDetailViewModel.updateNotes(it, notesInput.value)
+        }
     }
 
     Scaffold(
@@ -150,25 +161,11 @@ fun GarmentDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Catatan:",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(
+                Notes(
+                    value = notesInput.value,
+                    onValueChange = { notesInput.value = it },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(2.dp))
-                        .padding(12.dp)
-                ) {
-                    Text(
-                        text = garment?.notes ?: "(Tidak ada catatan)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF343131)
-                    )
-                }
+                )
 
                 Spacer(Modifier.height(20.dp))
 

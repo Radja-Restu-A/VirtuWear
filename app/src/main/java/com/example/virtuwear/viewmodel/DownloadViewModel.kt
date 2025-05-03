@@ -181,15 +181,15 @@ class DownloadViewModel @Inject constructor (
             snapshotFlow { notesInput.value }
                 .debounce(500)
                 .distinctUntilChanged()
-                .collect { newNotes ->
+                .collect {
                     val model = SingleGarmentModel(
                         idSingle = id,
                         notes = notesInput.value,
-                        userId = getInfoId()?.let { it.uid } ?: ""
+                        userId = getInfoId()?.uid ?: ""
                     )
                     Log.e(notesInput.value, "pesan kekirim")
                     repositorySingleGarment.updateNotes(id, model)
-        }
+            }
         }
     }
 
