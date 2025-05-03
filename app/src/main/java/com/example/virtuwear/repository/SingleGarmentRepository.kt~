@@ -97,7 +97,7 @@ class SingleGarmentRepository @Inject constructor(
             Result.failure(e)
         }
     }
-
+    
     suspend fun updateNotes(id: Long, model: SingleGarmentModel): Result<SingleGarmentModel> {
         return try {
             val response = service.updateNotes(id, model)

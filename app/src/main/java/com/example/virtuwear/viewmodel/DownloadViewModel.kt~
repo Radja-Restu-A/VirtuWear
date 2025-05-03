@@ -6,12 +6,19 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentResponse
 import com.example.virtuwear.data.model.UserResponse
 import com.example.virtuwear.data.service.SingleGarmentService
+import com.example.virtuwear.repository.SingleGarmentRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +26,8 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import java.io.*
@@ -29,7 +38,8 @@ import javax.inject.Inject
 @HiltViewModel
 
 class DownloadViewModel @Inject constructor (
-    private val singleGarmentService: SingleGarmentService
+    private val singleGarmentService: SingleGarmentService,
+    private val repositorySingleGarment: SingleGarmentRepository
 ) : ViewModel () {
 
     val singleResponse = MutableLiveData<Response<SingleGarmentResponse>>()
@@ -117,13 +127,9 @@ class DownloadViewModel @Inject constructor (
         }
     }
 
-    fun downloadPhoto(context: Context, imageUrl: String, fileNameInput: String) {
+    fun downloadPhoto(context: Context, imageUrl: String) {
         viewModelScope.launch {
-            val fileName = if (fileNameInput.isNotEmpty()) {
-                if (fileNameInput.contains(".")) fileNameInput else "$fileNameInput.jpg"
-            } else {
-                "VirtuWear_${System.currentTimeMillis()}.jpg"
-            }
+            val fileName = "VirtuWear_${System.currentTimeMillis()}.jpg"
 
             try {
                 withContext(Dispatchers.IO) {
@@ -150,9 +156,6 @@ class DownloadViewModel @Inject constructor (
             }
         }
     }
-<<<<<<< HEAD
-}
-=======
 
     fun getResultById(id: Long) {
         viewModelScope.launch {
@@ -169,7 +172,42 @@ class DownloadViewModel @Inject constructor (
         }
     }
 
+    fun getInfoId() : FirebaseUser? {
+        return FirebaseAuth.getInstance().currentUser
+    }
 
+    fun updateNotes(id: Long, notesInput: MutableState<String>) {
+        viewModelScope.launch {
+            snapshotFlow { notesInput.value }
+                .debounce(500)
+                .distinctUntilChanged()
+                .collect { newNotes ->
+                    val model = SingleGarmentModel(
+                        idSingle = id,
+                        notes = notesInput.value,
+                        userId = getInfoId()?.let { it.uid } ?: ""
+                    )
+                    Log.e(notesInput.value, "pesan kekirim")
+                    repositorySingleGarment.updateNotes(id, model)
+        }
+        }
+    }
+
+    fun updateOutfitName(id: Long, outfitName: MutableState<String>) {
+        viewModelScope.launch {
+            try {
+                val model = SingleGarmentModel(
+                    idSingle = id,
+                    outfitName = outfitName.value,
+                    userId = getInfoId()?.let { it.uid } ?: ""
+                )
+                Log.d("Update OutfitName", "Updating outfit name for id=$id to '${outfitName.value}'")
+                repositorySingleGarment.updateOutfitName(id, model)
+                Log.d("Update OutfitName", "Update outfit name result: $result")
+            } catch (e: Exception) {
+                Log.e("Update OutfitName", "Error updating outfit name: ${e.message}", e)
+            }
+        }
+    }
 
 }
->>>>>>> 36ebf48dc6a1db1b7da415ad0b24a85f69e0df68
