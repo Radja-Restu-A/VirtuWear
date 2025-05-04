@@ -37,6 +37,7 @@ import com.example.virtuwear.screen.DownloadScreen
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Refresh
+import com.example.virtuwear.screen.BookmarkScreen
 import com.example.virtuwear.screen.HistoryScreen
 import com.example.virtuwear.screen.GarmentDetailScreen
 
@@ -49,6 +50,7 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object GarmentDetail : Screen("garmentDetail/{idSingle}")
     object Download : Screen("download")
+    object Bookmark : Screen("bookmark")
 }
 
 // Define bottom navigation items
@@ -108,7 +110,15 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                 ProfileScreen(navController = navController)
             }
             composable(Screen.Download.route) {
-                DownloadScreen(navController = navController, garmentType = "Single", id = 33)
+                DownloadScreen(
+                    navController = navController,
+                    garmentType = "Single",
+                    id = 19
+                )
+            }
+
+            composable(Screen.Bookmark.route) {
+                BookmarkScreen(navController = navController)
             }
             composable(
                 route = Screen.GarmentDetail.route,

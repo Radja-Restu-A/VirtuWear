@@ -84,7 +84,8 @@ interface SingleGarmentService {
     ): Response<SingleGarmentDto>
 
 
-    @GET("api/single-garments/bookmarked")
-    suspend fun getBookmarkedItems(): Response<List<SingleGarmentResponse>>
-
+    @GET("api/single-garments/bookmarked/{userId}")
+    suspend fun getBookmarkedItems(
+        @Path("userId") userId: String
+    ): Response<List<SingleGarmentModel>>
 }
