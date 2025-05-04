@@ -120,4 +120,7 @@ class SingleGarmentRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun getBookmarked(userId: String) = service.getBookmarkedItems(userId)
+
 }

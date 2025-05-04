@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,34 +27,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.virtuwear.components.GarmentDetail
 import com.example.virtuwear.components.HistoryItem
+import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
-import com.example.virtuwear.viewmodel.HistoryViewModel
 import com.example.virtuwear.viewmodel.LoginViewModel
 import com.example.virtuwear.data.model.SingleGarmentModel
+import com.example.virtuwear.viewmodel.BookmarkUiState
+import com.example.virtuwear.viewmodel.BookmarkViewModel
 
 @Composable
 fun BookmarkScreen(
     navController: NavController,
-    historyViewModel: HistoryViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    bookmarkViewModel : BookmarkViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
-    val state by historyViewModel.uiState
+    val state by bookmarkViewModel.uiState
     val firebase = loginViewModel.getCurrentUser()
     val uid = firebase?.uid
-    var selectedGarment by remember { mutableStateOf<SingleGarmentModel?>(null) }
+    val selectedGarment by bookmarkViewModel.selectedGarment.collectAsState()
 
     LaunchedEffect(uid) {
         if (uid != null) {
-            historyViewModel.getAllGarmentByUser(uid)
+            bookmarkViewModel.getBookmarkedGarment(uid)
         }
     }
 
     Column {
-
         when (state) {
-            is HistoryUiState.Loading -> {
+            is BookmarkUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -62,19 +63,17 @@ fun BookmarkScreen(
                 }
             }
 
-            is HistoryUiState.Success -> {
-                val garments = (state as HistoryUiState.Success).garments
+            is BookmarkUiState.Success -> {
+                val garments = (state as BookmarkUiState.Success).garments
                 if (garments.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Nothing to show here")
+                        Text("Outfit yang kamu cari tidak ada.")
                     }
                 } else {
-                    val leftColumn = garments.filterIndexed { index, _ -> index % 2 == 0 }
-                    val rightColumn = garments.filterIndexed { index, _ -> index % 2 != 0 }
-
+                    // Create two equal columns using a better approach
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -85,23 +84,34 @@ fun BookmarkScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Left column
                             Column(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                leftColumn.forEach { img ->
-                                    img.resultImg?.let {
-                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                // Take items at even indices (0, 2, 4, ...)
+                                for (i in garments.indices.filter { it % 2 == 1 }) {
+                                    garments[i].resultImg?.let { imageUrl ->
+                                        HistoryItem(imageUrl, onClick = {
+                                            bookmarkViewModel.selectGarment(garments[i])
+                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                        })
                                     }
                                 }
                             }
+
+                            // Right column
                             Column(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                rightColumn.forEach { img ->
-                                    img.resultImg?.let {
-                                        HistoryItem(it, onClick = { selectedGarment = img })
+                                // Take items at odd indices (1, 3, 5, ...)
+                                for (i in garments.indices.filter { it % 2 == 0 }) {
+                                    garments[i].resultImg?.let { imageUrl ->
+                                        HistoryItem(imageUrl, onClick = {
+                                            bookmarkViewModel.selectGarment(garments[i])
+                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                        })
                                     }
                                 }
                             }
@@ -110,8 +120,7 @@ fun BookmarkScreen(
                 }
             }
 
-            is HistoryUiState.Error -> {
-                val error = (state as HistoryUiState.Error).message
+            is BookmarkUiState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -128,8 +137,5 @@ fun BookmarkScreen(
                 }
             }
         }
-    }
-    selectedGarment?.let { garment ->
-        GarmentDetail(garment = garment, onDismiss = { selectedGarment = null })
     }
 }
