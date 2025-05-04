@@ -58,7 +58,7 @@ fun ProfileScreen(
 ) {
     val userResponse by profileViewModel.userResponse.observeAsState()
     LaunchedEffect (Unit) {
-        profileViewModel.getUserProfileById()
+        profileViewModel.getDashboardById()
     }
 
     Column(

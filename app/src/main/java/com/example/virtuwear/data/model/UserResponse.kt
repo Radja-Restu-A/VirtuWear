@@ -14,5 +14,6 @@ data class UserResponse(
     val totalTryon: Int,
     val totalGenerate: Int,
     val redeemedReferral: String,
-    val referral: Referral
+    val referral: Referral,
+    val totalInvitation: Int
 )
