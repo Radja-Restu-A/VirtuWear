@@ -4,10 +4,10 @@ package com.example.virtuwear.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.BuildConfig
 import com.example.virtuwear.data.model.KlingAiRequestDto
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
@@ -51,7 +51,7 @@ class UploadViewModel @Inject constructor(
     }
 
     suspend fun uploadImage(): List<String?> {
-        val apiKey = "98b550fd3318f73deb836066e8e2106b"
+        val apiKey = BuildConfig.IMAGE_BB_API_KEY
         val urlsView = mutableListOf<String?>()
 
         imageUris.value
