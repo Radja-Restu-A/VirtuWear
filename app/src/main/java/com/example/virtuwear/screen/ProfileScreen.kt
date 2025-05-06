@@ -171,7 +171,7 @@ fun ProfileScreen(
 
         // Bookmark button
         Button (
-            onClick = { },
+            onClick = { navController.navigate("bookmark") },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Black

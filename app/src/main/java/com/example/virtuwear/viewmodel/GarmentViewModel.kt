@@ -1,6 +1,7 @@
 package com.example.virtuwear.viewmodel
 
 import android.util.Log
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.virtuwear.data.model.DoubleGarmentModel
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GarmentViewModel @Inject constructor(
     private val serviceSingle: SingleGarmentService,
+    private val singleGarmentRepository: SingleGarmentRepository,
     private val serviceDouble: DoubleGarmentService
 ) : ViewModel() {
 
@@ -42,16 +44,21 @@ class GarmentViewModel @Inject constructor(
     init {
         loadBookmarkedItems()
     }
-
+    val firebase = FirebaseAuth.getInstance().currentUser
+    val user = firebase?.uid
+    val uid = user
     // Fungsi untuk memuat data bookmark dari server
     private fun loadBookmarkedItems() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 // Load bookmarked single items
-                val singleBookmarks = serviceSingle.getBookmarkedItems()
-                if (singleBookmarks.isSuccessful) {
-                    _bookmarkedSingleItems.value = singleBookmarks.body()?.map { it.idSingle }?.toSet() ?: setOf()
+                val singleBookmarks = uid?.let { singleGarmentRepository.getBookmarked(it) }
+                if (singleBookmarks != null) {
+                    if (singleBookmarks.isSuccessful) {
+                        _bookmarkedSingleItems.value =
+                            (singleBookmarks.body()?.map { it.idSingle }?.toSet() ?: setOf()) as Set<Long>
+                    }
                 }
 
                 // Load bookmarked double items
