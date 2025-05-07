@@ -47,7 +47,6 @@ fun HistoryScreen(
     val firebase = loginViewModel.getCurrentUser()
     val uid = firebase?.uid
     var query by remember { mutableStateOf("") }
-    val selectedGarment by historyViewModel.selectedGarment.collectAsState()
 
     LaunchedEffect(uid) {
         if (uid != null) {
@@ -64,7 +63,6 @@ fun HistoryScreen(
                 historyViewModel.searchGarment(query)
             }
         )
-
 
         when (state) {
             is HistoryUiState.Loading -> {
@@ -83,7 +81,7 @@ fun HistoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Outfit yang kamu cari tidak ada.")
+                        Text("You still have not generated any photos.")
                     }
                 } else {
                     // Create two equal columns using a better approach
@@ -102,8 +100,7 @@ fun HistoryScreen(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // Take items at even indices (0, 2, 4, ...)
-                                for (i in garments.indices.filter { it % 2 == 1 }) {
+                                for (i in garments.indices.filter { it % 2 == 0 }) {
                                     garments[i].resultImg?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])
@@ -119,7 +116,7 @@ fun HistoryScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 // Take items at odd indices (1, 3, 5, ...)
-                                for (i in garments.indices.filter { it % 2 == 0 }) {
+                                for (i in garments.indices.filter { it % 2 == 1 }) {
                                     garments[i].resultImg?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])

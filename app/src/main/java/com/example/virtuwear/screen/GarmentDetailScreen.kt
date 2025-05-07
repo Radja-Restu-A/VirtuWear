@@ -52,6 +52,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import com.example.virtuwear.R
+import com.example.virtuwear.components.Alert
+import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Notes
 import com.example.virtuwear.data.model.SingleGarmentResponse
@@ -71,6 +73,7 @@ fun GarmentDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     var garment by remember { mutableStateOf<SingleGarmentResponse?>(null) }
     val notesInput = remember { mutableStateOf("") }
+    var showModals by remember { mutableStateOf(false) }
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()
@@ -213,13 +216,10 @@ fun GarmentDetailScreen(
 
                     IconButton(
                         onClick = {
-                            coroutineScope.launch {
-                                if (garment != null) {
-                                    garmentDetailViewModel.deleteGarment(garment!!.idSingle)
-                                    onDismiss()
-                                } else {
-                                    Toast.makeText(context, "Gagal menghapus: ID tidak tersedia", Toast.LENGTH_SHORT).show()
-                                }
+                            if (garment != null) {
+                                showModals = true
+                            } else {
+                                Toast.makeText(context, "Cant delete image", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier
@@ -231,6 +231,26 @@ fun GarmentDetailScreen(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Hapus",
                             tint = Color.White
+                        )
+                    }
+
+                    if (showModals) {
+                        Alert(
+                            showDialog = showModals,
+                            onDismiss = { showModals = false },
+                            title = "Delete Image?",
+                            message = "Once deleted, the image cannot be recovered",
+                            confirmButtonText = "Delete",
+                            cancelButtonText = "Cancel",
+                            onConfirmClick = {
+                                coroutineScope.launch {
+                                    garment?.let { garmentDetailViewModel.deleteGarment(it.idSingle) }
+                                    onDismiss()
+                                    showModals = false
+                                }
+                            },
+                            onCancelClick = { showModals = false },
+                            type = AlertType.CONFIRMATION
                         )
                     }
                 }
