@@ -123,4 +123,26 @@ class SingleGarmentRepository @Inject constructor(
 
     suspend fun getBookmarked(userId: String) = service.getBookmarkedItems(userId)
 
+    suspend fun findByCreatedAt(timeMillis: Long): Result<List<SingleGarmentModel>> {
+        return try {
+            val response = service.findByCreatedAt(timeMillis)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Log.d("FIND BY CREATED AT", "Data ditemukan untuk waktu: $timeMillis")
+                    Log.d("SingleGarmentRepo", "Find by createdAt berhasil")
+                    Result.success(body)
+                } else {
+                    Log.e("SingleGarmentRepo", "Find by createdAt failed: empty body")
+                    Result.failure(Exception("Empty response body"))
+                }
+            } else {
+                Log.e("SingleGarmentRepo", "Find by createdAt failed: ${response.code()} - ${response.message()}")
+                Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("SingleGarmentRepo", "Find by createdAt exception: ${e.localizedMessage}")
+            Result.failure(e)
+        }
+    }
 }

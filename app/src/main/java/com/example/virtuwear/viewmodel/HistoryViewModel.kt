@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.net.Uri
+import com.example.virtuwear.repository.SingleGarmentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -26,17 +27,35 @@ sealed class HistoryUiState {
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val singleGarmentService: SingleGarmentService
+    private val singleGarmentService: SingleGarmentService,
+    private val singleGarmentRepository: SingleGarmentRepository
 ) : ViewModel() {
 
     private val _uiState = mutableStateOf<HistoryUiState>(HistoryUiState.Loading)
     val uiState: State<HistoryUiState> = _uiState
     private val _selectedGarment = MutableStateFlow<SingleGarmentModel?>(null)
-    val selectedGarment: StateFlow<SingleGarmentModel?> = _selectedGarment
 
     fun selectGarment(garment: SingleGarmentModel) {
         _selectedGarment.value = garment
     }
+
+    fun sortingByDate(timeMillis: Long) {
+        viewModelScope.launch {
+            _uiState.value = HistoryUiState.Loading
+            try {
+                val response = singleGarmentService.findByCreatedAt(timeMillis)
+                if (response.isSuccessful) {
+                    val garments = response.body() ?: emptyList()
+                    _uiState.value = HistoryUiState.Success(garments)
+                } else {
+                    _uiState.value = HistoryUiState.Error("There is no image from this date")
+                }
+            } catch (e: Exception) {
+                _uiState.value = HistoryUiState.Error("Sorry we couldn't find your image")
+            }
+        }
+    }
+
 
     fun getAllGarmentByUser(uid: String) {
         Log.d("HistoryViewModel", "Memulai permintaan data untuk uid: $uid")

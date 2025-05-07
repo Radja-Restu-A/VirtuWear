@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,8 @@ import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
 import com.example.virtuwear.viewmodel.HistoryViewModel
 import com.example.virtuwear.viewmodel.LoginViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun HistoryScreen(
@@ -56,6 +59,7 @@ fun HistoryScreen(
     val uid = firebase?.uid
     var query by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(uid) {
         if (uid != null) {
@@ -142,7 +146,7 @@ fun HistoryScreen(
                                             modifier = Modifier.fillMaxSize()
                                         ) {
                                             Text(
-                                                text = garments.size.toString(),
+                                                text = garments.count{it.resultImg != null}.toString(),
                                                 color = Color.Black,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -151,8 +155,13 @@ fun HistoryScreen(
                                 }
 
                                 if (showDatePicker){
-                                    DatePickerModal(onDateSelected = { selectedDate ->
-                                        println("Tanggal dipilih (millis): $selectedDate")
+                                    DatePickerModal(
+                                        onDateSelected = { selectedDate ->
+                                            if (selectedDate != null) {
+                                                coroutineScope.launch {
+                                                    historyViewModel.sortingByDate(selectedDate)
+                                                }
+                                            }
                                     },
                                         onDismiss = {
                                             showDatePicker = false
