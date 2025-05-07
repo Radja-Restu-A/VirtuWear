@@ -72,6 +72,7 @@ dependencies {
     implementation (libs.material3)
     implementation (libs.ui.tooling.preview)
     implementation (libs.androidx.runtime.livedata)
+    implementation (libs.androidx.material)
     androidTestImplementation(libs.junit.junit)
     debugImplementation (libs.ui.tooling)
 

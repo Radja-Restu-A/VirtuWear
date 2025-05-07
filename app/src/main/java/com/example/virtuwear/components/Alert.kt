@@ -40,6 +40,11 @@ fun Alert(
     onCancelClick: (() -> Unit)? = null,
     type: AlertType = AlertType.CONFIRMATION
 ) {
+    var containerColorCancle = Color.White
+    var contentColorCancle = Color.Black
+    var textColorCancle = Color.Black
+    var containerColorConfirm = Color.Black
+    var textColorConfirm = Color.White
     if (showDialog) {
         Dialog(
             onDismissRequest = onDismiss,
@@ -114,44 +119,52 @@ fun Alert(
                     }
 
                     // Buttons
-                    Column(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(
-                            onClick = onConfirmClick,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Black
-                            ),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = confirmButtonText,
-                                color = Color.White
-                            )
+                        if(type == AlertType.CONFIRMATION){
+                            containerColorCancle = Color.Black
+                            contentColorCancle = Color.White
+                            textColorCancle = Color.White
+                            containerColorConfirm = Color.White
+                            textColorConfirm = Color.Black
                         }
-
                         if (cancelButtonText != null && onCancelClick != null) {
                             Button(
                                 onClick = onCancelClick,
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .weight(1f)
                                     .height(48.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.White,
-                                    contentColor = Color.Black
+                                    containerColor = containerColorCancle,
+                                    contentColor = contentColorCancle
                                 ),
                                 shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text(
                                     text = cancelButtonText,
-                                    color = Color.Black
+                                    color = textColorCancle
                                 )
                             }
+                        }
+                        Button(
+                            onClick = onConfirmClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = containerColorConfirm
+                            ),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = confirmButtonText,
+                                color = textColorConfirm
+                            )
                         }
                     }
                 }
