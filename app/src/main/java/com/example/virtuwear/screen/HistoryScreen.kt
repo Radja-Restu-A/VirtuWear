@@ -1,6 +1,8 @@
 package com.example.virtuwear.screen
 
+import DatePickerModal
 import android.graphics.drawable.Icon
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +10,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +55,7 @@ fun HistoryScreen(
     val firebase = loginViewModel.getCurrentUser()
     val uid = firebase?.uid
     var query by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(uid) {
         if (uid != null) {
@@ -100,6 +109,56 @@ fun HistoryScreen(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ){
+                                    Button(
+                                        onClick = {
+                                            showDatePicker = true
+                                        },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(40.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black) ,
+                                        shape = RoundedCornerShape(24.dp)
+                                    ) {
+                                        Text(
+                                            text = "Date",
+                                            color = Color.White
+                                        )
+                                    }
+
+                                    Surface(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(40.dp),
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(24.dp),
+                                        border = BorderStroke(2.2.dp, Color.Black)
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            Text(
+                                                text = garments.size.toString(),
+                                                color = Color.Black,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
+
+                                if (showDatePicker){
+                                    DatePickerModal(onDateSelected = { selectedDate ->
+                                        println("Tanggal dipilih (millis): $selectedDate")
+                                    },
+                                        onDismiss = {
+                                            showDatePicker = false
+                                        }
+                                    )
+                                }
                                 for (i in garments.indices.filter { it % 2 == 0 }) {
                                     garments[i].resultImg?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
