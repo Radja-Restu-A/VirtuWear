@@ -294,7 +294,7 @@ fun ProfileScreen(
                 }
             },
             title = "Privacy & Policy",
-            onClick = { showPrivacyPolicy = true }
+            onClick = 
         )
 
         Spacer(modifier = Modifier.weight(1f))

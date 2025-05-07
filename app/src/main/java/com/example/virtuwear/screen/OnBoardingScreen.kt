@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.virtuwear.R
 import com.example.virtuwear.components.Header
+import com.example.virtuwear.components.PrivacyPolicy
 import com.example.virtuwear.data.OnboardingManager
 import kotlinx.coroutines.launch
 
@@ -36,7 +37,20 @@ fun OnBoardingScreen(navController: NavController) {
     val onboardingManager = remember { OnboardingManager(context) }
     val scope = rememberCoroutineScope()
 
+    var showPrivacyPolicy by remember { mutableStateOf(false) }
+    var privacyPolicyAccepted by remember { mutableStateOf(false) }
+
     Header("VirtuWear")
+
+    PrivacyPolicy(
+        showPrivacy = showPrivacyPolicy,
+        onDismiss = {
+            showPrivacyPolicy = false
+        },
+        onAccept = { accepted ->
+            privacyPolicyAccepted = accepted
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -119,6 +133,37 @@ fun OnBoardingScreen(navController: NavController) {
     ) {
         Spacer(modifier = Modifier.height(200.dp))
 
+        // Display "Read Privacy Policy" button on second page
+        if (currentPage == 2) {
+            TextButton(
+                onClick = { showPrivacyPolicy = true },
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                Text(
+                    text = "Read Privacy Policy",
+                    color = Color.Blue,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+            if (privacyPolicyAccepted) {
+                Text(
+                    text = "✓ Privacy policy accepted",
+                    color = Color.Green,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Text(
+                    text = "Please read and accept the privacy policy to continue",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -127,13 +172,19 @@ fun OnBoardingScreen(navController: NavController) {
         ) {
             TextButton(
                 onClick = {
-                    scope.launch {
-                        onboardingManager.setOnboardingCompleted()
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
+                    // Only allow skipping on first page or if privacy policy is accepted
+                    if (currentPage == 1 || privacyPolicyAccepted) {
+                        scope.launch {
+                            onboardingManager.setOnboardingCompleted()
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
                             }
                         }
+                    } else {
+                        // Show privacy policy if trying to skip on second page without accepting
+                        showPrivacyPolicy = true
                     }
                 }
             ) {
@@ -148,7 +199,8 @@ fun OnBoardingScreen(navController: NavController) {
                 onClick = {
                     if (currentPage == 1) {
                         currentPage = 2
-                    } else {
+                    } else if (privacyPolicyAccepted) {
+                        // Only allow navigation to login if privacy policy is accepted
                         scope.launch {
                             onboardingManager.setOnboardingCompleted()
                             navController.navigate("login") {
@@ -157,6 +209,9 @@ fun OnBoardingScreen(navController: NavController) {
                                 }
                             }
                         }
+                    } else {
+                        // Show privacy policy if trying to proceed without accepting
+                        showPrivacyPolicy = true
                     }
                 },
                 modifier = Modifier
@@ -164,7 +219,9 @@ fun OnBoardingScreen(navController: NavController) {
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black
-                )
+                ),
+                // Button is always enabled, but will show privacy policy if needed
+                enabled = true
             ) {
                 Text(
                     text = "Next",
