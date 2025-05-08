@@ -1,5 +1,6 @@
 package com.example.virtuwear.screen
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +61,16 @@ fun ProfileScreen(
     LaunchedEffect (Unit) {
         profileViewModel.getDashboardById()
     }
+    LaunchedEffect(userResponse) {
+        userResponse?.let {
+            if (it.isSuccessful) {
+                Log.d("ProfileScreen", "User data from API: ${it.body()}")
+            } else {
+                Log.e("ProfileScreen", "API Error: ${it.code()} - ${it.message()}")
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier

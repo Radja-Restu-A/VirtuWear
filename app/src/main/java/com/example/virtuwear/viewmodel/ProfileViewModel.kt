@@ -42,23 +42,28 @@ class ProfileViewModel @Inject constructor (
                 val userId = getUserId()
                 val response = userRepository.updateDashboard(userId)
                 _userResponse.postValue(response)
-                Log.e("Profile View Model", "response: $response")
+
+                Log.d("ProfileViewModel", "Dashboard Response Success: ${response.body()}")
+                Log.d("ProfileViewModel", "Dashboard Raw Response: $response")
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("ProfileViewModel", "Dashboard Error: ${e.message}", e)
             }
         }
     }
+
 
     fun getUserProfileById() {
         viewModelScope.launch {
             try {
                 val userId = getUserId()
-                userRepository.updateDashboard(userId)
                 val response = userRepository.getUserById(userId)
                 _userResponse.postValue(response)
+
+                Log.d("ProfileViewModel", "Profile Response Success: ${response.body()}")
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("ProfileViewModel", "Profile Error: ${e.message}", e)
             }
         }
     }
+
 }

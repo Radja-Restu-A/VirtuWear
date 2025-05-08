@@ -15,5 +15,4 @@ data class UserResponse(
     val totalGenerate: Int,
     val redeemedReferral: String,
     val referral: Referral,
-    val totalInvitation: Int
 )

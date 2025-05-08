@@ -32,6 +32,7 @@ import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.components.font
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
+import com.example.virtuwear.repository.UserRepository
 import com.example.virtuwear.viewmodel.UploadViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.example.virtuwear.viewmodel.LoginViewModel
@@ -188,6 +189,10 @@ fun UploadPhotoScreen(
                                         uploadViewModel.updateResultImage(
                                             it, updateResult)
                                     }
+                                    if (user != null) {
+                                        loginViewModel.updateTotalGenerate(user)
+                                    }
+
                                     isLoading = false
                                     navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
                                 } else {
