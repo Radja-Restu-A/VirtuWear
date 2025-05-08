@@ -124,7 +124,10 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
             }
 
             composable(Screen.Bookmark.route) {
-                BookmarkScreen(navController = navController)
+                BookmarkScreen(
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() }
+                )
             }
             composable(
                 route = Screen.GarmentDetail.route,
@@ -136,6 +139,7 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                     onDismiss = { navController.popBackStack() }
                 )
             }
+
             composable(
                 route = "download?garmentType={garmentType}&id={id}",
                 arguments = listOf(

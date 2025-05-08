@@ -7,6 +7,7 @@ import com.example.virtuwear.R
 import com.example.virtuwear.data.AppDatabase
 import com.example.virtuwear.data.entity.ProfileEntity
 import com.example.virtuwear.repository.AuthRepository
+import com.example.virtuwear.repository.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     application: Application,
     private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
     private val daoProfile = AppDatabase.getDatabase(application).profileDao
 
@@ -54,5 +56,9 @@ class LoginViewModel @Inject constructor(
 
     fun sendTokenToBackend(uid: String, email: String, name: String) {
         authRepository.sendTokenToBackend(uid, email, name)
+    }
+
+    suspend fun updateTotalGenerate(userId: String) {
+        userRepository.updateTotalGenerate(userId)
     }
 }
