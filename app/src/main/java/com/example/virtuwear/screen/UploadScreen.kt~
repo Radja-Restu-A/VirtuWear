@@ -36,7 +36,6 @@ import com.example.virtuwear.components.Alert
 import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
-import com.example.virtuwear.repository.UserRepository
 import com.example.virtuwear.viewmodel.UploadViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.example.virtuwear.viewmodel.LoginViewModel
@@ -64,7 +63,7 @@ fun UploadPhotoScreen(
     val firebase = loginViewModel.getCurrentUser()
     val user = firebase?.uid
 
-    // File Path sementara buat gambar dari camera
+    // Create temporary file for camera photo
     val tempImageFile = remember {
         try {
             File.createTempFile(
@@ -88,7 +87,7 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Minta permission sama pengguna buat akses directory sama kamera
+    // Permission launcher
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -100,10 +99,12 @@ fun UploadPhotoScreen(
         }
 
         if (cameraGranted && readGranted) {
+            // Both permissions granted, proceed with the action that was attempted
             when (currentUploadIndex) {
                 0, 1, 2 -> showUploadOptions = true
             }
         } else {
+            // Show error message about required permissions
             permissionError = if (!cameraGranted && !readGranted) {
                 "Camera and storage permissions are required"
             } else if (!cameraGranted) {
@@ -115,7 +116,7 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Image picker launcher dari gallery
+    // Image picker launcher (from gallery)
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -137,15 +138,17 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Check permissions
+    // Check permissions before showing options
     fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
+        // Check camera permission
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.CAMERA)
         }
 
+        // Check storage permissions based on Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -161,15 +164,18 @@ fun UploadPhotoScreen(
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
+            // All permissions are already granted
             showUploadOptions = true
         }
     }
 
+    // Function to handle upload box click
     fun onUploadBoxClick(index: Int) {
         currentUploadIndex = index
         checkAndRequestPermissions()
     }
 
+    // Dialog for showing upload options
     if (showUploadOptions) {
         UploadOptionsDialog(
             onDismiss = { showUploadOptions = false },
@@ -329,10 +335,6 @@ fun UploadPhotoScreen(
                                         uploadViewModel.updateResultImage(
                                             it, updateResult)
                                     }
-                                    if (user != null) {
-                                        loginViewModel.updateTotalGenerate(user)
-                                    }
-
                                     isLoading = false
                                     navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
                                 } else {
@@ -457,7 +459,7 @@ fun UploadOptionsDialog(
                 Button(
                     onClick = onGalleryClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E3E3E))
                 ) {
                     Text("From Gallery")
                 }
@@ -467,7 +469,7 @@ fun UploadOptionsDialog(
                 Button(
                     onClick = onCameraClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xF0000000))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E3E3E))
                 ) {
                     Text("Take Photo")
                 }

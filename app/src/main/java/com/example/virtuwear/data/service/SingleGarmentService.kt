@@ -88,4 +88,9 @@ interface SingleGarmentService {
     suspend fun getBookmarkedItems(
         @Path("userId") userId: String
     ): Response<List<SingleGarmentModel>>
+
+    @GET("api/single-garments/sort/date/{timeMillis}")
+    suspend fun findByCreatedAt(
+        @Path("timeMillis") timeMillis: Long
+    ): Response<List<SingleGarmentModel>>
 }

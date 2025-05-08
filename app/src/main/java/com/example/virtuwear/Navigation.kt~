@@ -120,14 +120,11 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
             }
 
             composable(Screen.PrivacyPolicy.route) {
-                PrivacyPolicy(showPrivacy = true, onDismiss = {}, onAccept = {})
+                PrivacyPolicy(showPrivacy = true, onDismiss = {})
             }
 
             composable(Screen.Bookmark.route) {
-                BookmarkScreen(
-                    navController = navController,
-                    onDismiss = { navController.popBackStack() }
-                )
+                BookmarkScreen(navController = navController)
             }
             composable(
                 route = Screen.GarmentDetail.route,
@@ -139,7 +136,6 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                     onDismiss = { navController.popBackStack() }
                 )
             }
-
             composable(
                 route = "download?garmentType={garmentType}&id={id}",
                 arguments = listOf(
