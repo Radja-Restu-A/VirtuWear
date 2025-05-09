@@ -12,10 +12,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 
 class SplashActivity : AppCompatActivity() {
 
-    private val splashTime: Long = 3000 // 5 detik
+    private val splashTime: Long = 2725 // 5 detik
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +38,19 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
-        val logo = ImageView(this).apply {
-            setImageResource(R.drawable.logovirtuwear)
+        val logo = LottieAnimationView(this).apply {
+            setAnimation(R.raw.animated_logo)
+            repeatCount = LottieDrawable.INFINITE
+            playAnimation()
             layoutParams = LinearLayout.LayoutParams(600, 600).apply {
                 bottomMargin = 16
                 gravity = Gravity.CENTER
             }
+//            setImageResource(R.drawable.logovirtuwear)
+//            layoutParams = LinearLayout.LayoutParams(600, 600).apply {
+//                bottomMargin = 16
+//                gravity = Gravity.CENTER
+//            }
         }
 
         val progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
@@ -66,10 +75,10 @@ class SplashActivity : AppCompatActivity() {
                 bottomMargin = 70
             }
         }
-        progressBar.indeterminateDrawable.setTint(Color.BLACK)
+//        progressBar.indeterminateDrawable.setTint(Color.BLACK)
 
         centerContainer.addView(logo)
-        centerContainer.addView(progressBar)
+//        centerContainer.addView(progressBar)
 
         mainLayout.addView(centerContainer)
         mainLayout.addView(tulisan)
