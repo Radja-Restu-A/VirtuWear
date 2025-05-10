@@ -66,6 +66,8 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.foundation.android)
     testImplementation(libs.junit)
+    implementation (libs.androidx.ui.v150)
+
 
     // Jetpack Compose & Material3
     implementation (libs.ui)
@@ -115,8 +117,8 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.accompanist.drawablepainter)
 
-    // Facebook
-    implementation (libs.facebook.android.sdk)
+    //lotie
+    implementation(libs.lottie.compose)
 
     // Datastore Onboarding
     implementation (libs.androidx.datastore.preferences.v111)
