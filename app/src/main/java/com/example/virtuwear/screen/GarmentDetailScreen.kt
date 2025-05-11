@@ -54,10 +54,12 @@ import com.example.virtuwear.viewmodel.DownloadViewModel
 import com.example.virtuwear.R
 import com.example.virtuwear.components.Alert
 import com.example.virtuwear.components.AlertType
+import com.example.virtuwear.components.BookmarkButton
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Notes
 import com.example.virtuwear.data.model.SingleGarmentResponse
 import com.example.virtuwear.viewmodel.GarmentDetailViewModel
+import com.example.virtuwear.viewmodel.GarmentViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -67,7 +69,8 @@ fun GarmentDetailScreen(
     idSingle: Long,
     onDismiss: () -> Unit,
     downloadViewModel: DownloadViewModel = hiltViewModel(),
-    garmentDetailViewModel: GarmentDetailViewModel = hiltViewModel()
+    garmentDetailViewModel: GarmentDetailViewModel = hiltViewModel(),
+    garmentViewModel : GarmentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -120,7 +123,20 @@ fun GarmentDetailScreen(
                     .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
                 garment?.resultImg?.let {
-                    HistoryItem(it, null)
+                    HistoryItem(
+                        it,
+                        null,
+                        bookmarkButton = {
+                            garment?.idSingle?.let {
+                                BookmarkButton(
+                                    id = it,
+                                    isSingle = true,
+                                    viewModel = garmentViewModel
+                                )
+                            }
+
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
