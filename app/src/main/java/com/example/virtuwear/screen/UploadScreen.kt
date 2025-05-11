@@ -204,21 +204,21 @@ fun UploadPhotoScreen(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(
-                onClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
-                            }
-                        }
-                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            ) {
-                Text("Logout", color = Color.Red)
-            }
+//            TextButton(
+//                onClick = {
+//                    FirebaseAuth.getInstance().signOut()
+//                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
+//                        navController.navigate("login") {
+//                            popUpTo(navController.graph.startDestinationId) {
+//                                inclusive = true
+//                            }
+//                        }
+//                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            ) {
+//                Text("Logout", color = Color.Red)
+//            }
         }
 
         Box(

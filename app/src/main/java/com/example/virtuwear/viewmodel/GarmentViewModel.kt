@@ -48,7 +48,7 @@ class GarmentViewModel @Inject constructor(
     val user = firebase?.uid
     val uid = user
     // Fungsi untuk memuat data bookmark dari server
-    private fun loadBookmarkedItems() {
+    internal fun loadBookmarkedItems() {
         viewModelScope.launch {
             _isLoading.value = true
             try {

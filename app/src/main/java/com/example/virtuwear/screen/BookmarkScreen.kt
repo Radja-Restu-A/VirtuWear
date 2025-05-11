@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.virtuwear.components.BookmarkButton
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Search
 import com.example.virtuwear.viewmodel.HistoryUiState
@@ -44,12 +45,15 @@ import com.example.virtuwear.viewmodel.LoginViewModel
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.viewmodel.BookmarkUiState
 import com.example.virtuwear.viewmodel.BookmarkViewModel
+import com.example.virtuwear.viewmodel.GarmentViewModel
+
 @Composable
 fun BookmarkScreen(
     navController: NavController,
     onDismiss: () -> Unit,
     bookmarkViewModel : BookmarkViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel(),
+    garmentViewModel: GarmentViewModel = hiltViewModel()
 ) {
     val state by bookmarkViewModel.uiState
     val firebase = loginViewModel.getCurrentUser()
@@ -107,7 +111,17 @@ fun BookmarkScreen(
                                         HistoryItem(imageUrl, onClick = {
                                             bookmarkViewModel.selectGarment(garments[i])
                                             navController.navigate("garmentDetail/${garments[i].idSingle}")
-                                        })
+                                        },
+                                            bookmarkButton = {
+                                                garments[i].idSingle?.let {
+                                                    BookmarkButton(
+                                                        id = it,
+                                                        isSingle = true,
+                                                        viewModel = garmentViewModel
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -121,7 +135,17 @@ fun BookmarkScreen(
                                         HistoryItem(imageUrl, onClick = {
                                             bookmarkViewModel.selectGarment(garments[i])
                                             navController.navigate("garmentDetail/${garments[i].idSingle}")
-                                        })
+                                        },
+                                            bookmarkButton = {
+                                                garments[i].idSingle?.let {
+                                                    BookmarkButton(
+                                                        id = it,
+                                                        isSingle = true,
+                                                        viewModel = garmentViewModel
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
