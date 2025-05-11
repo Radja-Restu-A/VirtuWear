@@ -36,6 +36,7 @@ import com.example.virtuwear.components.Alert
 import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
+import com.example.virtuwear.repository.UserRepository
 import com.example.virtuwear.viewmodel.UploadViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.example.virtuwear.viewmodel.LoginViewModel
@@ -203,21 +204,21 @@ fun UploadPhotoScreen(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(
-                onClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
-                            }
-                        }
-                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            ) {
-                Text("Logout", color = Color.Red)
-            }
+//            TextButton(
+//                onClick = {
+//                    FirebaseAuth.getInstance().signOut()
+//                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
+//                        navController.navigate("login") {
+//                            popUpTo(navController.graph.startDestinationId) {
+//                                inclusive = true
+//                            }
+//                        }
+//                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            ) {
+//                Text("Logout", color = Color.Red)
+//            }
         }
 
         Box(
@@ -328,6 +329,10 @@ fun UploadPhotoScreen(
                                         uploadViewModel.updateResultImage(
                                             it, updateResult)
                                     }
+                                    if (user != null) {
+                                        loginViewModel.updateTotalGenerate(user)
+                                    }
+
                                     isLoading = false
                                     navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
                                 } else {

@@ -1,5 +1,7 @@
 package com.example.virtuwear.screen
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +44,7 @@ import com.example.virtuwear.components.PrivacyPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,19 +55,33 @@ import androidx.navigation.NavController
 import com.example.virtuwear.R
 import com.example.virtuwear.components.AboutUsItem
 import com.example.virtuwear.components.StatProfileItem
+import com.example.virtuwear.viewmodel.LoginViewModel
 import com.example.virtuwear.viewmodel.ProfileViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    profileViewModel: ProfileViewModel = hiltViewModel()
+    profileViewModel: ProfileViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val userResponse by profileViewModel.userResponse.observeAsState()
     var showPrivacyPolicy by remember { mutableStateOf(false) }
     LaunchedEffect (Unit) {
-        profileViewModel.getUserProfileById()
+        profileViewModel.getDashboardById()
     }
+    LaunchedEffect(userResponse) {
+        userResponse?.let {
+            if (it.isSuccessful) {
+                Log.d("ProfileScreen", "User data from API: ${it.body()}")
+            } else {
+                Log.e("ProfileScreen", "API Error: ${it.code()} - ${it.message()}")
+            }
+        }
+    }
+
 
     PrivacyPolicy(
         showPrivacy = showPrivacyPolicy,
@@ -297,11 +314,38 @@ fun ProfileScreen(
             onClick = { showPrivacyPolicy = true }
         )
 
+        AboutUsItem(
+            iconContent = {
+                Surface(
+                    modifier = Modifier.size(24.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = Color.LightGray
+                ) {
+                    Text(
+                        text = "...",
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                }
+            },
+            title = "Delete Account",
+            onClick = {  }
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
-        // Delete account button
+        // Log out account button
         Button(
-            onClick = { },
+            onClick = { FirebaseAuth.getInstance().signOut()
+                loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
+                    navController.navigate("login") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                    Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                } },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Black
@@ -310,10 +354,10 @@ fun ProfileScreen(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp)
+                .padding(vertical = 10.dp, horizontal = 12.dp)
         ) {
             Text(
-                text = "Delete Account",
+                text = "Log Out",
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }

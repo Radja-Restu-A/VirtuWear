@@ -1,11 +1,8 @@
 package com.example.virtuwear.screen
 
 import android.util.Log
-import android.widget.Space
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,21 +26,13 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import coil.compose.rememberImagePainter
 import com.example.virtuwear.R
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.virtuwear.components.BookmarkButton
 import com.example.virtuwear.viewmodel.GarmentViewModel
 import androidx.compose.material3.TextField
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.clickable
-import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.virtuwear.components.Notes
 

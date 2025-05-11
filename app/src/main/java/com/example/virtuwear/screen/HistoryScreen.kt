@@ -1,31 +1,25 @@
 package com.example.virtuwear.screen
 
 import DatePickerModal
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,12 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.virtuwear.components.BookmarkButton
 import com.example.virtuwear.components.HistoryItem
 import com.example.virtuwear.components.Search
+import com.example.virtuwear.viewmodel.GarmentViewModel
 import com.example.virtuwear.viewmodel.HistoryUiState
 import com.example.virtuwear.viewmodel.HistoryViewModel
 import com.example.virtuwear.viewmodel.LoginViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,6 +48,7 @@ fun HistoryScreen(
     navController: NavController,
     historyViewModel: HistoryViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel(),
+    garmentViewModel: GarmentViewModel = hiltViewModel()
 ) {
     val state by historyViewModel.uiState
     val firebase = loginViewModel.getCurrentUser()
@@ -173,7 +169,17 @@ fun HistoryScreen(
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])
                                             navController.navigate("garmentDetail/${garments[i].idSingle}")
-                                        })
+                                        },
+                                            bookmarkButton = {
+                                                garments[i].idSingle?.let {
+                                                    BookmarkButton(
+                                                        id = it,
+                                                        isSingle = true,
+                                                        viewModel = garmentViewModel
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -189,7 +195,17 @@ fun HistoryScreen(
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])
                                             navController.navigate("garmentDetail/${garments[i].idSingle}")
-                                        })
+                                        },
+                                            bookmarkButton = {
+                                                garments[i].idSingle?.let {
+                                                    BookmarkButton(
+                                                        id = it,
+                                                        isSingle = true,
+                                                        viewModel = garmentViewModel
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
