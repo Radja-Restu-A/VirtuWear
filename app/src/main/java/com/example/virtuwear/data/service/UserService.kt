@@ -19,4 +19,10 @@ interface UserService {
 
     @POST("api/users/{uid}/total_generate")
     suspend fun updateTotalGenerate(@Path("uid") userId: String): Response<UserResponse>
+
+    @POST("api/users/{uid}/redeem-referral/{referralCode}")
+    suspend fun redeemReferral(
+        @Path("uid") userId: String,
+        @Path("referralCode") redeemedReferral: String
+    ): Response<UserResponse>
 }

@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.virtuwear.R
 import com.example.virtuwear.components.AboutUsItem
+import com.example.virtuwear.components.ReferralCodeDialog
 import com.example.virtuwear.components.StatProfileItem
 import com.example.virtuwear.viewmodel.LoginViewModel
 import com.example.virtuwear.viewmodel.ProfileViewModel
@@ -69,6 +70,7 @@ fun ProfileScreen(
     val context = LocalContext.current
     val userResponse by profileViewModel.userResponse.observeAsState()
     var showPrivacyPolicy by remember { mutableStateOf(false) }
+    var showReferralDialog by remember { mutableStateOf(false) }
     LaunchedEffect (Unit) {
         profileViewModel.getDashboardById()
     }
@@ -178,7 +180,9 @@ fun ProfileScreen(
             }
 
             Button(
-                onClick = { },
+                onClick = {
+
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.Black
@@ -196,6 +200,8 @@ fun ProfileScreen(
             }
 
         }
+
+
 
         // Bookmark button
         Button (
@@ -264,8 +270,22 @@ fun ProfileScreen(
         // Menu items
         AboutUsItem(
             icon = Icons.Default.Create,
-            title = "Reedem Code"
+            title = "Reedem Code",
+            onClick = { showReferralDialog = true }
         )
+
+        if (showReferralDialog) {
+            println("Attempting to show dialog")
+
+            ReferralCodeDialog(
+                onDismiss = { showReferralDialog = false },
+                onConfirm = { code ->
+                    profileViewModel.redeemReferralCode(code)
+                    println("Referral code submitted: $code")
+                    showReferralDialog = false
+                }
+            )
+        }
 
         AboutUsItem(
             icon = Icons.Default.Star,
