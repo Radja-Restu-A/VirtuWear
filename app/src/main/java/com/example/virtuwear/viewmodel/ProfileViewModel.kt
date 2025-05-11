@@ -1,6 +1,7 @@
 package com.example.virtuwear.viewmodel
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,6 +48,19 @@ class ProfileViewModel @Inject constructor (
                 Log.d("ProfileViewModel", "Dashboard Raw Response: $response")
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Dashboard Error: ${e.message}", e)
+            }
+        }
+    }
+
+    fun redeemReferralCode(code: String) {
+        viewModelScope.launch {
+            try {
+                val result = userRepository.redeemReferralCode(getUserId(), code)
+                Log.e("ProfileScreen", "berhasil reedem")
+
+            } catch (e: Exception) {
+                Log.e("ProfileScreen", "gagal reedem", e)
+
             }
         }
     }
