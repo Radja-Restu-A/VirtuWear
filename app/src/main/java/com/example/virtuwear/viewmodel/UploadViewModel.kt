@@ -2,9 +2,14 @@
 package com.example.virtuwear.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.virtuwear.BuildConfig
@@ -15,7 +20,9 @@ import com.example.virtuwear.data.service.ImagebbApiService
 import com.example.virtuwear.data.service.SingleGarmentService
 import com.example.virtuwear.repository.KlingAiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -23,6 +30,8 @@ import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import kotlin.math.max
+import androidx.core.graphics.createBitmap
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
@@ -50,12 +59,26 @@ class UploadViewModel @Inject constructor(
         imageUris.value = newList
     }
 
-    suspend fun uploadImage(): List<String?> {
+    suspend fun uploadImage(context: Context, garmentType: String): List<String?> {
         val apiKey = BuildConfig.IMAGE_BB_API_KEY
         val urlsView = mutableListOf<String?>()
+        val urisToProcess = mutableListOf<Uri?>()
 
-        imageUris.value
-            .filter { it != Uri.EMPTY }
+        if (garmentType == "Multiple Garments" && imageUris.value.size >= 3) {
+            val combinedUri = combineTwoImages(
+                context,
+                imageUris.value[1]!!,
+                imageUris.value[2]!!
+            )
+
+            urisToProcess.add(imageUris.value[0]) // Model
+            urisToProcess.add(combinedUri)        // Gambar gabungan
+        } else {
+            urisToProcess.addAll(imageUris.value)
+        }
+
+        urisToProcess
+            .filter { it != null && it != Uri.EMPTY }
             .forEachIndexed { i, uri ->
                 val file = uri?.let { getRealFileFromUri(it) }
                 val requestFile = file?.asRequestBody("image/*".toMediaTypeOrNull())
@@ -165,6 +188,50 @@ class UploadViewModel @Inject constructor(
         return null
     }
 
+
+    private suspend fun combineTwoImages(context: Context, uri1: Uri, uri2: Uri): Uri? {
+        return withContext(Dispatchers.IO) {
+            try {
+                //  bitmap dari URI
+                val bitmap1 = context.contentResolver.openInputStream(uri1)?.use {
+                    BitmapFactory.decodeStream(it)
+                }
+                val bitmap2 = context.contentResolver.openInputStream(uri2)?.use {
+                    BitmapFactory.decodeStream(it)
+                }
+
+                if (bitmap1 == null || bitmap2 == null) return@withContext null
+
+                val combinedBitmap = createBitmap(max(bitmap1.width, bitmap2.width), bitmap1.height + bitmap2.height)
+
+                val canvas = Canvas(combinedBitmap)
+                canvas.drawBitmap(bitmap1, 0f, 0f, null)
+                canvas.drawBitmap(bitmap2, 0f, bitmap1.height.toFloat(), null)
+
+                val tempFile = File.createTempFile(
+                    "combined_${System.currentTimeMillis()}",
+                    ".jpg",
+                    context.cacheDir
+                )
+
+                FileOutputStream(tempFile).use {
+                    combinedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, it)
+                }
+
+                bitmap1.recycle()
+                bitmap2.recycle()
+
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    tempFile
+                )
+            } catch (e: Exception) {
+                Log.e("CombineImages", "Error combining images: ${e.message}")
+                null
+            }
+        }
+    }
 
 
 }
