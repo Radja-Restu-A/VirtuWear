@@ -1,5 +1,7 @@
 package com.example.virtuwear.viewmodel
 
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +11,7 @@ import com.example.virtuwear.data.entity.ProfileEntity
 import com.example.virtuwear.data.model.UserRequest
 import com.example.virtuwear.data.model.UserResponse
 import com.example.virtuwear.data.service.UserService
+import com.example.virtuwear.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -17,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor (
-    private val userService: UserService
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _userResponse = MutableLiveData<Response<UserResponse>>()
@@ -34,33 +37,47 @@ class ProfileViewModel @Inject constructor (
         return user?.uid ?: throw IllegalStateException("User not logged in")
     }
 
+    fun getDashboardById() {
+        viewModelScope.launch {
+            try {
+                val userId = getUserId()
+                val response = userRepository.updateDashboard(userId)
+                _userResponse.postValue(response)
+
+                Log.d("ProfileViewModel", "Dashboard Response Success: ${response.body()}")
+                Log.d("ProfileViewModel", "Dashboard Raw Response: $response")
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Dashboard Error: ${e.message}", e)
+            }
+        }
+    }
+
+    fun redeemReferralCode(code: String) {
+        viewModelScope.launch {
+            try {
+                val result = userRepository.redeemReferralCode(getUserId(), code)
+                Log.e("ProfileScreen", "berhasil reedem")
+
+            } catch (e: Exception) {
+                Log.e("ProfileScreen", "gagal reedem", e)
+
+            }
+        }
+    }
+
+
     fun getUserProfileById() {
         viewModelScope.launch {
             try {
                 val userId = getUserId()
-                val response = userService.getUserById(userId)
+                val response = userRepository.getUserById(userId)
                 _userResponse.postValue(response)
+
+                Log.d("ProfileViewModel", "Profile Response Success: ${response.body()}")
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("ProfileViewModel", "Profile Error: ${e.message}", e)
             }
         }
     }
-//    fun insertProfile(profile: ProfileEntity) {
-//        viewModelScope.launch {
-//            profileDao.insert(profile)
-//        }
-//    }
-//
-//    fun getProfileByEmail(email: String, callback: (ProfileEntity?) -> Unit) {
-//        viewModelScope.launch {
-//            val profile = profileDao.getProfileByEmail(email)
-//            callback(profile)
-//        }
-//    }
-//
-//    fun updateKoinByEmail(email: String, koin: Int) {
-//        viewModelScope.launch {
-//            profileDao.updateKoinByEmail(email, koin)
-//        }
-//    }
+
 }
