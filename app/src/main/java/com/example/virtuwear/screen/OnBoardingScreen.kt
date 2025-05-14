@@ -44,6 +44,7 @@ fun OnBoardingScreen(navController: NavController) {
 
     PrivacyPolicy(
         showPrivacy = showPrivacyPolicy,
+        showCheckbox = true,
         onDismiss = {
             showPrivacyPolicy = false
         },

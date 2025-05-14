@@ -15,12 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavController
 
 @Composable
 fun PrivacyPolicy(
     showPrivacy: Boolean,
-    onDismiss: () -> Unit
+    showCheckbox: Boolean,
+    onDismiss: () -> Unit,
+    onAccept: (Boolean) -> Unit
 ) {
     if (showPrivacy) {
         Dialog(
@@ -84,23 +85,26 @@ fun PrivacyPolicy(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = isChecked,
-                                onCheckedChange = { isChecked = it }
-                            )
-                            Text(text = "Saya setuju dengan kebijakan privasi.")
-                        }
+                        if (showCheckbox) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = isChecked,
+                                    onCheckedChange = { isChecked = it }
+                                )
+                                Text(text = "Saya setuju dengan kebijakan privasi.")
+                            }
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = onDismiss,
-                            enabled = isChecked,
-                            modifier = Modifier
-                                .align(alignment = Alignment.CenterHorizontally)
-                        ) {
-                            Text("Close")
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = {
+                                    onAccept(isChecked)
+                                    onDismiss()
+                                },
+                                enabled = if isChecked else true,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Text("Setuju")
+                            }
                         }
                     }
                 }

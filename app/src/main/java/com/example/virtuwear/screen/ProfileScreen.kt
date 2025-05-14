@@ -87,6 +87,7 @@ fun ProfileScreen(
 
     PrivacyPolicy(
         showPrivacy = showPrivacyPolicy,
+        showCheckbox = false,
         onDismiss = { showPrivacyPolicy = false },
         onAccept = { }
     )

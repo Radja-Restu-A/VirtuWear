@@ -19,6 +19,7 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun PrivacyPolicy(
     showPrivacy: Boolean,
+    showCheckbox: Boolean,
     onDismiss: () -> Unit,
     onAccept: (Boolean) -> Unit
 ) {
@@ -84,26 +85,26 @@ fun PrivacyPolicy(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = isChecked,
-                                onCheckedChange = { isChecked = it }
-                            )
-                            Text(text = "Saya setuju dengan kebijakan privasi.")
-                        }
+                        if (showCheckbox) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = isChecked,
+                                    onCheckedChange = { isChecked = it }
+                                )
+                                Text(text = "Saya setuju dengan kebijakan privasi.")
+                            }
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = {
-                                onAccept(isChecked)
-                                onDismiss()
-                            },
-                            enabled = isChecked,
-                            modifier = Modifier
-                                .align(alignment = Alignment.CenterHorizontally)
-                        ) {
-                            Text("Setuju")
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = {
+                                    onAccept(isChecked)
+                                    onDismiss()
+                                },
+                                enabled = isChecked,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            ) {
+                                Text("Setuju")
+                            }
                         }
                     }
                 }

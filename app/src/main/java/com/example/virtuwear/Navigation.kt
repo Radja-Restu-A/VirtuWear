@@ -118,11 +118,6 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                     id = 19
                 )
             }
-
-            composable(Screen.PrivacyPolicy.route) {
-                PrivacyPolicy(showPrivacy = true, onDismiss = {}, onAccept = {})
-            }
-
             composable(Screen.Bookmark.route) {
                 BookmarkScreen(
                     navController = navController,
