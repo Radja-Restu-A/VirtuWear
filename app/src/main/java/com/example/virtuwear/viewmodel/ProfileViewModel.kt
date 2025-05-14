@@ -14,6 +14,9 @@ import com.example.virtuwear.data.service.UserService
 import com.example.virtuwear.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -23,11 +26,32 @@ class ProfileViewModel @Inject constructor (
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _userResponse = MutableLiveData<Response<UserResponse>>()
-
-    val userResponse: LiveData<Response<UserResponse>> get() = _userResponse
+    private val _userResponse = MutableStateFlow<UserResponse?>(null)
+    val userResponse: StateFlow<UserResponse?> = _userResponse.asStateFlow()
 
     val user = FirebaseAuth.getInstance().currentUser
+
+    private val _redeemCodeStatus = MutableStateFlow<Result<Unit>?>(null)
+    val redeemCodeStatus: StateFlow<Result<Unit>?> = _redeemCodeStatus
+
+    fun fetchUser() {
+        viewModelScope.launch {
+            try {
+                val response = userRepository.getUserById(getUserId())
+                if (response.isSuccessful) {
+                    _userResponse.value = response.body()
+                } else {
+                    _userResponse.value = null
+                    Log.e("fetchUser", "API Error: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _userResponse.value = null
+                Log.e("fetchUser", "Exception: ${e.message}")
+            }
+        }
+    }
+
+
 
     fun getUserName(): String? {
         return user?.displayName
@@ -42,7 +66,7 @@ class ProfileViewModel @Inject constructor (
             try {
                 val userId = getUserId()
                 val response = userRepository.updateDashboard(userId)
-                _userResponse.postValue(response)
+                _userResponse.value = response.body()
 
                 Log.d("ProfileViewModel", "Dashboard Response Success: ${response.body()}")
                 Log.d("ProfileViewModel", "Dashboard Raw Response: $response")
@@ -55,15 +79,20 @@ class ProfileViewModel @Inject constructor (
     fun redeemReferralCode(code: String) {
         viewModelScope.launch {
             try {
-                val result = userRepository.redeemReferralCode(getUserId(), code)
+                userRepository.redeemReferralCode(getUserId(), code)
+                _redeemCodeStatus.value = Result.success(Unit)
                 Log.e("ProfileScreen", "berhasil reedem")
 
             } catch (e: Exception) {
                 Log.e("ProfileScreen", "gagal reedem", e)
-
+                _redeemCodeStatus.value = Result.failure(e)
             }
         }
     }
+    fun clearRedeemStatus() {
+        _redeemCodeStatus.value = null
+    }
+
 
 
     fun getUserProfileById() {
@@ -71,8 +100,13 @@ class ProfileViewModel @Inject constructor (
             try {
                 val userId = getUserId()
                 val response = userRepository.getUserById(userId)
-                _userResponse.postValue(response)
-
+                if (response.isSuccessful) {
+                    _userResponse.value
+                    (response.body())
+                } else {
+                    _userResponse.value = null
+                    Log.e("fetchUser", "Error: ${response.errorBody()?.string()}")
+                }
                 Log.d("ProfileViewModel", "Profile Response Success: ${response.body()}")
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Profile Error: ${e.message}", e)

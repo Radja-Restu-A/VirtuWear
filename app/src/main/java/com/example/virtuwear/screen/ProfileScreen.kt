@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.virtuwear.R
 import com.example.virtuwear.components.AboutUsItem
+import com.example.virtuwear.components.Alert
+import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.components.ReferralCodeDialog
 import com.example.virtuwear.components.StatProfileItem
 import com.example.virtuwear.viewmodel.LoginViewModel
@@ -67,21 +70,31 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+    var showError by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val userResponse by profileViewModel.userResponse.observeAsState()
+    val userResponse by profileViewModel.userResponse.collectAsState()
     var showPrivacyPolicy by remember { mutableStateOf(false) }
     var showReferralDialog by remember { mutableStateOf(false) }
+    val redeemStatus by profileViewModel.redeemCodeStatus.collectAsState()
+    var showAlreadyRedeemed by remember { mutableStateOf(false) }
+
+
+
     LaunchedEffect (Unit) {
         profileViewModel.getDashboardById()
     }
-    LaunchedEffect(userResponse) {
-        userResponse?.let {
-            if (it.isSuccessful) {
-                Log.d("ProfileScreen", "User data from API: ${it.body()}")
-            } else {
-                Log.e("ProfileScreen", "API Error: ${it.code()} - ${it.message()}")
-            }
-        }
+
+
+    userResponse?.let { user ->
+        Log.d("ProfileScreen", "User data updated: $user")
+    } ?: run {
+        Log.e("ProfileScreen", "Failed to fetch user data")
+    }
+
+
+
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchUser()
     }
 
 
@@ -98,7 +111,6 @@ fun ProfileScreen(
             .background(Color(0xFFF5F5F5)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -122,7 +134,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(5.dp)
             ) {
                 Text(
-                    text = userResponse?.body()?.token?.toString() ?: "Loading Data",
+                    text = userResponse?.token?.toString() ?: "Loading Data",
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -149,7 +161,7 @@ fun ProfileScreen(
 
         // User name
         Text(
-            text = userResponse?.body()?.name ?: "Loading Data",
+            text = userResponse?.name ?: "Loading Data",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -172,7 +184,7 @@ fun ProfileScreen(
                 modifier = Modifier.background(Color(0xFFF5F5F5)),
             ) {
                 Text(
-                    text = userResponse?.body()?.referral?.referralCode?: "Loading Data",
+                    text = userResponse?.referral?.referralCode?: "Loading Data",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -198,7 +210,6 @@ fun ProfileScreen(
                     modifier = Modifier.size(28.dp)
                 )
             }
-
         }
 
 
@@ -252,9 +263,9 @@ fun ProfileScreen(
                 .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatProfileItem(count = userResponse?.body()?.referral?.totalUsed?.toString() ?: "Loading Data", label = "Invitation", modifier = Modifier.weight(1f))
-            StatProfileItem(count = userResponse?.body()?.totalTryon?.toString() ?: "Loading Data", label = "Total Try on", modifier = Modifier.weight(1f))
-            StatProfileItem(count = userResponse?.body()?.totalGenerate?.toString() ?: "Loading Data", label = "Total Generate", modifier = Modifier.weight(1f))
+            StatProfileItem(count = userResponse?.referral?.totalUsed?.toString() ?: "Loading Data", label = "Invitation", modifier = Modifier.weight(1f))
+            StatProfileItem(count = userResponse?.totalTryon?.toString() ?: "Loading Data", label = "Total Try on", modifier = Modifier.weight(1f))
+            StatProfileItem(count = userResponse?.totalGenerate?.toString() ?: "Loading Data", label = "Total Generate", modifier = Modifier.weight(1f))
         }
 
         HorizontalDivider(
@@ -271,8 +282,26 @@ fun ProfileScreen(
         AboutUsItem(
             icon = Icons.Default.Create,
             title = "Reedem Code",
-            onClick = { showReferralDialog = true }
+            onClick = {
+                if (userResponse?.redeemedReferral != null) {
+                    showAlreadyRedeemed = true
+                } else {
+                    showReferralDialog = true
+                }
+            }
         )
+
+        if (showAlreadyRedeemed) {
+            Alert(
+                showDialog = true,
+                onDismiss = { showAlreadyRedeemed = false },
+                title = userResponse?.redeemedReferral.toString(),
+                message = "You Already Redeemed A Referral Code",
+                confirmButtonText = "Confirm",
+                onConfirmClick = { showAlreadyRedeemed = false },
+                type = AlertType.SUCCESS
+            )
+        }
 
         if (showReferralDialog) {
             println("Attempting to show dialog")
@@ -286,6 +315,31 @@ fun ProfileScreen(
                 }
             )
         }
+
+        redeemStatus?.let { result ->
+            if (result.isSuccess) {
+                Alert(
+                    showDialog = true,
+                    onDismiss = { profileViewModel.clearRedeemStatus() },
+                    title = "Referral Code Redeemed",
+                    message = "The code was valid. Your reward has been added.",
+                    confirmButtonText = "Confirm",
+                    onConfirmClick = { profileViewModel.clearRedeemStatus() },
+                    type = AlertType.SUCCESS
+                )
+            } else if (result.isFailure) {
+                Alert(
+                    showDialog = true,
+                    onDismiss = { profileViewModel.clearRedeemStatus() },
+                    title = "Invalid Code",
+                    message = "The referral code you entered is not valid.",
+                    confirmButtonText = "Confirm",
+                    onConfirmClick = { profileViewModel.clearRedeemStatus() },
+                    type = AlertType.ERROR
+                )
+            }
+        }
+
 
         AboutUsItem(
             icon = Icons.Default.Star,
@@ -357,15 +411,7 @@ fun ProfileScreen(
 
         // Log out account button
         Button(
-            onClick = { FirebaseAuth.getInstance().signOut()
-                loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
-                    navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
-                        }
-                    }
-                    Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                } },
+            onClick = { showError = true },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.Black
@@ -379,6 +425,27 @@ fun ProfileScreen(
             Text(
                 text = "Log Out",
                 modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+        if (showError) {
+            Alert(
+                showDialog = showError,
+                onDismiss = { showError = false },
+                title = "Log Out?",
+                message = "Are you sure you want to log out from your account?",
+                confirmButtonText = "Confirm",
+                cancelButtonText = "Cancel",
+                onConfirmClick = { FirebaseAuth.getInstance().signOut()
+                    loginViewModel.getGoogleSignInClient().signOut().addOnCompleteListener {
+                        navController.navigate("login") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                        }
+                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                    } },
+                onCancelClick = { showError = false },
+                type = AlertType.CONFIRMATION
             )
         }
     }
