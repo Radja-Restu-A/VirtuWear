@@ -185,7 +185,7 @@ fun DownloadScreen(
 //                                        Text("Outfit Name: ${it.outfitName}")
 //                                        Text("User ID: ${it.userId}")
                                         Image(
-                                            painter = rememberAsyncImagePainter(it.resultImg),
+                                            painter = rememberAsyncImagePainter(it.resultImage),
                                             contentDescription = "Uploaded Image",
                                             modifier = Modifier
                                                 .size(500.dp)
@@ -245,9 +245,9 @@ fun DownloadScreen(
                                 if (response.value?.isSuccessful == true) {
                                     val singleGarment = response.value?.body()
                                     singleGarment?.let {
-                                        Log.d("modelImg", "Model yang diambil: ${it.modelImg}")
+                                        Log.d("modelImg", "Model yang diambil: ${it.modelImage}")
                                         Image(
-                                            painter = rememberAsyncImagePainter(it.modelImg.toString()),
+                                            painter = rememberAsyncImagePainter(it.modelImage.toString()),
                                             contentDescription = "Model Photo",
                                             modifier = Modifier.size(200.dp)
                                         )
@@ -267,7 +267,7 @@ fun DownloadScreen(
                             }
                         }
                         val outfitPhotos =
-                            response.value?.body()?.garmentImg?.split(",") ?: emptyList()
+                            response.value?.body()?.garmentImage?.split(",") ?: emptyList()
 
 
                         items(outfitPhotos.size) { index ->
@@ -327,7 +327,7 @@ fun DownloadScreen(
                             singleGarment?.let {
                                 viewModel.downloadPhoto(
                                     context,
-                                    it.resultImg,
+                                    it.resultImage,
                                 )
                             }
                         }
@@ -345,7 +345,7 @@ fun DownloadScreen(
                             text = "Download Photo",
                             color = Color.White
                         )
-                        Spacer(modifier = Modifier.width(8.dp)) // Jarak antara teks dan ikon
+                        Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             painter = painterResource(id = R.drawable.download_svg),
                             contentDescription = "Download Icon",

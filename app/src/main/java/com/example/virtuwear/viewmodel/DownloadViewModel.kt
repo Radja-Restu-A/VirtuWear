@@ -150,9 +150,9 @@ class DownloadViewModel @Inject constructor (
                     outputStream.close()
                 }
 
-                Toast.makeText(context, "Gambar berhasil diunduh ke folder Downloads!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Downdload Successfull", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "Gagal download gambar: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Cannot download image: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -183,9 +183,9 @@ class DownloadViewModel @Inject constructor (
                 .distinctUntilChanged()
                 .collect {
                     val model = SingleGarmentModel(
-                        idSingle = id,
+                        id = id,
                         notes = notesInput.value,
-                        userId = getInfoId()?.uid ?: ""
+                        userUid = getInfoId()?.uid ?: ""
                     )
                     Log.e(notesInput.value, "pesan kekirim")
                     repositorySingleGarment.updateNotes(id, model)
@@ -197,9 +197,9 @@ class DownloadViewModel @Inject constructor (
         viewModelScope.launch {
             try {
                 val model = SingleGarmentModel(
-                    idSingle = id,
+                    id = id,
                     outfitName = outfitName.value,
-                    userId = getInfoId()?.let { it.uid } ?: ""
+                    userUid = getInfoId()?.let { it.uid } ?: ""
                 )
                 Log.d("Update OutfitName", "Updating outfit name for id=$id to '${outfitName.value}'")
                 repositorySingleGarment.updateOutfitName(id, model)

@@ -112,7 +112,8 @@ fun OnBoardingScreen(navController: NavController) {
             )
         ) { page ->
             Text(
-                text = if (page == 1) "To help you try on clothes you want to buy online." else "You can also try on multiple outfits simultaneously on e-commerce.",
+                text = if (page == 1) "To help you try on clothes you want to buy online." else "",
+//                You can also try on multiple outfits simultaneously on e-commerce.
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 color = Color.Gray,

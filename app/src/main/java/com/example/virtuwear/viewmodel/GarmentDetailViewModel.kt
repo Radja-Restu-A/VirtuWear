@@ -40,9 +40,9 @@ class GarmentDetailViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect {
                     val model = SingleGarmentModel(
-                        idSingle = id,
+                        id = id,
                         notes = notesInput,
-                        userId = getInfoId()?.uid ?: ""
+                        userUid = getInfoId()?.uid ?: ""
                     )
                     Log.e(notesInput, "pesan kekirim")
                     singleGarmentRepository.updateNotes(id, model)

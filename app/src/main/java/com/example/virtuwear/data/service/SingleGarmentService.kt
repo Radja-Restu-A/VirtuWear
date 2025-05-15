@@ -15,81 +15,80 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SingleGarmentService {
-    @GET("api/single-garments/{userId}")
+    @GET("api/tryon/{userUid}")
     suspend fun getAllGarmentsByUser(
-        @Path("userId") userId: String
+        @Path("userUid") userUid: String
     ): Response<List<SingleGarmentModel>>
 
-    @GET("api/single-garments/search")
+    @GET("api/tryon/search")
     suspend fun searchByOutfitName(
         @Query("outfitName") outfitName: String
     ): Response<List<SingleGarmentModel>>
-
 
     @GET("api/single-garments/detail/{id}")
     suspend fun getSingleGarmentById(
         @Path("id") id: Long
     ): Response<SingleGarmentResponse>
 
-    @POST("api/single-garments")
+    @POST("api/tryon")
     suspend fun createGarment(
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/{id}")
+    @PUT("api/tryon/{id}")
     suspend fun updateGarment(
         @Path("id") id: Long,
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @DELETE("api/single-garments/{id}")
+    @DELETE("api/tryon/{id}")
     suspend fun deleteGarment(
         @Path("id") id: Long
     ): Response<Unit>
 
-    @PUT("api/single-garments/update/model/{id}")
-    suspend fun updateModelImage(
-        @Path("id") id: Long,
-        @Body model: SingleGarmentModel
-    ): Response<SingleGarmentModel>
-
-    @PUT("api/single-garments/update/garment/{id}")
+    @PUT("api/tryon/update/garment/{id}")
     suspend fun updateGarmentImage(
         @Path("id") id: Long,
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/update/result/{id}")
+    @PUT("api/tryon/update/model/{id}")
+    suspend fun updateModelImage(
+        @Path("id") id: Long,
+        @Body model: SingleGarmentModel
+    ): Response<SingleGarmentModel>
+
+    @PUT("api/tryon/update/result/{id}")
     suspend fun updateResultImage(
         @Path("id") id: Long,
         @Body model: SingleGarmentUpdateResult
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/update/outfit_name/{id}")
+    @PUT("api/tryon/update/outfit_name/{id}")
     suspend fun updateOutfitName(
         @Path("id") id: Long,
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/update/notes/{id}")
+    @PUT("api/tryon/update/notes/{id}")
     suspend fun updateNotes(
         @Path("id") id: Long,
         @Body model: SingleGarmentModel
     ): Response<SingleGarmentModel>
 
-    @PUT("api/single-garments/update/bookmark-single/{id}")
+    @PUT("api/tryon/update/bookmark/{id}")
     suspend fun updateBookmark(
         @Path("id") id: Long,
         @Body dto: SingleGarmentDto
     ): Response<SingleGarmentDto>
 
 
-    @GET("api/single-garments/bookmarked/{userId}")
+    @GET("api/tryon/bookmarked/{userUid}")
     suspend fun getBookmarkedItems(
-        @Path("userId") userId: String
+        @Path("userUid") userUid: String
     ): Response<List<SingleGarmentModel>>
 
-    @GET("api/single-garments/sort/date/{timeMillis}")
+    @GET("api/tryon/sort/date/{timeMillis}")
     suspend fun findByCreatedAt(
         @Path("timeMillis") timeMillis: Long
     ): Response<List<SingleGarmentModel>>

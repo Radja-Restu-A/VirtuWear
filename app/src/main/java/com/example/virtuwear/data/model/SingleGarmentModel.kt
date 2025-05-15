@@ -1,42 +1,42 @@
 package com.example.virtuwear.data.model
 
 data class SingleGarmentModel(
-    val idSingle: Long? = null,
-    val resultImg: String? = null,
-    val modelImg: String? = null,
-    val garmentImg: String? = null,
+    val id: Long? = null,
+    val resultImage: String? = null,
+    val modelImage: String? = null,
+    val garmentImage: String? = null,
     val outfitName: String? = null,
     val notes: String? = null,
     val bookmark: Boolean? = false,
-    val userId: String
+    val userUid: String
 )
 
 data class SingleGarmentUpdateResult(
-    val resultImg: String? = null,
+    val resultImage: String? = null,
 )
 
 data class SingleGarmentUpdateBookmark(
     val isBookmark: Boolean?
 )
 data class SingleGarmentResponse(
-    val idSingle: Long,
-    val resultImg: String,
-    val modelImg: String,
-    val garmentImg: String,
+    val id: Long,
+    val resultImage: String,
+    val modelImage: String,
+    val garmentImage: String,
     val outfitName: String,
     val notes: String,
     val bookmark: Boolean,
-    val userId: String
+    val userUid: String
 )
 
 data class SingleGarmentDto(
-    val idSingle: Long? = null,
-    val resultImg: String? = null,
-    val modelImg: String? = null,
-    val garmentImg: String? = null,
+    val id: Long? = null,
+    val resultImage: String? = null,
+    val modelImage: String? = null,
+    val garmentImage: String? = null,
     val outfitName: String? = null,
     val notes: String? = null,
-    val bookmark: Boolean, // Pastikan nama property tepat
-    val userId: String? = null
+    val bookmark: Boolean,
+    val userUid: String? = null
 )
 
