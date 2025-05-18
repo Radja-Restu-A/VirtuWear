@@ -295,122 +295,178 @@ fun UploadPhotoScreen(
                     isLoading = true
                     coroutineScope.launch {
                         try {
-                            val listImg = uploadViewModel.uploadImage(context, selectedGarmentType)
-                            Log.d("ListImg", "Isi listImg = $listImg")
-                            // simpan dulu ke db disini tuh buat yang model, response nya masukin ke create tryon
-                            val newModel = ModelDto(
-                                modelImage = listImg[0]!!,
-                                userUid = user ?: ""
-                            )
-                            val responseModel = uploadViewModel.createModel(newModel)
-                            Log.d("Model Result", "Response Model create: $responseModel")
+                            // panggil endpoint check apakah dia bisa buat generate atau ngga
+                            // kalo ga bisa exit dan notify
+                            // kalo bisa lanjutin generate, kurangin coin, simpan di transaksi.
+                            // parameter user
+                            val response = uploadViewModel.validateGenerate(user ?: "")
 
-                            // simpan dulu ke db disini tuh buat yang garment, response nya masukin ke create tryon
-                            val newGarment = GarmentDto(
-                                garmentImage = listImg[1]!!,
-                                userUid = user ?: ""
-                            )
-                            val responseGarment = uploadViewModel.createGarment(newGarment)
-                            Log.d("Model Result", "Response Model create: $responseModel")
-                            if (selectedGarmentType == "Single Garment") {
-                                val newTryon = SingleGarmentModel(
-                                    userUid = user ?: "",
+                            if (response.isSuccessful) {
+                                // Saldo cukup
+                                val message = response.body()?.get("message")
+                                Log.d("TryOn", "Response message: $message")
+                                // Lanjutt
+
+
+
+                                val listImg = uploadViewModel.uploadImage(context, selectedGarmentType)
+                                Log.d("ListImg", "Isi listImg = $listImg")
+                                // simpan dulu ke db disini tuh buat yang model, response nya masukin ke create tryon
+                                val newModel = ModelDto(
                                     modelImage = listImg[0]!!,
-                                    garmentImage = listImg[1]!!
+                                    userUid = user ?: ""
                                 )
+                                val responseModel = uploadViewModel.createModel(newModel)
+                                Log.d("Model Result", "Response Model create: $responseModel")
 
-                                val response = uploadViewModel.createRow(newTryon)
-                                Log.d("VTO Result", "Response create: $response")
+                                // simpan dulu ke db disini tuh buat yang garment, response nya masukin ke create tryon
+                                val newGarment = GarmentDto(
+                                    garmentImage = listImg[1]!!,
+                                    userUid = user ?: ""
+                                )
+                                val responseGarment = uploadViewModel.createGarment(newGarment)
+                                Log.d("Model Result", "Response Model create: $responseModel")
+                                if (selectedGarmentType == "Single Garment") {
+                                    val newTryon = SingleGarmentModel(
+                                        userUid = user ?: "",
+                                        modelImage = listImg[0]!!,
+                                        garmentImage = listImg[1]!!
+                                    )
 
-                                if (response.isSuccessful) {
-                                    val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
-                                    if (resultUrl != null) {
-                                        Log.d("VTO Result", "Image URL: $resultUrl")
-                                        val updateResult = SingleGarmentUpdateResult(
-                                            resultImage = resultUrl
-                                        )
-                                        val updateResultImg = response.body()?.id?.let {
-                                            uploadViewModel.updateResultImage(
-                                                it, updateResult
+                                    val response = uploadViewModel.createRow(newTryon)
+                                    Log.d("VTO Result", "Response create: $response")
+
+                                    if (response.isSuccessful) {
+                                        val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
+                                        if (resultUrl != null) {
+                                            Log.d("VTO Result", "Image URL: $resultUrl")
+                                            val updateResult = SingleGarmentUpdateResult(
+                                                resultImage = resultUrl
                                             )
-                                        }
-                                        if (user != null) {
-                                            loginViewModel.updateTotalGenerate(user)
-                                        }
+                                            val updateResultImg = response.body()?.id?.let {
+                                                uploadViewModel.updateResultImage(
+                                                    it, updateResult
+                                                )
+                                            }
+                                            if (user != null) {
+                                                loginViewModel.updateTotalGenerate(user)
+                                            }
+                                            isLoading = false
+                                            navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
+                                            // kurangin coin
+                                            try {
+                                                val responseReduce = uploadViewModel.reduceCoin(user ?: "")
+                                                if (!responseReduce.isSuccessful) {
+                                                    val error = responseReduce.errorBody()?.string()
+                                                    Log.e("ReduceCoin", "Failed: $error")
+                                                    Toast.makeText(context, "Failed to reduce coin: ${error ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                                                    return@launch
+                                                }
+                                            } catch (e: Exception) {
+                                                Log.e("ReduceCoin", "Exception: ${e.localizedMessage}")
+                                                Toast.makeText(context, "Network error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                return@launch
+                                            }
 
-                                        isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
+                                        } else {
+                                            isLoading = false
+                                            Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                            Toast.makeText(
+                                                context,
+                                                "Failed to get try-on result",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     } else {
                                         isLoading = false
-                                        Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                        Log.e("TestLog", "Failed to create row: ${response.code()}")
                                         Toast.makeText(
                                             context,
-                                            "Failed to get try-on result",
+                                            "Upload failed: ${response.code()}",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
                                 } else {
-                                    isLoading = false
-                                    Log.e("TestLog", "Failed to create row: ${response.code()}")
-                                    Toast.makeText(
-                                        context,
-                                        "Upload failed: ${response.code()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+
+                                    val newModel = SingleGarmentModel(
+                                        userUid = user ?: "",
+                                        modelImage = listImg[0]!!,
+                                        garmentImage = listImg[1]!!
+                                    )
+
+                                    val response = uploadViewModel.createRow(newModel)
+                                    Log.d("VTO Result", "Response create: $response")
+
+                                    if (response.isSuccessful) {
+                                        val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
+                                        if (resultUrl != null) {
+                                            Log.d("VTO Result", "Image URL: $resultUrl")
+                                            val updateResult = SingleGarmentUpdateResult(
+                                                resultImage = resultUrl
+                                            )
+                                            val updateResultImg = response.body()?.id?.let {
+                                                uploadViewModel.updateResultImage(
+                                                    it, updateResult
+                                                )
+                                            }
+                                            if (user != null) {
+                                                loginViewModel.updateTotalGenerate(user)
+                                            }
+
+                                            isLoading = false
+                                            navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
+                                        } else {
+                                            isLoading = false
+                                            Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                            Toast.makeText(
+                                                context,
+                                                "Failed to get try-on result",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    } else {
+                                        val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                                        Log.e("TryOn", "Validasi gagal: $errorMessage")
+                                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             } else {
-
-                                val newModel = SingleGarmentModel(
-                                    userUid = user ?: "",
-                                    modelImage = listImg[0]!!,
-                                    garmentImage = listImg[1]!!
-                                )
-
-                                val response = uploadViewModel.createRow(newModel)
-                                Log.d("VTO Result", "Response create: $response")
-
-                                if (response.isSuccessful) {
-                                    val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
-                                    if (resultUrl != null) {
-                                        Log.d("VTO Result", "Image URL: $resultUrl")
-                                        val updateResult = SingleGarmentUpdateResult(
-                                            resultImage = resultUrl
-                                        )
-                                        val updateResultImg = response.body()?.id?.let {
-                                            uploadViewModel.updateResultImage(
-                                                it, updateResult
-                                            )
-                                        }
-                                        if (user != null) {
-                                            loginViewModel.updateTotalGenerate(user)
-                                        }
-
-                                        isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
-                                    } else {
-                                        isLoading = false
-                                        Log.e("VTO", "Gagal mendapatkan hasil VTO")
-                                        Toast.makeText(
-                                            context,
-                                            "Failed to get try-on result",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                } else {
-                                    isLoading = false
-                                    Log.e("TestLog", "Failed to create row: ${response.code()}")
-                                    Toast.makeText(
-                                        context,
-                                        "Upload failed: ${response.code()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                                Log.e("TryOn", "Validasi gagal: $errorMessage")
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                isLoading = false
+                                return@launch
                             }
-                        } catch (e: Exception) {
-                            isLoading = false
-                            Log.e("TestLog", "Upload or save failed: ${e.message}", e)
-                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+
+//                            try {
+//                                val validateResponse = uploadViewModel.validateGenerate(user ?: "")
+//                                if (!validateResponse.isSuccessful) {
+//                                    isLoading = false
+//                                    val errorBody = validateResponse.errorBody()?.string()
+//                                    Log.e("Validation", "Validate failed: $errorBody")
+//                                    Toast.makeText(
+//                                        context,
+//                                        "Cannot generate try-on: ${errorBody ?: "Unknown error"}",
+//                                        Toast.LENGTH_LONG
+//                                    ).show()
+//                                    return@launch
+//                                }
+//                            } catch (e: Exception) {
+//                                isLoading = false
+//                                Log.e("Validation", "Exception: ${e.localizedMessage}")
+//                                Toast.makeText(
+//                                    context,
+//                                    "Network error or insufficient balance: ${e.localizedMessage}",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                                return@launch
+//                            }
+
+                            } catch (e: Exception) {
+                                isLoading = false
+                                Log.e("TestLog", "Upload or save failed: ${e.message}", e)
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 },
                 modifier = Modifier

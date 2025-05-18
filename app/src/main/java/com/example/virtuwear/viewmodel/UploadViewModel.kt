@@ -1,6 +1,7 @@
 
 package com.example.virtuwear.viewmodel
 
+import android.R
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
@@ -33,8 +34,11 @@ import kotlin.math.max
 import androidx.core.graphics.createBitmap
 import com.example.virtuwear.data.model.GarmentDto
 import com.example.virtuwear.data.model.ModelDto
+import com.example.virtuwear.data.model.TransactionDto
+import com.example.virtuwear.data.service.TransactionService
 import com.example.virtuwear.repository.GarmentRepository
 import com.example.virtuwear.repository.ModelRepository
+import com.example.virtuwear.repository.TransactionRepository
 import retrofit2.Response
 
 @HiltViewModel
@@ -44,7 +48,9 @@ class UploadViewModel @Inject constructor(
     private val context: Application,
     private val tryOnHandler: KlingAiRepository,
     private val modelRepository: ModelRepository,
-    private val garmentRepository: GarmentRepository
+    private val garmentRepository: GarmentRepository,
+    private val transactionRepository: TransactionRepository,
+    private val transactionService: TransactionService
 ) : ViewModel() {
     var selectedGarmentType = mutableStateOf("Single Garment")
     var imageUris = mutableStateOf(listOf<Uri?>())
@@ -153,6 +159,15 @@ class UploadViewModel @Inject constructor(
         return modelRepository.create(modelDto)
     }
 
+    suspend fun validateGenerate(userUid: String): Response<Map<String, String>> {
+        return transactionService.validateGenerate(userUid)
+    }
+
+    suspend fun reduceCoin(userUid: String): Response<TransactionDto> {
+        return transactionService.reduceCoin(userUid)
+    }
+
+
     suspend fun createGarment(garmentDto: GarmentDto): Result<GarmentDto> {
         return garmentRepository.create(garmentDto)
     }
@@ -182,7 +197,7 @@ class UploadViewModel @Inject constructor(
                 model_name = "kolors-virtual-try-on-v1-5",
                 human_image = modelImg,
                 cloth_image = clothImg,
-                callback_url = "" // Kosong kalau tidak pakai callback, stelah hosting backend
+                callback_url = "" //  hosting backend dulu
             )
 
             val taskId = tryOnHandler.createTryOn(request)
