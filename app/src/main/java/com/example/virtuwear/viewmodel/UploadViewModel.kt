@@ -26,19 +26,25 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import kotlin.math.max
 import androidx.core.graphics.createBitmap
+import com.example.virtuwear.data.model.GarmentDto
+import com.example.virtuwear.data.model.ModelDto
+import com.example.virtuwear.repository.GarmentRepository
+import com.example.virtuwear.repository.ModelRepository
+import retrofit2.Response
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
     private val imageBBService: ImagebbApiService,
     private val singleGarmentService: SingleGarmentService,
     private val context: Application,
-    private val tryOnHandler: KlingAiRepository
+    private val tryOnHandler: KlingAiRepository,
+    private val modelRepository: ModelRepository,
+    private val garmentRepository: GarmentRepository
 ) : ViewModel() {
     var selectedGarmentType = mutableStateOf("Single Garment")
     var imageUris = mutableStateOf(listOf<Uri?>())
@@ -141,6 +147,14 @@ class UploadViewModel @Inject constructor(
             Log.e("SingleGarmentRepo", "Exception during create garment: ${e.localizedMessage}", e)
             throw e
         }
+    }
+
+    suspend fun createModel(modelDto: ModelDto): Result<ModelDto> {
+        return modelRepository.create(modelDto)
+    }
+
+    suspend fun createGarment(garmentDto: GarmentDto): Result<GarmentDto> {
+        return garmentRepository.create(garmentDto)
     }
 
     fun updateResultImage(id: Long, model: SingleGarmentUpdateResult) {

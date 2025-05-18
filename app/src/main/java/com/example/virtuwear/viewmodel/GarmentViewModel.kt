@@ -57,7 +57,7 @@ class GarmentViewModel @Inject constructor(
                 if (singleBookmarks != null) {
                     if (singleBookmarks.isSuccessful) {
                         _bookmarkedSingleItems.value =
-                            (singleBookmarks.body()?.map { it.idSingle }?.toSet() ?: setOf()) as Set<Long>
+                            (singleBookmarks.body()?.map { it.id }?.toSet() ?: setOf()) as Set<Long>
                     }
                 }
 

@@ -87,8 +87,7 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = HistoryUiState.Loading
             try {
-                val encoded = Uri.encode(outfitName)
-                val response = singleGarmentService.searchByOutfitName(encoded)
+                val response = singleGarmentService.searchByOutfitName(outfitName)
                 if (response.isSuccessful) {
                     val garments = response.body() ?: emptyList()
                     _uiState.value = HistoryUiState.Success(garments)

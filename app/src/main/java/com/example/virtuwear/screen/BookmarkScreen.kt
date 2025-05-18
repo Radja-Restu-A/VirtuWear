@@ -106,14 +106,14 @@ fun BookmarkScreen(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                for (i in garments.indices.filter { it % 2 == 1 }) {
-                                    garments[i].resultImg?.let { imageUrl ->
+                                for (i in garments.indices.filter { it % 2 == 0 }) {
+                                    garments[i].resultImage?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             bookmarkViewModel.selectGarment(garments[i])
-                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                            navController.navigate("garmentDetail/${garments[i].id}")
                                         },
                                             bookmarkButton = {
-                                                garments[i].idSingle?.let {
+                                                garments[i].id?.let {
                                                     BookmarkButton(
                                                         id = it,
                                                         isSingle = true,
@@ -130,14 +130,14 @@ fun BookmarkScreen(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                for (i in garments.indices.filter { it % 2 == 0 }) {
-                                    garments[i].resultImg?.let { imageUrl ->
+                                for (i in garments.indices.filter { it % 2 == 1 }) {
+                                    garments[i].resultImage?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             bookmarkViewModel.selectGarment(garments[i])
-                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                            navController.navigate("garmentDetail/${garments[i].id}")
                                         },
                                             bookmarkButton = {
-                                                garments[i].idSingle?.let {
+                                                garments[i].id?.let {
                                                     BookmarkButton(
                                                         id = it,
                                                         isSingle = true,
