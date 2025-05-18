@@ -184,7 +184,7 @@ class DownloadViewModel @Inject constructor (
                 .collect {
                     val model = SingleGarmentModel(
                         id = id,
-                        notes = notesInput.value,
+                        note = notesInput.value,
                         userUid = getInfoId()?.uid ?: ""
                     )
                     Log.e(notesInput.value, "pesan kekirim")

@@ -106,6 +106,8 @@ fun DownloadScreen(
         viewModel.updateOutfitName(id, outfitNameInput)
     }
     val response = viewModel.singleResponse.observeAsState()
+    Log.d("Download Screen", "Isi response: $response")
+
 
     if (showDialog.value) {
         AlertDialog(

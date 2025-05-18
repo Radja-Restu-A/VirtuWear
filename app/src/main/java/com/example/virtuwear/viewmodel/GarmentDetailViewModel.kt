@@ -41,7 +41,7 @@ class GarmentDetailViewModel @Inject constructor(
                 .collect {
                     val model = SingleGarmentModel(
                         id = id,
-                        notes = notesInput,
+                        note = notesInput,
                         userUid = getInfoId()?.uid ?: ""
                     )
                     Log.e(notesInput, "pesan kekirim")

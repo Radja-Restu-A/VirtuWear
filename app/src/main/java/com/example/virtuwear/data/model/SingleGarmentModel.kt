@@ -6,7 +6,7 @@ data class SingleGarmentModel(
     val modelImage: String? = null,
     val garmentImage: String? = null,
     val outfitName: String? = null,
-    val notes: String? = null,
+    val note: String? = null,
     val bookmark: Boolean? = false,
     val userUid: String
 )
@@ -24,7 +24,7 @@ data class SingleGarmentResponse(
     val modelImage: String,
     val garmentImage: String,
     val outfitName: String,
-    val notes: String,
+    val note: String,
     val bookmark: Boolean,
     val userUid: String
 )
@@ -35,7 +35,7 @@ data class SingleGarmentDto(
     val modelImage: String? = null,
     val garmentImage: String? = null,
     val outfitName: String? = null,
-    val notes: String? = null,
+    val note: String? = null,
     val bookmark: Boolean,
     val userUid: String? = null
 )

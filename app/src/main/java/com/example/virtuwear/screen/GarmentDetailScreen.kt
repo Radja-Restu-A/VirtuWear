@@ -80,7 +80,7 @@ fun GarmentDetailScreen(
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()
-        notesInput.value = garment?.notes ?: ""
+        notesInput.value = garment?.note ?: ""
     }
 
     LaunchedEffect(notesInput.value) {

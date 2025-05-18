@@ -104,7 +104,7 @@ class SingleGarmentRepository @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    Log.d("UPDATE NOTES", "pesan kekirim : ${body.notes}")
+                    Log.d("UPDATE NOTES", "pesan kekirim : ${body.note}")
                     Log.d("SingleGarmentRepo", "Update notes berhasil buat id=$id")
                     Result.success(body)
                 } else {

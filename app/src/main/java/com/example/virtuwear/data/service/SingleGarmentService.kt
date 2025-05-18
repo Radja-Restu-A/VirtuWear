@@ -25,7 +25,7 @@ interface SingleGarmentService {
         @Query("outfitName") outfitName: String
     ): Response<List<SingleGarmentModel>>
 
-    @GET("api/single-garments/detail/{id}")
+    @GET("api/tryon/detail/{id}")
     suspend fun getSingleGarmentById(
         @Path("id") id: Long
     ): Response<SingleGarmentResponse>
