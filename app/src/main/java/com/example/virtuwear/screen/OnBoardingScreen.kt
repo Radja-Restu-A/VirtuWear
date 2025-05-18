@@ -49,7 +49,8 @@ fun OnBoardingScreen(navController: NavController) {
         },
         onAccept = { accepted ->
             privacyPolicyAccepted = accepted
-        }
+        },
+        showCheckboxAndButton = true
     )
 
     Column(

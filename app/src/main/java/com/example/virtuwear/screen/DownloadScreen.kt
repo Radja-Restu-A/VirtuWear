@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,40 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.virtuwear.components.Notes
-
-
-//import android.util.Log
-//import androidx.compose.foundation.Image
-//import androidx.compose.foundation.background
-//import androidx.compose.foundation.clickable
-//import androidx.compose.foundation.layout.*
-//import androidx.compose.foundation.lazy.LazyColumn
-//import androidx.compose.foundation.shape.RoundedCornerShape
-//import androidx.compose.material.icons.Icons
-//import androidx.compose.material.icons.filled.ArrowBack
-//import androidx.compose.material3.*
-//import androidx.compose.runtime.*
-//import androidx.compose.runtime.livedata.observeAsState
-//
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.platform.LocalContext
-//import androidx.compose.ui.res.painterResource
-//import androidx.compose.ui.text.font.FontWeight
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.sp
-//import androidx.hilt.navigation.compose.hiltViewModel
-//import androidx.navigation.NavController
-//import coil.compose.rememberAsyncImagePainter
-//import com.example.virtuwear.viewmodel.DownloadViewModel
-//import androidx.lifecycle.compose.collectAsStateWithLifecycle
-//import androidx.lifecycle.findViewTreeLifecycleOwner
-//import coil.compose.rememberImagePainter
-//import com.example.virtuwear.R
-//import androidx.lifecycle.Observer
-//import androidx.lifecycle.ViewModelProvider
-//import com.example.virtuwear.components.BookmarkButton
-//import com.example.virtuwear.viewmodel.GarmentViewModel
 
 
 @Composable
@@ -84,6 +55,9 @@ fun DownloadScreen(
     val isDetailsVisible by viewModel.isDetailsVisible.collectAsStateWithLifecycle()
     val outfitNameInput = remember { mutableStateOf("") }
     val notesInput = rememberSaveable { mutableStateOf("") }
+    var isModelImageLoading by remember { mutableStateOf(true) }
+    var isGarmentImageLoading by remember { mutableStateOf(true) }
+    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fix_loading))
 
     val showDialog = remember { mutableStateOf(false) }
 
@@ -184,22 +158,51 @@ fun DownloadScreen(
                                 if (response.value?.isSuccessful == true) {
                                     val singleGarment = response.value?.body()
                                     singleGarment?.let {
-//                                        Text("Outfit Name: ${it.outfitName}")
-//                                        Text("User ID: ${it.userId}")
-                                        Image(
-                                            painter = rememberAsyncImagePainter(it.resultImage),
-                                            contentDescription = "Uploaded Image",
-                                            modifier = Modifier
-                                                .size(500.dp)
-                                                .clip(RoundedCornerShape(4.dp))
-                                        )
+                                        var isResultImageLoading by remember { mutableStateOf(true) }
+
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.size(500.dp)
+                                        ) {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(
+                                                    model = it.resultImage,
+                                                    onState = { state ->
+                                                        isResultImageLoading = state !is AsyncImagePainter.State.Success
+                                                    }
+                                                ),
+                                                contentDescription = "Uploaded Image",
+                                                modifier = Modifier
+                                                    .size(500.dp)
+                                                    .clip(RoundedCornerShape(4.dp))
+                                            )
+
+                                            if (isResultImageLoading && lottieComposition != null) {
+                                                LottieAnimation(
+                                                    composition = lottieComposition,
+                                                    iterations = Int.MAX_VALUE,
+                                                    modifier = Modifier.size(500.dp)
+                                                )
+                                            }
+                                        }
                                     }
-
-
                                 } else if (response.value != null) {
                                     Text("Failed to fetch data. Error: ${response.value?.code()}")
                                 } else {
-                                    Text("Loading...")
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.size(500.dp)
+                                    ) {
+                                        if (lottieComposition != null) {
+                                            LottieAnimation(
+                                                composition = lottieComposition,
+                                                iterations = Int.MAX_VALUE,
+                                                modifier = Modifier.size(500.dp)
+                                            )
+                                        } else {
+                                            Text("Loading...")
+                                        }
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -248,16 +251,48 @@ fun DownloadScreen(
                                     val singleGarment = response.value?.body()
                                     singleGarment?.let {
                                         Log.d("modelImg", "Model yang diambil: ${it.modelImage}")
-                                        Image(
-                                            painter = rememberAsyncImagePainter(it.modelImage.toString()),
-                                            contentDescription = "Model Photo",
+
+                                        Box(
+                                            contentAlignment = Alignment.Center,
                                             modifier = Modifier.size(200.dp)
-                                        )
+                                        ) {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(
+                                                    model = it.modelImage.toString(),
+                                                    onState = { state ->
+                                                        isModelImageLoading = state !is AsyncImagePainter.State.Success
+                                                    }
+                                                ),
+                                                contentDescription = "Model Photo",
+                                                modifier = Modifier.size(200.dp)
+                                            )
+
+                                            if (isModelImageLoading && lottieComposition != null) {
+                                                LottieAnimation(
+                                                    composition = lottieComposition,
+                                                    iterations = Int.MAX_VALUE,
+                                                    modifier = Modifier.size(500.dp)
+                                                )
+                                            }
+                                        }
                                     }
                                 } else if (response.value != null) {
                                     Text("Failed to fetch data. Error: ${response.value?.code()}")
                                 } else {
-                                    Text("Loading...")
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.size(200.dp)
+                                    ) {
+                                        if (lottieComposition != null) {
+                                            LottieAnimation(
+                                                composition = lottieComposition,
+                                                iterations = Int.MAX_VALUE,
+                                                modifier = Modifier.size(500.dp)
+                                            )
+                                        } else {
+                                            Text("Loading...")
+                                        }
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -285,18 +320,55 @@ fun DownloadScreen(
                                 // Logika untuk menampilkan gambar berdasarkan jumlah outfit
                                 if (outfitPhotos.size == 1) {
                                     // Kasus: hanya ada satu outfit
-                                    Image(
-                                        painter = rememberAsyncImagePainter(outfitPhotos[0]),
-                                        contentDescription = "Outfit Photo 1",
+                                    Box(
+                                        contentAlignment = Alignment.Center,
                                         modifier = Modifier.size(200.dp)
-                                    )
+                                    ) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(
+                                                model = outfitPhotos[0],
+                                                onState = { state ->
+                                                    isGarmentImageLoading = state !is AsyncImagePainter.State.Success
+                                                }
+                                            ),
+                                            contentDescription = "Outfit Photo 1",
+                                            modifier = Modifier.size(200.dp)
+                                        )
+
+                                        if (isGarmentImageLoading && lottieComposition != null) {
+                                            LottieAnimation(
+                                                composition = lottieComposition,
+                                                iterations = Int.MAX_VALUE,
+                                                modifier = Modifier.size(500.dp)
+                                            )
+                                        }
+                                    }
                                 } else if (outfitPhotos.size > 1) {
                                     // Kasus: lebih dari satu outfit
-                                    Image(
-                                        painter = rememberAsyncImagePainter(outfitPhotos[index]),
-                                        contentDescription = "Outfit Photo ${index + 1}",
+                                    var isCurrentOutfitLoading by remember { mutableStateOf(true) }
+                                    Box(
+                                        contentAlignment = Alignment.Center,
                                         modifier = Modifier.size(200.dp)
-                                    )
+                                    ) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(
+                                                model = outfitPhotos[index],
+                                                onState = { state ->
+                                                    isCurrentOutfitLoading = state !is AsyncImagePainter.State.Success
+                                                }
+                                            ),
+                                            contentDescription = "Outfit Photo ${index + 1}",
+                                            modifier = Modifier.size(200.dp)
+                                        )
+
+                                        if (isCurrentOutfitLoading && lottieComposition != null) {
+                                            LottieAnimation(
+                                                composition = lottieComposition,
+                                                iterations = Int.MAX_VALUE,
+                                                modifier = Modifier.size(500.dp)
+                                            )
+                                        }
+                                    }
                                 } else {
                                     Text(text = "No outfit photos available.")
                                 }
@@ -363,7 +435,7 @@ fun DownloadScreen(
                     id = id,
                     isSingle = true,
                     viewModel = garmentViewModel,
-                    size = 50.dp // sesuaikan ukuran jika perlu
+                    size = 50.dp
                 )
             }
         }

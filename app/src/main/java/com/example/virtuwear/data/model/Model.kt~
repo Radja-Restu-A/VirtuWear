@@ -1,0 +1,5 @@
+package com.example.virtuwear.data.model
+
+data class Model(
+    val 
+)

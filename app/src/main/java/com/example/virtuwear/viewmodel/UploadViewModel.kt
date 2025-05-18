@@ -1,4 +1,3 @@
-
 package com.example.virtuwear.viewmodel
 
 import android.app.Application
@@ -8,6 +7,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
@@ -46,23 +47,28 @@ class UploadViewModel @Inject constructor(
     private val modelRepository: ModelRepository,
     private val garmentRepository: GarmentRepository
 ) : ViewModel() {
-    var selectedGarmentType = mutableStateOf("Single Garment")
-    var imageUris = mutableStateOf(listOf<Uri?>())
     val tryOnResultUrl = mutableStateOf<String?>(null)
 
+    private val _selectedGarmentType = mutableStateOf("Single Garment")
+    val selectedGarmentType: State<String> = _selectedGarmentType
+
+    private val _imageUris = mutableStateListOf<Uri?>(null, null, null)
+    val imageUris: List<Uri?> = _imageUris
+
+    private val _modelList = mutableStateOf<List<ModelDto>>(emptyList())
+    val modelList: State<List<ModelDto>> = _modelList
+
+    private val _garmentList = mutableStateOf<List<GarmentDto>>(emptyList())
+    val garmentList: State<List<GarmentDto>> = _garmentList
 
     fun setGarmentType(type: String) {
-        selectedGarmentType.value = type
+        _selectedGarmentType.value = type
     }
 
     fun addImageUris(uri: Uri, index: Int) {
-        val newList = imageUris.value.toMutableList()
-        if (index < newList.size) {
-            newList[index] = uri
-        } else {
-            newList.add(uri)
+        if (index in _imageUris.indices) {
+            _imageUris[index] = uri
         }
-        imageUris.value = newList
     }
 
     suspend fun uploadImage(context: Context, garmentType: String): List<String?> {
@@ -70,17 +76,17 @@ class UploadViewModel @Inject constructor(
         val urlsView = mutableListOf<String?>()
         val urisToProcess = mutableListOf<Uri?>()
 
-        if (garmentType == "Multiple Garments" && imageUris.value.size >= 3) {
+        if (garmentType == "Multiple Garments" && _imageUris.size >= 3) {
             val combinedUri = combineTwoImages(
                 context,
-                imageUris.value[1]!!,
-                imageUris.value[2]!!
+                _imageUris[1]!!,
+                _imageUris[2]!!
             )
 
-            urisToProcess.add(imageUris.value[0]) // Model
-            urisToProcess.add(combinedUri)        // Gambar gabungan
+            urisToProcess.add(_imageUris[0]) // Model
+            urisToProcess.add(combinedUri)    // Gambar gabungan
         } else {
-            urisToProcess.addAll(imageUris.value)
+            urisToProcess.addAll(_imageUris)
         }
 
         urisToProcess
@@ -114,7 +120,6 @@ class UploadViewModel @Inject constructor(
         Log.d("UploadViewModel", "Final URLs: $urlsView")
         return urlsView
     }
-
 
     private fun getRealFileFromUri(uri: Uri): File? {
         return try {
@@ -172,7 +177,6 @@ class UploadViewModel @Inject constructor(
         }
     }
 
-
     suspend fun tryOnAfterUpload(urls: List<String?>): String? {
         val modelImg = urls.getOrNull(0)
         val clothImg = urls.getOrNull(1)
@@ -182,7 +186,7 @@ class UploadViewModel @Inject constructor(
                 model_name = "kolors-virtual-try-on-v1-5",
                 human_image = modelImg,
                 cloth_image = clothImg,
-                callback_url = "" // Kosong kalau tidak pakai callback, stelah hosting backend
+                callback_url = "" // Kosong kalau tidak pakai callback, setelah hosting backend
             )
 
             val taskId = tryOnHandler.createTryOn(request)
@@ -190,8 +194,7 @@ class UploadViewModel @Inject constructor(
                 val result = tryOnHandler.pollKlingApiUntilComplete(taskId)
                 tryOnResultUrl.value = result
                 return result
-            }
-            else {
+            } else {
                 Log.e("VTO", "Failed to create task")
             }
         } else {
@@ -202,11 +205,10 @@ class UploadViewModel @Inject constructor(
         return null
     }
 
-
     private suspend fun combineTwoImages(context: Context, uri1: Uri, uri2: Uri): Uri? {
         return withContext(Dispatchers.IO) {
             try {
-                //  bitmap dari URI
+                // Load bitmap from URI
                 val bitmap1 = context.contentResolver.openInputStream(uri1)?.use {
                     BitmapFactory.decodeStream(it)
                 }
@@ -247,5 +249,41 @@ class UploadViewModel @Inject constructor(
         }
     }
 
+    fun getModel(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = modelRepository.getAllModelById(id)
+                if (response.isSuccessful) {
+                    val models = response.body() ?: emptyList()
+                    _modelList.value = models
+                    Log.d("VTO", "Get model bisa buat: $id, count: ${models.size}")
+                } else {
+                    _modelList.value = emptyList()
+                    Log.e("VTO", "Gagal ambil model by user id: ${response.code()} - ${response.message()}")
+                }
+            } catch (e: Exception) {
+                _modelList.value = emptyList()
+                Log.e("VTO", "Gagal ambil model by user id: ${e.localizedMessage}")
+            }
+        }
+    }
 
+    fun getGarment(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = garmentRepository.GetAllGarmentByUserId(id)
+                if (response.isSuccess) {
+                    val garments = response.getOrNull() ?: emptyList()
+                    _garmentList.value = garments
+                    Log.d("VTO", "Get garment bisa buat: $id, count: ${garments.size}")
+                } else {
+                    _garmentList.value = emptyList()
+                    Log.e("VTO", "Gagal ambil garment by user id: $id")
+                }
+            } catch (e: Exception) {
+                _garmentList.value = emptyList()
+                Log.e("VTO", "Gagal ambil garment by user id: ${e.message}")
+            }
+        }
+    }
 }

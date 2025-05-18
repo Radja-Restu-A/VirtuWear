@@ -1,5 +1,7 @@
 package com.example.virtuwear.screen
 
+import android.view.Gravity
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -50,6 +52,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.virtuwear.viewmodel.DownloadViewModel
 import com.example.virtuwear.R
 import com.example.virtuwear.components.Alert
@@ -70,13 +78,16 @@ fun GarmentDetailScreen(
     onDismiss: () -> Unit,
     downloadViewModel: DownloadViewModel = hiltViewModel(),
     garmentDetailViewModel: GarmentDetailViewModel = hiltViewModel(),
-    garmentViewModel : GarmentViewModel = hiltViewModel()
+    garmentViewModel: GarmentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var garment by remember { mutableStateOf<SingleGarmentResponse?>(null) }
     val notesInput = remember { mutableStateOf("") }
     var showModals by remember { mutableStateOf(false) }
+    var isModelImageLoading by remember { mutableStateOf(true) }
+    var isGarmentImageLoading by remember { mutableStateOf(true) }
+    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fix_loading))
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()
@@ -122,6 +133,7 @@ fun GarmentDetailScreen(
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
+                Spacer(modifier = Modifier.height(24.dp))
                 garment?.resultImage?.let {
                     HistoryItem(
                         it,
@@ -134,7 +146,6 @@ fun GarmentDetailScreen(
                                     viewModel = garmentViewModel
                                 )
                             }
-
                         }
                     )
                 }
@@ -148,15 +159,31 @@ fun GarmentDetailScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    garment?.modelImage?.let {
-                        AsyncImage(
-                            model = it,
-                            contentDescription = "Model Image",
-                            modifier = Modifier
-                                .size(150.dp)
-                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                                .clip(RoundedCornerShape(4.dp))
-                        )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(150.dp)
+                    ) {
+                        garment?.modelImage?.let {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = "Model Image",
+                                onState = { state ->
+                                    isModelImageLoading = state !is AsyncImagePainter.State.Success
+                                },
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
+                        }
+
+                        if (isModelImageLoading && lottieComposition != null) {
+                            LottieAnimation(
+                                composition = lottieComposition,
+                                iterations = Int.MAX_VALUE,
+                                modifier = Modifier.size(120.dp)
+                            )
+                        }
                     }
 
                     Icon(
@@ -166,15 +193,31 @@ fun GarmentDetailScreen(
                         tint = MaterialTheme.colorScheme.onBackground
                     )
 
-                    garment?.garmentImage?.let {
-                        AsyncImage(
-                            model = it,
-                            contentDescription = "Garment Image",
-                            modifier = Modifier
-                                .size(150.dp)
-                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                                .clip(RoundedCornerShape(4.dp))
-                        )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(150.dp)
+                    ) {
+                        garment?.garmentImage?.let {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = "Garment Image",
+                                onState = { state ->
+                                    isGarmentImageLoading = state !is AsyncImagePainter.State.Success
+                                },
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
+                        }
+
+                        if (isGarmentImageLoading && lottieComposition != null) {
+                            LottieAnimation(
+                                composition = lottieComposition,
+                                iterations = Int.MAX_VALUE,
+                                modifier = Modifier.size(120.dp)
+                            )
+                        }
                     }
                 }
 

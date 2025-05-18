@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.components.Alert
 import com.example.virtuwear.components.AlertType
+import com.example.virtuwear.components.HistoryDialog
 import com.example.virtuwear.data.model.DoubleGarmentModel
 import com.example.virtuwear.data.model.GarmentDto
 import com.example.virtuwear.data.model.ModelDto
@@ -52,20 +53,31 @@ import java.util.*
 fun UploadPhotoScreen(
     navController: NavController,
     uploadViewModel: UploadViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var showError by remember { mutableStateOf(false) }
     var permissionError by remember { mutableStateOf("") }
     val selectedGarmentType by uploadViewModel.selectedGarmentType
-    val imageUris by uploadViewModel.imageUris
+    val imageUris: List<Uri?> = uploadViewModel.imageUris
     var isLoading by remember { mutableStateOf(false) }
     var showUploadOptions by remember { mutableStateOf(false) }
     var currentUploadIndex by remember { mutableStateOf(0) }
+    var showHistoryDialog by remember { mutableStateOf(false) }
+    var historyType by remember { mutableStateOf("") }
 
     val firebase = loginViewModel.getCurrentUser()
     val user = firebase?.uid
+    val modelList by uploadViewModel.modelList
+    val garmentList by uploadViewModel.garmentList
+
+    LaunchedEffect(Unit) {
+        user?.let {
+            uploadViewModel.getModel(it)
+            uploadViewModel.getGarment(it)
+        }
+    }
 
     // File Path sementara buat gambar dari camera
     val tempImageFile = remember {
@@ -185,7 +197,23 @@ fun UploadPhotoScreen(
                 } else {
                     Toast.makeText(context, "Unable to create photo file", Toast.LENGTH_SHORT).show()
                 }
+            },
+            onHistoryClick = {
+                showUploadOptions = false
+                historyType = if (currentUploadIndex == 0) "Model" else "Garment"
+                showHistoryDialog = true
             }
+        )
+    }
+
+    if (showHistoryDialog) {
+        HistoryDialog(
+            items = if (historyType == "Model") modelList else garmentList,
+            itemType = historyType,
+            onItemSelected = { uri ->
+                uploadViewModel.addImageUris(uri, currentUploadIndex)
+            },
+            onDismiss = { showHistoryDialog = false }
         )
     }
 
@@ -203,7 +231,6 @@ fun UploadPhotoScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
@@ -297,7 +324,6 @@ fun UploadPhotoScreen(
                         try {
                             val listImg = uploadViewModel.uploadImage(context, selectedGarmentType)
                             Log.d("ListImg", "Isi listImg = $listImg")
-                            // simpan dulu ke db disini tuh buat yang model, response nya masukin ke create tryon
                             val newModel = ModelDto(
                                 modelImage = listImg[0]!!,
                                 userUid = user ?: ""
@@ -305,106 +331,54 @@ fun UploadPhotoScreen(
                             val responseModel = uploadViewModel.createModel(newModel)
                             Log.d("Model Result", "Response Model create: $responseModel")
 
-                            // simpan dulu ke db disini tuh buat yang garment, response nya masukin ke create tryon
                             val newGarment = GarmentDto(
                                 garmentImage = listImg[1]!!,
                                 userUid = user ?: ""
                             )
                             val responseGarment = uploadViewModel.createGarment(newGarment)
-                            Log.d("Model Result", "Response Model create: $responseModel")
-                            if (selectedGarmentType == "Single Garment") {
-                                val newTryon = SingleGarmentModel(
+                            Log.d("Garment Result", "Response Garment create: $responseGarment")
+
+                            val newTryon = if (selectedGarmentType == "Single Garment") {
+                                SingleGarmentModel(
                                     userUid = user ?: "",
                                     modelImage = listImg[0]!!,
                                     garmentImage = listImg[1]!!
                                 )
+                            } else {
+                                SingleGarmentModel(
+                                    userUid = user ?: "",
+                                    modelImage = listImg[0]!!,
+                                    garmentImage = listImg[1]!!
+                                )
+                            }
 
-                                val response = uploadViewModel.createRow(newTryon)
-                                Log.d("VTO Result", "Response create: $response")
+                            val response = uploadViewModel.createRow(newTryon)
+                            Log.d("VTO Result", "Response create: $response")
 
-                                if (response.isSuccessful) {
-                                    val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
-                                    if (resultUrl != null) {
-                                        Log.d("VTO Result", "Image URL: $resultUrl")
-                                        val updateResult = SingleGarmentUpdateResult(
-                                            resultImage = resultUrl
-                                        )
-                                        val updateResultImg = response.body()?.id?.let {
-                                            uploadViewModel.updateResultImage(
-                                                it, updateResult
-                                            )
-                                        }
-                                        if (user != null) {
-                                            loginViewModel.updateTotalGenerate(user)
-                                        }
-
-                                        isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
-                                    } else {
-                                        isLoading = false
-                                        Log.e("VTO", "Gagal mendapatkan hasil VTO")
-                                        Toast.makeText(
-                                            context,
-                                            "Failed to get try-on result",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                            if (response.isSuccessful) {
+                                val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
+                                if (resultUrl != null) {
+                                    Log.d("VTO Result", "Image URL: $resultUrl")
+                                    val updateResult = SingleGarmentUpdateResult(
+                                        resultImage = resultUrl
+                                    )
+                                    val updateResultImg = response.body()?.id?.let {
+                                        uploadViewModel.updateResultImage(it, updateResult)
                                     }
+                                    if (user != null) {
+                                        loginViewModel.updateTotalGenerate(user)
+                                    }
+                                    isLoading = false
+                                    navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
                                 } else {
                                     isLoading = false
-                                    Log.e("TestLog", "Failed to create row: ${response.code()}")
-                                    Toast.makeText(
-                                        context,
-                                        "Upload failed: ${response.code()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Log.e("VTO", "Gagal mendapatkan hasil VTO")
+                                    Toast.makeText(context, "Failed to get try-on result", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
-
-                                val newModel = SingleGarmentModel(
-                                    userUid = user ?: "",
-                                    modelImage = listImg[0]!!,
-                                    garmentImage = listImg[1]!!
-                                )
-
-                                val response = uploadViewModel.createRow(newModel)
-                                Log.d("VTO Result", "Response create: $response")
-
-                                if (response.isSuccessful) {
-                                    val resultUrl = uploadViewModel.tryOnAfterUpload(listImg)
-                                    if (resultUrl != null) {
-                                        Log.d("VTO Result", "Image URL: $resultUrl")
-                                        val updateResult = SingleGarmentUpdateResult(
-                                            resultImage = resultUrl
-                                        )
-                                        val updateResultImg = response.body()?.id?.let {
-                                            uploadViewModel.updateResultImage(
-                                                it, updateResult
-                                            )
-                                        }
-                                        if (user != null) {
-                                            loginViewModel.updateTotalGenerate(user)
-                                        }
-
-                                        isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
-                                    } else {
-                                        isLoading = false
-                                        Log.e("VTO", "Gagal mendapatkan hasil VTO")
-                                        Toast.makeText(
-                                            context,
-                                            "Failed to get try-on result",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                } else {
-                                    isLoading = false
-                                    Log.e("TestLog", "Failed to create row: ${response.code()}")
-                                    Toast.makeText(
-                                        context,
-                                        "Upload failed: ${response.code()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                isLoading = false
+                                Log.e("TestLog", "Failed to create row: ${response.code()}")
+                                Toast.makeText(context, "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                             }
                         } catch (e: Exception) {
                             isLoading = false
@@ -495,7 +469,8 @@ fun UploadBox(imageUri: Uri?, onUploadClick: () -> Unit) {
 fun UploadOptionsDialog(
     onDismiss: () -> Unit,
     onGalleryClick: () -> Unit,
-    onCameraClick: () -> Unit
+    onCameraClick: () -> Unit,
+    onHistoryClick: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -518,7 +493,7 @@ fun UploadOptionsDialog(
                 Button(
                     onClick = onGalleryClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                 ) {
                     Text("From Gallery")
                 }
@@ -528,18 +503,29 @@ fun UploadOptionsDialog(
                 Button(
                     onClick = onCameraClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xF0000000))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                 ) {
                     Text("Take Photo")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                Button(
+                    onClick = onHistoryClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text("History")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 TextButton(
                     onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
-                    Text("Cancel", color = Color.Gray)
+                    Text("Cancel", color = Color.Black)
                 }
             }
         }
