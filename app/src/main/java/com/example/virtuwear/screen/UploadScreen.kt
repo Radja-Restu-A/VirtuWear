@@ -35,6 +35,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.virtuwear.components.Alert
 import com.example.virtuwear.components.AlertType
 import com.example.virtuwear.data.model.DoubleGarmentModel
+import com.example.virtuwear.data.model.GarmentDto
+import com.example.virtuwear.data.model.ModelDto
 import com.example.virtuwear.data.model.SingleGarmentModel
 import com.example.virtuwear.data.model.SingleGarmentUpdateResult
 import com.example.virtuwear.repository.UserRepository
@@ -266,8 +268,8 @@ fun UploadPhotoScreen(
             Alert(
                 showDialog = showError,
                 onDismiss = { showError = false },
-                title = "Anda belum upload foto untuk salah satu",
-                message = "Pastikan gambar sudah di upload keseluruhan agar kami bisa memproses!",
+                title = "Upload Required",
+                message = "Please upload all required images to proceed. This step is mandatory and cannot be skipped.",
                 confirmButtonText = "Confirm",
                 onConfirmClick = { showError = false },
                 onCancelClick = { showError = false },
@@ -294,15 +296,30 @@ fun UploadPhotoScreen(
                     coroutineScope.launch {
                         try {
                             val listImg = uploadViewModel.uploadImage(context, selectedGarmentType)
+                            Log.d("ListImg", "Isi listImg = $listImg")
+                            // simpan dulu ke db disini tuh buat yang model, response nya masukin ke create tryon
+                            val newModel = ModelDto(
+                                modelImage = listImg[0]!!,
+                                userUid = user ?: ""
+                            )
+                            val responseModel = uploadViewModel.createModel(newModel)
+                            Log.d("Model Result", "Response Model create: $responseModel")
 
+                            // simpan dulu ke db disini tuh buat yang garment, response nya masukin ke create tryon
+                            val newGarment = GarmentDto(
+                                garmentImage = listImg[1]!!,
+                                userUid = user ?: ""
+                            )
+                            val responseGarment = uploadViewModel.createGarment(newGarment)
+                            Log.d("Model Result", "Response Model create: $responseModel")
                             if (selectedGarmentType == "Single Garment") {
-                                val newModel = SingleGarmentModel(
-                                    userId = user ?: "",
-                                    modelImg = listImg[0]!!,
-                                    garmentImg = listImg[1]!!
+                                val newTryon = SingleGarmentModel(
+                                    userUid = user ?: "",
+                                    modelImage = listImg[0]!!,
+                                    garmentImage = listImg[1]!!
                                 )
 
-                                val response = uploadViewModel.createRow(newModel)
+                                val response = uploadViewModel.createRow(newTryon)
                                 Log.d("VTO Result", "Response create: $response")
 
                                 if (response.isSuccessful) {
@@ -310,9 +327,9 @@ fun UploadPhotoScreen(
                                     if (resultUrl != null) {
                                         Log.d("VTO Result", "Image URL: $resultUrl")
                                         val updateResult = SingleGarmentUpdateResult(
-                                            resultImg = resultUrl
+                                            resultImage = resultUrl
                                         )
-                                        val updateResultImg = response.body()?.idSingle?.let {
+                                        val updateResultImg = response.body()?.id?.let {
                                             uploadViewModel.updateResultImage(
                                                 it, updateResult
                                             )
@@ -322,7 +339,7 @@ fun UploadPhotoScreen(
                                         }
 
                                         isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
+                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
                                     } else {
                                         isLoading = false
                                         Log.e("VTO", "Gagal mendapatkan hasil VTO")
@@ -344,9 +361,9 @@ fun UploadPhotoScreen(
                             } else {
 
                                 val newModel = SingleGarmentModel(
-                                    userId = user ?: "",
-                                    modelImg = listImg[0]!!,
-                                    garmentImg = listImg[1]!!
+                                    userUid = user ?: "",
+                                    modelImage = listImg[0]!!,
+                                    garmentImage = listImg[1]!!
                                 )
 
                                 val response = uploadViewModel.createRow(newModel)
@@ -357,9 +374,9 @@ fun UploadPhotoScreen(
                                     if (resultUrl != null) {
                                         Log.d("VTO Result", "Image URL: $resultUrl")
                                         val updateResult = SingleGarmentUpdateResult(
-                                            resultImg = resultUrl
+                                            resultImage = resultUrl
                                         )
-                                        val updateResultImg = response.body()?.idSingle?.let {
+                                        val updateResultImg = response.body()?.id?.let {
                                             uploadViewModel.updateResultImage(
                                                 it, updateResult
                                             )
@@ -369,7 +386,7 @@ fun UploadPhotoScreen(
                                         }
 
                                         isLoading = false
-                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.idSingle}")
+                                        navController.navigate("download?garmentType=Single Garment&id=${response.body()?.id}")
                                     } else {
                                         isLoading = false
                                         Log.e("VTO", "Gagal mendapatkan hasil VTO")

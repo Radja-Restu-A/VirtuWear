@@ -80,11 +80,11 @@ fun GarmentDetailScreen(
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()
-        notesInput.value = garment?.notes ?: ""
+        notesInput.value = garment?.note ?: ""
     }
 
     LaunchedEffect(notesInput.value) {
-        garment?.idSingle?.let {
+        garment?.id?.let {
             garmentDetailViewModel.updateNotes(it, notesInput.value)
         }
     }
@@ -122,12 +122,12 @@ fun GarmentDetailScreen(
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
-                garment?.resultImg?.let {
+                garment?.resultImage?.let {
                     HistoryItem(
                         it,
                         null,
                         bookmarkButton = {
-                            garment?.idSingle?.let {
+                            garment?.id?.let {
                                 BookmarkButton(
                                     id = it,
                                     isSingle = true,
@@ -148,7 +148,7 @@ fun GarmentDetailScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    garment?.modelImg?.let {
+                    garment?.modelImage?.let {
                         AsyncImage(
                             model = it,
                             contentDescription = "Model Image",
@@ -166,7 +166,7 @@ fun GarmentDetailScreen(
                         tint = MaterialTheme.colorScheme.onBackground
                     )
 
-                    garment?.garmentImg?.let {
+                    garment?.garmentImage?.let {
                         AsyncImage(
                             model = it,
                             contentDescription = "Garment Image",
@@ -195,7 +195,7 @@ fun GarmentDetailScreen(
                 ) {
                     Button(
                         onClick = {
-                            garment?.resultImg?.let {
+                            garment?.resultImage?.let {
                                 downloadViewModel.downloadPhoto(
                                     context,
                                     it
@@ -260,7 +260,7 @@ fun GarmentDetailScreen(
                             cancelButtonText = "Cancel",
                             onConfirmClick = {
                                 coroutineScope.launch {
-                                    garment?.let { garmentDetailViewModel.deleteGarment(it.idSingle) }
+                                    garment?.let { garmentDetailViewModel.deleteGarment(it.id) }
                                     onDismiss()
                                     showModals = false
                                 }

@@ -142,7 +142,7 @@ fun HistoryScreen(
                                             modifier = Modifier.fillMaxSize()
                                         ) {
                                             Text(
-                                                text = garments.count{it.resultImg != null}.toString(),
+                                                text = garments.count{it.resultImage != null}.toString(),
                                                 color = Color.Black,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -165,13 +165,13 @@ fun HistoryScreen(
                                     )
                                 }
                                 for (i in garments.indices.filter { it % 2 == 0 }) {
-                                    garments[i].resultImg?.let { imageUrl ->
+                                    garments[i].resultImage?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])
-                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                            navController.navigate("garmentDetail/${garments[i].id}")
                                         },
                                             bookmarkButton = {
-                                                garments[i].idSingle?.let {
+                                                garments[i].id?.let {
                                                     BookmarkButton(
                                                         id = it,
                                                         isSingle = true,
@@ -191,13 +191,13 @@ fun HistoryScreen(
                             ) {
                                 // Take items at odd indices (1, 3, 5, ...)
                                 for (i in garments.indices.filter { it % 2 == 1 }) {
-                                    garments[i].resultImg?.let { imageUrl ->
+                                    garments[i].resultImage?.let { imageUrl ->
                                         HistoryItem(imageUrl, onClick = {
                                             historyViewModel.selectGarment(garments[i])
-                                            navController.navigate("garmentDetail/${garments[i].idSingle}")
+                                            navController.navigate("garmentDetail/${garments[i].id}")
                                         },
                                             bookmarkButton = {
-                                                garments[i].idSingle?.let {
+                                                garments[i].id?.let {
                                                     BookmarkButton(
                                                         id = it,
                                                         isSingle = true,
