@@ -87,7 +87,7 @@ fun GarmentDetailScreen(
     var showModals by remember { mutableStateOf(false) }
     var isModelImageLoading by remember { mutableStateOf(true) }
     var isGarmentImageLoading by remember { mutableStateOf(true) }
-    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading))
+    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
 
     LaunchedEffect(idSingle) {
         garment = garmentDetailViewModel.getById(idSingle).body()

@@ -60,7 +60,7 @@ fun UploadPhotoScreen(
     var showError by remember { mutableStateOf(false) }
     var permissionError by remember { mutableStateOf("") }
     val selectedGarmentType by uploadViewModel.selectedGarmentType
-    val imageUris: List<Uri?> = uploadViewModel.imageUris
+    val imageUris: List<Uri?> = uploadViewModel.imageUris.value
     var isLoading by remember { mutableStateOf(false) }
     var showUploadOptions by remember { mutableStateOf(false) }
     var currentUploadIndex by remember { mutableStateOf(0) }
@@ -79,7 +79,6 @@ fun UploadPhotoScreen(
         }
     }
 
-    // File Path sementara buat gambar dari camera
     val tempImageFile = remember {
         try {
             File.createTempFile(
@@ -103,7 +102,6 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Minta permission sama pengguna buat akses directory sama kamera
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -130,7 +128,6 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Image picker launcher dari gallery
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -140,7 +137,6 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -152,7 +148,6 @@ fun UploadPhotoScreen(
         }
     }
 
-    // Check permissions
     fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
@@ -211,7 +206,8 @@ fun UploadPhotoScreen(
             items = if (historyType == "Model") modelList else garmentList,
             itemType = historyType,
             onItemSelected = { uri ->
-                uploadViewModel.addImageUris(uri, currentUploadIndex)
+                uploadViewModel.addImageUris(uri, currentUploadIndex, "History")
+                showHistoryDialog = false
             },
             onDismiss = { showHistoryDialog = false }
         )
@@ -324,6 +320,13 @@ fun UploadPhotoScreen(
                         try {
                             val listImg = uploadViewModel.uploadImage(context, selectedGarmentType)
                             Log.d("ListImg", "Isi listImg = $listImg")
+
+                            if (listImg.size < 2 || listImg.any { it == null }) {
+                                isLoading = false
+                                Toast.makeText(context, "Gagal mendapatkan URL gambar. Silakan coba lagi.", Toast.LENGTH_SHORT).show()
+                                return@launch
+                            }
+
                             val newModel = ModelDto(
                                 modelImage = listImg[0]!!,
                                 userUid = user ?: ""
@@ -338,19 +341,11 @@ fun UploadPhotoScreen(
                             val responseGarment = uploadViewModel.createGarment(newGarment)
                             Log.d("Garment Result", "Response Garment create: $responseGarment")
 
-                            val newTryon = if (selectedGarmentType == "Single Garment") {
-                                SingleGarmentModel(
-                                    userUid = user ?: "",
-                                    modelImage = listImg[0]!!,
-                                    garmentImage = listImg[1]!!
-                                )
-                            } else {
-                                SingleGarmentModel(
-                                    userUid = user ?: "",
-                                    modelImage = listImg[0]!!,
-                                    garmentImage = listImg[1]!!
-                                )
-                            }
+                            val newTryon = SingleGarmentModel(
+                                userUid = user ?: "",
+                                modelImage = listImg[0]!!,
+                                garmentImage = listImg[1]!!
+                            )
 
                             val response = uploadViewModel.createRow(newTryon)
                             Log.d("VTO Result", "Response create: $response")
@@ -362,7 +357,7 @@ fun UploadPhotoScreen(
                                     val updateResult = SingleGarmentUpdateResult(
                                         resultImage = resultUrl
                                     )
-                                    val updateResultImg = response.body()?.id?.let {
+                                    response.body()?.id?.let {
                                         uploadViewModel.updateResultImage(it, updateResult)
                                     }
                                     if (user != null) {

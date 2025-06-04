@@ -196,12 +196,14 @@ class DownloadViewModel @Inject constructor (
     fun updateOutfitName(id: Long, outfitName: MutableState<String>) {
         viewModelScope.launch {
             try {
+                val finalOutfitName = if (outfitName.value.isBlank()) "VirtuWear" else outfitName.value
+
                 val model = SingleGarmentModel(
                     id = id,
-                    outfitName = outfitName.value,
+                    outfitName = finalOutfitName,
                     userUid = getInfoId()?.let { it.uid } ?: ""
                 )
-                Log.d("Update OutfitName", "Updating outfit name for id=$id to '${outfitName.value}'")
+                Log.d("Update OutfitName", "Updating outfit name for id=$id to '$finalOutfitName'")
                 repositorySingleGarment.updateOutfitName(id, model)
                 Log.d("Update OutfitName", "Update outfit name result: ${model.outfitName}")
             } catch (e: Exception) {
@@ -209,5 +211,6 @@ class DownloadViewModel @Inject constructor (
             }
         }
     }
+
 
 }

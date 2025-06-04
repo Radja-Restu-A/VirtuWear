@@ -57,7 +57,7 @@ fun DownloadScreen(
     val notesInput = rememberSaveable { mutableStateOf("") }
     var isModelImageLoading by remember { mutableStateOf(true) }
     var isGarmentImageLoading by remember { mutableStateOf(true) }
-    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fix_loading))
+    val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading))
 
     val showDialog = remember { mutableStateOf(false) }
 

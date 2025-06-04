@@ -7,12 +7,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.State
 import com.example.virtuwear.BuildConfig
 import com.example.virtuwear.data.model.KlingAiRequestDto
 import com.example.virtuwear.data.model.SingleGarmentModel
@@ -37,6 +36,8 @@ import com.example.virtuwear.data.model.ModelDto
 import com.example.virtuwear.repository.GarmentRepository
 import com.example.virtuwear.repository.ModelRepository
 import retrofit2.Response
+import java.net.URL
+import java.io.InputStream
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
@@ -47,13 +48,10 @@ class UploadViewModel @Inject constructor(
     private val modelRepository: ModelRepository,
     private val garmentRepository: GarmentRepository
 ) : ViewModel() {
+    var selectedGarmentType = mutableStateOf("Single Garment")
+    var imageUris = mutableStateOf(listOf<Uri?>())
+    var imageUriSources = mutableStateOf(listOf<String?>()) // "Local" atau "History"
     val tryOnResultUrl = mutableStateOf<String?>(null)
-
-    private val _selectedGarmentType = mutableStateOf("Single Garment")
-    val selectedGarmentType: State<String> = _selectedGarmentType
-
-    private val _imageUris = mutableStateListOf<Uri?>(null, null, null)
-    val imageUris: List<Uri?> = _imageUris
 
     private val _modelList = mutableStateOf<List<ModelDto>>(emptyList())
     val modelList: State<List<ModelDto>> = _modelList
@@ -62,63 +60,178 @@ class UploadViewModel @Inject constructor(
     val garmentList: State<List<GarmentDto>> = _garmentList
 
     fun setGarmentType(type: String) {
-        _selectedGarmentType.value = type
+        selectedGarmentType.value = type
     }
 
-    fun addImageUris(uri: Uri, index: Int) {
-        if (index in _imageUris.indices) {
-            _imageUris[index] = uri
+    fun addImageUris(uri: Uri, index: Int, source: String = "Local") {
+        val newList = imageUris.value.toMutableList()
+        val newSourceList = imageUriSources.value.toMutableList()
+
+        // Buat bikin list dulu nantinya ditampung
+        while (newList.size <= index) {
+            newList.add(null)
         }
+        while (newSourceList.size <= index) {
+            newSourceList.add(null)
+        }
+
+        newList[index] = uri
+        newSourceList[index] = source
+
+        imageUris.value = newList
+        imageUriSources.value = newSourceList
     }
 
     suspend fun uploadImage(context: Context, garmentType: String): List<String?> {
-        val apiKey = BuildConfig.IMAGE_BB_API_KEY
-        val urlsView = mutableListOf<String?>()
-        val urisToProcess = mutableListOf<Uri?>()
+        return withContext(Dispatchers.IO) {
+            val apiKey = BuildConfig.IMAGE_BB_API_KEY
+            val finalUrls = mutableListOf<String?>()
 
-        if (garmentType == "Multiple Garments" && _imageUris.size >= 3) {
-            val combinedUri = combineTwoImages(
-                context,
-                _imageUris[1]!!,
-                _imageUris[2]!!
-            )
+            try {
+                if (garmentType == "Single Garment") {
+                    val modelUrl = processImage(context, 0, apiKey)
+                    finalUrls.add(modelUrl)
 
-            urisToProcess.add(_imageUris[0]) // Model
-            urisToProcess.add(combinedUri)    // Gambar gabungan
-        } else {
-            urisToProcess.addAll(_imageUris)
-        }
+                    val garmentUrl = processImage(context, 1, apiKey)
+                    finalUrls.add(garmentUrl)
 
-        urisToProcess
-            .filter { it != null && it != Uri.EMPTY }
-            .forEachIndexed { i, uri ->
-                val file = uri?.let { getRealFileFromUri(it) }
-                val requestFile = file?.asRequestBody("image/*".toMediaTypeOrNull())
-                val body = requestFile?.let {
-                    MultipartBody.Part.createFormData("image", file.name, it)
+                } else { // Multiple Garments
+                    val modelUrl = processImage(context, 0, apiKey)
+                    finalUrls.add(modelUrl)
+
+                    val combinedUrl = processCombinedGarments(context, apiKey)
+                    finalUrls.add(combinedUrl)
                 }
 
-                if (body != null) {
-                    try {
-                        val response = imageBBService.uploadImage(apiKey, body)
-
-                        if (response.isSuccessful) {
-                            val urlView = response.body()?.data?.image?.url
-                            val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
-                            urlsView.add(fixedViewerUrl)
-                            Log.d("UploadViewModel", "Image #$i uploaded: $fixedViewerUrl")
-                        } else {
-                            val errorMsg = response.errorBody()?.string() ?: "Unknown error"
-                            Log.e("UploadViewModel", "Failed to upload image #$i: $errorMsg")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("UploadViewModel", "Upload gagal di image #$i: ${e.message}")
-                    }
-                }
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Error in uploadImage: ${e.message}")
             }
 
-        Log.d("UploadViewModel", "Final URLs: $urlsView")
-        return urlsView
+            Log.d("UploadViewModel", "Final URLs: $finalUrls")
+            finalUrls
+        }
+    }
+
+    private suspend fun processImage(context: Context, index: Int, apiKey: String): String? {
+        val uri = imageUris.value.getOrNull(index) ?: return null
+        val source = imageUriSources.value.getOrNull(index) ?: "Local"
+
+        return if (source == "History") {
+            // Jika dari history, uri sudah berupa URL imgBB, langsung return
+            uri.toString()
+        } else {
+            // Jika dari local, upload ke imgBB
+            uploadSingleImageToImgBB(context, uri, apiKey)
+        }
+    }
+
+    private suspend fun processCombinedGarments(context: Context, apiKey: String): String? {
+        val uri1 = imageUris.value.getOrNull(1) ?: return null
+        val uri2 = imageUris.value.getOrNull(2) ?: return null
+        val source1 = imageUriSources.value.getOrNull(1) ?: "Local"
+        val source2 = imageUriSources.value.getOrNull(2) ?: "Local"
+
+        return withContext(Dispatchers.IO) {
+            try {
+                // Download images jika dari history, atau gunakan langsung jika local
+                val bitmap1 = getBitmapFromUriOrUrl(context, uri1, source1)
+                val bitmap2 = getBitmapFromUriOrUrl(context, uri2, source2)
+
+                if (bitmap1 == null || bitmap2 == null) {
+                    Log.e("UploadViewModel", "Failed to get bitmaps for combining")
+                    return@withContext null
+                }
+
+                // Combine images
+                val combinedBitmap = createBitmap(
+                    max(bitmap1.width, bitmap2.width),
+                    bitmap1.height + bitmap2.height
+                )
+
+                val canvas = Canvas(combinedBitmap)
+                canvas.drawBitmap(bitmap1, 0f, 0f, null)
+                canvas.drawBitmap(bitmap2, 0f, bitmap1.height.toFloat(), null)
+
+                // Simpen combine ke temp file
+                val tempFile = File.createTempFile(
+                    "combined_${System.currentTimeMillis()}",
+                    ".jpg",
+                    context.cacheDir
+                )
+
+                FileOutputStream(tempFile).use {
+                    combinedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, it)
+                }
+
+                // Upload to imgBB
+                val combinedUri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    tempFile
+                )
+
+                val result = uploadSingleImageToImgBB(context, combinedUri, apiKey)
+
+                // Cleanup
+                bitmap1.recycle()
+                bitmap2.recycle()
+                combinedBitmap.recycle()
+                tempFile.delete()
+
+                result
+
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Error combining images: ${e.message}")
+                null
+            }
+        }
+    }
+
+    private suspend fun getBitmapFromUriOrUrl(context: Context, uri: Uri, source: String): Bitmap? {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (source == "History") {
+                    // Download dari URL
+                    val url = URL(uri.toString())
+                    val inputStream: InputStream = url.openConnection().getInputStream()
+                    BitmapFactory.decodeStream(inputStream)
+                } else {
+                    // Load dari local URI
+                    context.contentResolver.openInputStream(uri)?.use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Error getting bitmap from ${source}: ${e.message}")
+                null
+            }
+        }
+    }
+
+    private suspend fun uploadSingleImageToImgBB(context: Context, uri: Uri, apiKey: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val file = getRealFileFromUri(uri) ?: return@withContext null
+                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+                val response = imageBBService.uploadImage(apiKey, body)
+
+                if (response.isSuccessful) {
+                    val urlView = response.body()?.data?.image?.url
+                    val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
+                    Log.d("UploadViewModel", "Image uploaded: $fixedViewerUrl")
+                    fixedViewerUrl
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                    Log.e("UploadViewModel", "Failed to upload image: $errorMsg")
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Upload failed: ${e.message}")
+                null
+            }
+        }
     }
 
     private fun getRealFileFromUri(uri: Uri): File? {
@@ -186,7 +299,7 @@ class UploadViewModel @Inject constructor(
                 model_name = "kolors-virtual-try-on-v1-5",
                 human_image = modelImg,
                 cloth_image = clothImg,
-                callback_url = "" // Kosong kalau tidak pakai callback, setelah hosting backend
+                callback_url = ""
             )
 
             val taskId = tryOnHandler.createTryOn(request)
@@ -208,7 +321,6 @@ class UploadViewModel @Inject constructor(
     private suspend fun combineTwoImages(context: Context, uri1: Uri, uri2: Uri): Uri? {
         return withContext(Dispatchers.IO) {
             try {
-                // Load bitmap from URI
                 val bitmap1 = context.contentResolver.openInputStream(uri1)?.use {
                     BitmapFactory.decodeStream(it)
                 }
