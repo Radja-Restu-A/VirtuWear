@@ -1,57 +1,82 @@
 package com.example.virtuwear.viewmodel
 
 import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.virtuwear.data.dao.ProfileDao
-import com.example.virtuwear.data.entity.ProfileEntity
-import com.example.virtuwear.data.model.UserRequest
+import com.example.virtuwear.data.model.ProfileResponse
 import com.example.virtuwear.data.model.UserResponse
-import com.example.virtuwear.data.service.UserService
 import com.example.virtuwear.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.virtuwear.data.model.PurchaseDto
+import com.example.virtuwear.repository.CoinRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import javax.inject.Inject
+
+sealed class PurchaseState {
+    object Idle : PurchaseState()
+    object Loading : PurchaseState()
+    data class Success(val purchaseDto: PurchaseDto) : PurchaseState()
+    data class Error(val message: String) : PurchaseState()
+}
+
+
+
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor (
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val coinRepository: CoinRepository
 ) : ViewModel() {
 
     private val _userResponse = MutableStateFlow<UserResponse?>(null)
     val userResponse: StateFlow<UserResponse?> = _userResponse.asStateFlow()
+
+    private val _profileResponse = MutableStateFlow<ProfileResponse?>(null)
+    val profileResponse: StateFlow<ProfileResponse?> = _profileResponse.asStateFlow()
+
 
     val user = FirebaseAuth.getInstance().currentUser
 
     private val _redeemCodeStatus = MutableStateFlow<Result<Unit>?>(null)
     val redeemCodeStatus: StateFlow<Result<Unit>?> = _redeemCodeStatus
 
-    fun fetchUser() {
+
+    private val _uiState = MutableStateFlow<PurchaseState>(PurchaseState.Idle)
+    val uiState: StateFlow<PurchaseState> = _uiState
+
+
+    fun purchaseCoin(
+        productId: String,
+        purchaseToken: String,
+    ) {
         viewModelScope.launch {
-            try {
-                val response = userRepository.getUserById(getUserId())
-                if (response.isSuccessful) {
-                    _userResponse.value = response.body()
-                } else {
-                    _userResponse.value = null
-                    Log.e("fetchUser", "API Error: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                _userResponse.value = null
-                Log.e("fetchUser", "Exception: ${e.message}")
+            val userUid = getUserId()
+
+            _uiState.value = PurchaseState.Loading
+
+            val result = coinRepository.purchase(productId, purchaseToken, userUid)
+            // Ganti pemeriksaan menjadi .isSuccess / .isFailure
+            if (result.isSuccess) {
+                // Ambil body-nya (PurchaseDto)
+                val dto = result.getOrNull()!!
+                _uiState.value = PurchaseState.Success(dto)
+            } else {
+                // Ambil exception-nya dan tampilkan pesan
+                val msg = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
+                _uiState.value = PurchaseState.Error(msg)
             }
         }
     }
 
-
+    fun resetState() {
+        _uiState.value = PurchaseState.Idle
+    }
 
     fun getUserName(): String? {
         return user?.displayName
@@ -99,18 +124,25 @@ class ProfileViewModel @Inject constructor (
         viewModelScope.launch {
             try {
                 val userId = getUserId()
-                val response = userRepository.getUserById(userId)
+                val response = userRepository.getProfile(userId)
                 if (response.isSuccessful) {
-                    _userResponse.value
-                    (response.body())
+                    _profileResponse.value = response.body()
                 } else {
-                    _userResponse.value = null
+                    _profileResponse.value = null
                     Log.e("fetchUser", "Error: ${response.errorBody()?.string()}")
                 }
                 Log.d("ProfileViewModel", "Profile Response Success: ${response.body()}")
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Profile Error: ${e.message}", e)
             }
+        }
+    }
+
+
+
+    fun handleCoinPurchase(productId: String, purchaseToken: String, userUid: String) {
+        viewModelScope.launch {
+            coinRepository.purchase(productId, purchaseToken, userUid)
         }
     }
 

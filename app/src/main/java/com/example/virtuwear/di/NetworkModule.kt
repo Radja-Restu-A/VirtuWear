@@ -1,6 +1,7 @@
 package com.example.virtuwear.di
 
 import com.example.virtuwear.data.service.AuthService
+import com.example.virtuwear.data.service.CoinService
 import com.example.virtuwear.data.service.DoubleGarmentService
 import com.example.virtuwear.data.service.GarmentService
 import com.example.virtuwear.data.service.KlingAiApiService
@@ -84,5 +85,11 @@ object NetworkModule {
     @Singleton
     fun provideTransactionService(@Named("BackendRetrofit") retrofit: Retrofit): TransactionService {
         return retrofit.create(TransactionService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCoinService(@Named("BackendRetrofit") retrofit: Retrofit): CoinService {
+        return retrofit.create(CoinService::class.java)
     }
 }
