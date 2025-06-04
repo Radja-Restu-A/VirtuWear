@@ -39,8 +39,10 @@ import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Refresh
 import com.example.virtuwear.components.PrivacyPolicy
 import com.example.virtuwear.screen.BookmarkScreen
+import com.example.virtuwear.screen.CoinPurchaseScreen
 import com.example.virtuwear.screen.HistoryScreen
 import com.example.virtuwear.screen.GarmentDetailScreen
+import com.example.virtuwear.screen.ShopScreen
 
 
 sealed class Screen(val route: String) {
@@ -53,6 +55,8 @@ sealed class Screen(val route: String) {
     object Download : Screen("download")
     object Bookmark : Screen("bookmark")
     object PrivacyPolicy : Screen("privacyPolicy")
+    object Purchase : Screen("purchase")
+    object Shop : Screen("shop")
 }
 
 // Define bottom navigation items
@@ -139,6 +143,13 @@ fun AppNavHost(isUserLoggedIn: Boolean, startDestination: String) {
                     onDismiss = { navController.popBackStack() }
                 )
             }
+            composable(Screen.Purchase.route) {
+                CoinPurchaseScreen(navController = navController)
+            }
+            composable(Screen.Shop.route) {
+                ShopScreen()
+            }
+
 
             composable(
                 route = "download?garmentType={garmentType}&id={id}",

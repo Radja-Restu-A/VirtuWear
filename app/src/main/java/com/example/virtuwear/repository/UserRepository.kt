@@ -18,5 +18,8 @@ class UserRepository @Inject constructor(
     }
     suspend fun updateTotalGenerate(userId: String) = userService.updateTotalGenerate(userId)
 
+    suspend fun getProfile(userId: String) = userService.getProfile(userId)
+
+
     suspend fun redeemReferralCode(userId: String, redeemedReferral: String) = userService.redeemReferral(userId, redeemedReferral)
 }

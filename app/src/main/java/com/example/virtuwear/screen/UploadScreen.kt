@@ -102,6 +102,7 @@ fun UploadPhotoScreen(
         }
     }
 
+    // Minta permission sama pengguna buat akses directory sama kamera
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -128,6 +129,7 @@ fun UploadPhotoScreen(
         }
     }
 
+    // Image picker launcher dari gallery
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -137,6 +139,7 @@ fun UploadPhotoScreen(
         }
     }
 
+    // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -148,6 +151,7 @@ fun UploadPhotoScreen(
         }
     }
 
+    // Check permissions
     fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
@@ -227,6 +231,7 @@ fun UploadPhotoScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Upload Photo", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
@@ -375,11 +380,36 @@ fun UploadPhotoScreen(
                                 Log.e("TestLog", "Failed to create row: ${response.code()}")
                                 Toast.makeText(context, "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                             }
-                        } catch (e: Exception) {
-                            isLoading = false
-                            Log.e("TestLog", "Upload or save failed: ${e.message}", e)
-                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+
+//                            try {
+//                                val validateResponse = uploadViewModel.validateGenerate(user ?: "")
+//                                if (!validateResponse.isSuccessful) {
+//                                    isLoading = false
+//                                    val errorBody = validateResponse.errorBody()?.string()
+//                                    Log.e("Validation", "Validate failed: $errorBody")
+//                                    Toast.makeText(
+//                                        context,
+//                                        "Cannot generate try-on: ${errorBody ?: "Unknown error"}",
+//                                        Toast.LENGTH_LONG
+//                                    ).show()
+//                                    return@launch
+//                                }
+//                            } catch (e: Exception) {
+//                                isLoading = false
+//                                Log.e("Validation", "Exception: ${e.localizedMessage}")
+//                                Toast.makeText(
+//                                    context,
+//                                    "Network error or insufficient balance: ${e.localizedMessage}",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                                return@launch
+//                            }
+
+                            } catch (e: Exception) {
+                                isLoading = false
+                                Log.e("TestLog", "Upload or save failed: ${e.message}", e)
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 },
                 modifier = Modifier

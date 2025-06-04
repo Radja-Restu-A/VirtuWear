@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,6 +63,11 @@ import com.example.virtuwear.components.StatProfileItem
 import com.example.virtuwear.viewmodel.LoginViewModel
 import com.example.virtuwear.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import android.content.Intent
+import android.net.Uri
 
 
 @Composable
@@ -72,20 +78,22 @@ fun ProfileScreen(
 ) {
     var showError by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val userResponse by profileViewModel.userResponse.collectAsState()
+    val profileResponse by profileViewModel.profileResponse.collectAsState()
     var showPrivacyPolicy by remember { mutableStateOf(false) }
     var showReferralDialog by remember { mutableStateOf(false) }
     val redeemStatus by profileViewModel.redeemCodeStatus.collectAsState()
     var showAlreadyRedeemed by remember { mutableStateOf(false) }
+    var userName: String? = profileViewModel.getUserName()
 
 
+    val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
     LaunchedEffect (Unit) {
-        profileViewModel.getDashboardById()
+        profileViewModel.getUserProfileById()
     }
 
 
-    userResponse?.let { user ->
+    profileResponse?.let { user ->
         Log.d("ProfileScreen", "User data updated: $user")
     } ?: run {
         Log.e("ProfileScreen", "Failed to fetch user data")
@@ -93,9 +101,8 @@ fun ProfileScreen(
 
 
 
-    LaunchedEffect(Unit) {
-        profileViewModel.fetchUser()
-    }
+
+
 
 
     PrivacyPolicy(
@@ -135,7 +142,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(5.dp)
             ) {
                 Text(
-                    text = userResponse?.token?.toString() ?: "Loading Data",
+                    text = profileResponse?.userDto?.coin?.coinBalance?.toString() ?: "Loading Data",
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -147,9 +154,14 @@ fun ProfileScreen(
                 border = BorderStroke(2.dp, Color.Black),
                 modifier = Modifier
                     .size(35.dp)
-                    .background(Color(0xFFF5F5F5)),
-
-                ) {
+                    .background(Color(0xFFF5F5F5))
+                    .clickable {
+                        // Action when the button is clicked
+                        navController.navigate("shop")
+                        println("Cart button clicked")
+                    },
+                color = Color.Transparent
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.ShoppingCart,
                     contentDescription = "Cart",
@@ -158,11 +170,12 @@ fun ProfileScreen(
                         .size(24.dp)
                 )
             }
+
         }
 
         // User name
         Text(
-            text = userResponse?.name ?: "Loading Data",
+            text = userName  ?: "Loading Data",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -179,22 +192,31 @@ fun ProfileScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface (
+            Surface(
                 shape = RoundedCornerShape(5.dp),
                 border = BorderStroke(1.dp, Color.Black),
                 modifier = Modifier.background(Color(0xFFF5F5F5)),
             ) {
                 Text(
-                    text = userResponse?.referral?.referralCode?: "Loading Data",
+                    text = profileResponse?.userDto?.referral?.referralCode ?: "Loading Data",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             Button(
                 onClick = {
+                    val codeToCopy = profileResponse?.userDto?.referral?.referralCode
+                        ?: "Loading Data"
 
+                    clipboardManager.setText(AnnotatedString(codeToCopy))
+
+                    Toast
+                        .makeText(context, "Referral code copied", Toast.LENGTH_SHORT)
+                        .show()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
@@ -212,6 +234,7 @@ fun ProfileScreen(
                 )
             }
         }
+
 
 
 
@@ -264,9 +287,9 @@ fun ProfileScreen(
                 .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatProfileItem(count = userResponse?.referral?.totalUsed?.toString() ?: "Loading Data", label = "Invitation", modifier = Modifier.weight(1f))
-            StatProfileItem(count = userResponse?.totalTryon?.toString() ?: "Loading Data", label = "Total Try on", modifier = Modifier.weight(1f))
-            StatProfileItem(count = userResponse?.totalGenerate?.toString() ?: "Loading Data", label = "Total Generate", modifier = Modifier.weight(1f))
+            StatProfileItem(count = profileResponse?.userDto?.referral?.totalUsed?.toString() ?: "Loading Data", label = "Invitation", modifier = Modifier.weight(1f))
+            StatProfileItem(count = profileResponse?.totalTryOn?.toString() ?: "Loading Data", label = "Total Try on", modifier = Modifier.weight(1f))
+            StatProfileItem(count = profileResponse?.userDto?.totalGenerate?.toString() ?: "Loading Data", label = "Total Generate", modifier = Modifier.weight(1f))
         }
 
         HorizontalDivider(
@@ -284,7 +307,7 @@ fun ProfileScreen(
             icon = Icons.Default.Create,
             title = "Reedem Code",
             onClick = {
-                if (userResponse?.redeemedReferral != null) {
+                if (profileResponse?.userDto?.redeemedReferral != null) {
                     showAlreadyRedeemed = true
                 } else {
                     showReferralDialog = true
@@ -296,7 +319,7 @@ fun ProfileScreen(
             Alert(
                 showDialog = true,
                 onDismiss = { showAlreadyRedeemed = false },
-                title = userResponse?.redeemedReferral.toString(),
+                title = profileResponse?.userDto?.redeemedReferral.toString(),
                 message = "You Already Redeemed A Referral Code",
                 confirmButtonText = "Confirm",
                 onConfirmClick = { showAlreadyRedeemed = false },
@@ -367,7 +390,14 @@ fun ProfileScreen(
                     )
                 }
             },
-            title = "About Us"
+            title = "About Us",
+            onClick = {
+                val url = "https://virtu-wear-landing-page.vercel.app/"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+
+            }
+
         )
 
         AboutUsItem(

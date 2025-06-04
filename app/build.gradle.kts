@@ -122,4 +122,12 @@ dependencies {
 
     // Datastore Onboarding
     implementation (libs.androidx.datastore.preferences.v111)
+
+    // google play billing library
+    val billing_version = "7.1.1"
+
+    implementation("com.android.billingclient:billing:$billing_version")
+
+
+
 }
