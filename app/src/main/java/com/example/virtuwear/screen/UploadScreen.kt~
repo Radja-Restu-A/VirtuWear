@@ -251,12 +251,10 @@ fun UploadPhotoScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
-                    // Model Photo - tetap menggunakan ukuran penuh
                     UploadBox(
                         imageUri = imageUris.getOrNull(0),
                         onUploadClick = { onUploadBoxClick(0) },
-                        teks = "Model Photo",
-                        modifier = Modifier.size(200.dp)
+                        teks = "Model Photo"
                     )
                     Text(text = "PNG    JPG    JPEG    <10MB", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
                     Spacer(modifier = Modifier.height(16.dp))
@@ -275,34 +273,25 @@ fun UploadPhotoScreen(
                 }
                 item {
                     if (selectedGarmentType == "Multiple Garments") {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
+                        Row ()
+                        {
                             UploadBox(
                                 imageUri = imageUris.getOrNull(1),
                                 onUploadClick = { onUploadBoxClick(1) },
-                                teks = "Garment 1",
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f) // Menjaga rasio 1:1 (persegi)
+                                teks = "Garment 1"
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             UploadBox(
                                 imageUri = imageUris.getOrNull(2),
                                 onUploadClick = { onUploadBoxClick(2) },
-                                teks = "Garment 2",
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f) // Menjaga rasio 1:1 (persegi)
+                                teks = "Garment 2"
                             )
                         }
                     } else {
                         UploadBox(
                             imageUri = imageUris.getOrNull(1),
                             onUploadClick = { onUploadBoxClick(1) },
-                            teks = "Garment",
-                            modifier = Modifier.size(200.dp)
+                            teks = "Garment"
                         )
                     }
                 }

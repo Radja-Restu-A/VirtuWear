@@ -1,4 +1,3 @@
-
 package com.example.virtuwear.viewmodel
 
 import android.R
@@ -86,6 +85,7 @@ class UploadViewModel @Inject constructor(
         newSourceList[index] = source
 
         imageUris.value = newList
+        imageUriSources.value = newSourceList // Fixed: Update source list juga
     }
 
     suspend fun uploadImage(context: Context, garmentType: String): List<String?> {
@@ -122,6 +122,8 @@ class UploadViewModel @Inject constructor(
         val uri = imageUris.value.getOrNull(index) ?: return null
         val source = imageUriSources.value.getOrNull(index) ?: "Local"
 
+        Log.d("UploadViewModel", "Processing image at index $index, source: $source, uri: $uri")
+
         return if (source == "History") {
             // Jika dari history, uri sudah berupa URL imgBB, langsung return
             uri.toString()
@@ -137,6 +139,8 @@ class UploadViewModel @Inject constructor(
         val source1 = imageUriSources.value.getOrNull(1) ?: "Local"
         val source2 = imageUriSources.value.getOrNull(2) ?: "Local"
 
+        Log.d("UploadViewModel", "Combining garments - URI1: $uri1 (source: $source1), URI2: $uri2 (source: $source2)")
+
         return withContext(Dispatchers.IO) {
             try {
                 // Download images jika dari history, atau gunakan langsung jika local
@@ -144,9 +148,11 @@ class UploadViewModel @Inject constructor(
                 val bitmap2 = getBitmapFromUriOrUrl(context, uri2, source2)
 
                 if (bitmap1 == null || bitmap2 == null) {
-                    Log.e("UploadViewModel", "Failed to get bitmaps for combining")
+                    Log.e("UploadViewModel", "Failed to get bitmaps for combining - bitmap1: ${bitmap1 != null}, bitmap2: ${bitmap2 != null}")
                     return@withContext null
                 }
+
+                Log.d("UploadViewModel", "Successfully loaded both bitmaps, combining...")
 
                 // Combine images
                 val combinedBitmap = createBitmap(
@@ -169,6 +175,8 @@ class UploadViewModel @Inject constructor(
                     combinedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, it)
                 }
 
+                Log.d("UploadViewModel", "Combined image saved to temp file: ${tempFile.absolutePath}")
+
                 // Upload to imgBB
                 val combinedUri = FileProvider.getUriForFile(
                     context,
@@ -184,10 +192,11 @@ class UploadViewModel @Inject constructor(
                 combinedBitmap.recycle()
                 tempFile.delete()
 
+                Log.d("UploadViewModel", "Combined image uploaded, result: $result")
                 result
 
             } catch (e: Exception) {
-                Log.e("UploadViewModel", "Error combining images: ${e.message}")
+                Log.e("UploadViewModel", "Error combining images: ${e.message}", e)
                 null
             }
         }
@@ -196,19 +205,29 @@ class UploadViewModel @Inject constructor(
     private suspend fun getBitmapFromUriOrUrl(context: Context, uri: Uri, source: String): Bitmap? {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d("UploadViewModel", "Getting bitmap from $source: $uri")
+
                 if (source == "History") {
                     // Download dari URL
                     val url = URL(uri.toString())
-                    val inputStream: InputStream = url.openConnection().getInputStream()
-                    BitmapFactory.decodeStream(inputStream)
+                    val connection = url.openConnection()
+                    connection.connectTimeout = 10000 // 10 seconds timeout
+                    connection.readTimeout = 10000
+                    val inputStream: InputStream = connection.getInputStream()
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream.close()
+                    Log.d("UploadViewModel", "Successfully downloaded bitmap from URL")
+                    bitmap
                 } else {
                     // Load dari local URI
-                    context.contentResolver.openInputStream(uri)?.use {
+                    val bitmap = context.contentResolver.openInputStream(uri)?.use {
                         BitmapFactory.decodeStream(it)
                     }
+                    Log.d("UploadViewModel", "Successfully loaded bitmap from local URI")
+                    bitmap
                 }
             } catch (e: Exception) {
-                Log.e("UploadViewModel", "Error getting bitmap from ${source}: ${e.message}")
+                Log.e("UploadViewModel", "Error getting bitmap from ${source} (URI: $uri): ${e.message}", e)
                 null
             }
         }
@@ -217,6 +236,7 @@ class UploadViewModel @Inject constructor(
     private suspend fun uploadSingleImageToImgBB(context: Context, uri: Uri, apiKey: String): String? {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d("UploadViewModel", "Uploading image to imgBB: $uri")
                 val file = getRealFileFromUri(uri) ?: return@withContext null
                 val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
                 val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
@@ -226,7 +246,7 @@ class UploadViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val urlView = response.body()?.data?.image?.url
                     val fixedViewerUrl = urlView?.replace("https://i.ibb.co", "https://i.ibb.co.com")
-                    Log.d("UploadViewModel", "Image uploaded: $fixedViewerUrl")
+                    Log.d("UploadViewModel", "Image uploaded successfully: $fixedViewerUrl")
                     fixedViewerUrl
                 } else {
                     val errorMsg = response.errorBody()?.string() ?: "Unknown error"
@@ -234,7 +254,7 @@ class UploadViewModel @Inject constructor(
                     null
                 }
             } catch (e: Exception) {
-                Log.e("UploadViewModel", "Upload failed: ${e.message}")
+                Log.e("UploadViewModel", "Upload failed: ${e.message}", e)
                 null
             }
         }
@@ -250,7 +270,7 @@ class UploadViewModel @Inject constructor(
             outputStream.close()
             tempFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("UploadViewModel", "Error creating file from URI: ${e.message}", e)
             null
         }
     }
@@ -284,7 +304,6 @@ class UploadViewModel @Inject constructor(
     suspend fun reduceCoin(userUid: String): Response<TransactionDto> {
         return transactionService.reduceCoin(userUid)
     }
-
 
     suspend fun createGarment(garmentDto: GarmentDto): Result<GarmentDto> {
         return garmentRepository.create(garmentDto)

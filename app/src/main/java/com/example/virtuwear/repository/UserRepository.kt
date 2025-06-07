@@ -22,4 +22,20 @@ class UserRepository @Inject constructor(
 
 
     suspend fun redeemReferralCode(userId: String, redeemedReferral: String) = userService.redeemReferral(userId, redeemedReferral)
+
+    suspend fun deleteUser(userId: String):String{
+        return try{
+            val response = userService.deleteUser(userId)
+            if (response.isSuccessful){
+                Log.d("UserRepository", "success to delete user")
+                "User succesfully deleted"
+            }else{
+                Log.e("UserRepository", "failed to delete user")
+                "User failed to delete"
+            }
+        }catch (e:Exception){
+            Log.e("UserRepository", "error to delete user",e)
+            "Error occurred while deleting user: ${e.message}"
+        }
+    }
 }
