@@ -1,0 +1,16 @@
+package com.example.virtuwear.repository
+
+import com.example.virtuwear.data.model.TryOnModel
+import com.example.virtuwear.data.service.TryOnService
+import javax.inject.Inject
+
+class TryOnRepository @Inject constructor(
+    private val tryOnService: TryOnService
+) {
+    suspend fun getAllByUserId(userId: String) = tryOnService.getAllGarmentByUseriD(userId)
+    suspend fun getAllByUid(uid: Long) = tryOnService.getAllGarmentByid(uid)
+    suspend fun createTryOn(model: TryOnModel) = tryOnService.createTryOn(model)
+    suspend fun updateTryOn(id: Long, model: TryOnModel) = tryOnService.updateTryOn(id, model)
+    suspend fun deleteTryOn(id: Long) = tryOnService.deleteTryOn(id)
+    suspend fun updateOutfitName(id: Long, model: TryOnModel) = tryOnService.updateOutfitName(id, model)
+}

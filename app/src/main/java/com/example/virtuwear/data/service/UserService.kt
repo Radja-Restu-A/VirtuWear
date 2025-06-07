@@ -2,7 +2,9 @@ package com.example.virtuwear.data.service
 
 import com.example.virtuwear.data.model.ProfileResponse
 import com.example.virtuwear.data.model.UserResponse
+import okhttp3.ResponseBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -26,4 +28,7 @@ interface UserService {
         @Path("uid") userId: String,
         @Path("referralCode") redeemedReferral: String
     ): Response<UserResponse>
+
+    @DELETE("api/users/{uid}")
+    suspend fun deleteUser(@Path("uid") userId: String): Response<ResponseBody>
 }

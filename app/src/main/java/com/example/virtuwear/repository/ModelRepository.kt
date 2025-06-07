@@ -30,4 +30,6 @@ class ModelRepository @Inject constructor (
             Result.failure(e)
         }
     }
+
+    suspend fun getAllModelById(id: String) =  service.getAllModelByUserId(id)
 }

@@ -30,4 +30,26 @@ class GarmentRepository @Inject constructor (
             Result.failure(e)
         }
     }
+
+    suspend fun GetAllGarmentByUserId(id: String): Result<List<GarmentDto>> {
+        return try {
+            val response = service.getAllGarmentByUserId(id)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Log.d("GarmentRepo", "Get all garment by user id success: $body")
+                    Result.success(body)
+                } else {
+                    Log.e("GarmentRepo", "Get all garment by user id failed: empty body")
+                    Result.failure(Exception("Empty response body"))
+                }
+            } else {
+                Log.e("GarmentRepo", "Get all garment by user id failed: ${response.code()} - ${response.message()}")
+                Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("GarmentRepo", "Get all garment by user id exception: ${e.localizedMessage}")
+            Result.failure(e)
+        }
+    }
 }

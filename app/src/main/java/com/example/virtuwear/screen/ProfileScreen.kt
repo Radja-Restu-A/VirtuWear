@@ -68,6 +68,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -84,6 +86,8 @@ fun ProfileScreen(
     val redeemStatus by profileViewModel.redeemCodeStatus.collectAsState()
     var showAlreadyRedeemed by remember { mutableStateOf(false) }
     var userName: String? = profileViewModel.getUserName()
+    val coroutineScope = rememberCoroutineScope()
+    var showDeleteAccount by remember { mutableStateOf(false) }
 
 
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
@@ -108,7 +112,8 @@ fun ProfileScreen(
     PrivacyPolicy(
         showPrivacy = showPrivacyPolicy,
         onDismiss = { showPrivacyPolicy = false },
-        onAccept = { }
+        onAccept = { },
+        showCheckboxAndButton = false
     )
 
     Column(
@@ -434,8 +439,39 @@ fun ProfileScreen(
                 }
             },
             title = "Delete Account",
-            onClick = {  }
+            onClick = {
+                if (loginViewModel.getCurrentUser() != null) {
+                    showDeleteAccount = true
+                } else {
+                    Toast.makeText(context, "Cant delete user. Try again later", Toast.LENGTH_SHORT).show()
+                }
+            }
         )
+
+        if(showDeleteAccount){
+            Alert(
+                showDialog = showDeleteAccount,
+                onDismiss = { showDeleteAccount = false },
+                title = "WARNING!",
+                message = "Your generated image can't be recovered after you delete this account",
+                confirmButtonText = "Delete",
+                cancelButtonText = "Cancel",
+                onConfirmClick = {
+                    coroutineScope.launch {
+                        profileViewModel.deleteUserById()
+                    }
+                    navController.navigate("login"){
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                    Toast.makeText(context, "Account deleted", Toast.LENGTH_SHORT).show()
+                },
+                onCancelClick = {showDeleteAccount = false},
+                type = AlertType.CONFIRMATION
+            )
+        }
+
 
         Spacer(modifier = Modifier.weight(1f))
 

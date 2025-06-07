@@ -145,4 +145,20 @@ class SingleGarmentRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun deleteAllByUserId(userId: String):Boolean{
+        return try {
+            val response = service.deleteAllByUserId(userId)
+            if (response.isSuccessful) {
+                Log.d("delete all by user id", "Delete all by userId")
+                true
+            } else {
+                Log.e("delete all by user ido", "Delete all by userId failed: ${response.message()}")
+                false
+            }
+        }catch (e : Exception){
+            Log.e("delete all by user id", "Delete all by userId exception: ${e.localizedMessage}")
+            false
+        }
+    }
 }

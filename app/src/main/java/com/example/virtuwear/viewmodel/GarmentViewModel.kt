@@ -12,6 +12,7 @@ import com.example.virtuwear.data.model.SingleGarmentUpdateBookmark
 import com.example.virtuwear.data.service.DoubleGarmentService
 import com.example.virtuwear.data.service.SingleGarmentService
 import com.example.virtuwear.repository.DoubleGarmentRepository
+import com.example.virtuwear.repository.GarmentRepository
 import com.example.virtuwear.repository.SingleGarmentRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class GarmentViewModel @Inject constructor(
     private val serviceSingle: SingleGarmentService,
     private val singleGarmentRepository: SingleGarmentRepository,
-    private val serviceDouble: DoubleGarmentService
+    private val serviceDouble: DoubleGarmentService,
+    private val garmentRepository: GarmentRepository
 ) : ViewModel() {
 
     // State untuk menyimpan ID item yang di-bookmark

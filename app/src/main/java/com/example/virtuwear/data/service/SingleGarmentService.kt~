@@ -92,9 +92,4 @@ interface SingleGarmentService {
     suspend fun findByCreatedAt(
         @Path("timeMillis") timeMillis: Long
     ): Response<List<SingleGarmentModel>>
-
-    @DELETE("api/single-garments/{uid}")
-    suspend fun deleteAllByUserId(
-        @Path("userId") uid: String
-    ): Response<Boolean>
 }

@@ -148,10 +148,10 @@ class ProfileViewModel @Inject constructor (
         }
     }
 
-    suspend fun deleteUserById(){
+    suspend fun deleteUser(){
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            userRepository.deleteUser(user.uid)
+            userRepository.deleteAllByUserId(user.uid)
             singleGarmentRepository.deleteAllByUserId(user.uid)
         }else {
             Log.e("ProfileViewModel", "User not found")
