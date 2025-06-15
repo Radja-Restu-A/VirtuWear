@@ -118,8 +118,8 @@ fun PrivacyPolicy(
                                 },
                                 enabled = isChecked,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isChecked) Color.Black else Color.Gray,
-                                    contentColor = Color.White
+                                    containrColor = if (isChecked) Color.Black else Color.Gray,
+                                    contentColor
                                 ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterHorizontally)

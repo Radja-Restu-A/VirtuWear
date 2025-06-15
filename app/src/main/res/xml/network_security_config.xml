@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">20.2.155.70</domain>
-<!--        <domain includeSubdomains="true">10.0.2.2</domain> &lt;!&ndash; Ganti dengan IP komputer &ndash;&gt;-->
+<!--        <domain includeSubdomains="true">20.2.155.70</domain>-->
+        <domain includeSubdomains="true">10.0.2.2</domain> <!-- Ganti dengan IP komputer -->
         <domain includeSubdomains="true">localhost</domain>
     </domain-config>
 </network-security-config>

@@ -114,7 +114,6 @@ fun OnBoardingScreen(navController: NavController) {
         ) { page ->
             Text(
                 text = if (page == 1) "To help you try on clothes you want to buy online." else "",
-//                You can also try on multiple outfits simultaneously on e-commerce.
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 color = Color.Gray,
@@ -200,7 +199,6 @@ fun OnBoardingScreen(navController: NavController) {
                     if (currentPage == 1) {
                         currentPage = 2
                     } else if (privacyPolicyAccepted) {
-                        // Only allow navigation to login if privacy policy is accepted
                         scope.launch {
                             onboardingManager.setOnboardingCompleted()
                             navController.navigate("login") {
@@ -210,7 +208,6 @@ fun OnBoardingScreen(navController: NavController) {
                             }
                         }
                     } else {
-                        // Show privacy policy if trying to proceed without accepting
                         showPrivacyPolicy = true
                     }
                 },

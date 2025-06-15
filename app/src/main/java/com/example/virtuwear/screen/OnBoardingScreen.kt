@@ -173,7 +173,7 @@ fun OnBoardingScreen(navController: NavController) {
         ) {
             TextButton(
                 onClick = {
-                    if (currentPage == 1 || privacyPolicyAccepted) {
+                    if (privacyPolicyAccepted) {
                         scope.launch {
                             onboardingManager.setOnboardingCompleted()
                             navController.navigate("login") {
